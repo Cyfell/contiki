@@ -45,7 +45,7 @@
 #include <string.h>
 
 /*---------------------------------------------------------------------------*/
-#define DEBUG 0
+#define DEBUG 1
 #if DEBUG
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
@@ -70,6 +70,7 @@
 #define L2CAP_NODE_FRAG_LEN     255
 #define L2CAP_NODE_INIT_CREDITS   8
 #define L2CAP_CREDIT_THRESHOLD    2
+#define L2CAP_ATT                4
 
 #define L2CAP_FIRST_HEADER_SIZE         6
 #define L2CAP_FIRST_FRAGMENT_SIZE   (L2CAP_NODE_FRAG_LEN - L2CAP_FIRST_HEADER_SIZE)
@@ -189,7 +190,7 @@ init(void)
   NETSTACK_RADIO.set_value(RADIO_PARAM_BLE_ADV_INTERVAL, 0x0800);
   NETSTACK_RADIO.set_value(RADIO_PARAM_BLE_ADV_TYPE, BLE_ADV_DIR_IND_LDC);
   NETSTACK_RADIO.set_value(RADIO_PARAM_BLE_ADV_OWN_ADDR_TYPE, BLE_ADDR_TYPE_PUBLIC);
-  NETSTACK_RADIO.set_value(RADIO_PARAM_BLE_ADV_CHANNEL_MAP, 0x01);
+  NETSTACK_RADIO.set_value(RADIO_PARAM_BLE_ADV_CHANNEL_MAP, 0x02);
 
   adv_data_len = init_adv_data(adv_data);
   scan_resp_data_len = init_scan_resp_data(scan_resp_data);
@@ -393,6 +394,14 @@ send_l2cap_credit()
 }
 /*---------------------------------------------------------------------------*/
 static void
+send_att(){
+
+}
+
+
+/*---------------------------------------------------------------------------*/
+
+static void
 input(void)
 {
   uint8_t *data = (uint8_t *)packetbuf_dataptr();
@@ -414,6 +423,8 @@ input(void)
         send_l2cap_credit();
         l2cap_node.credits += L2CAP_NODE_INIT_CREDITS;
       }
+    }else if (channel_id == L2CAP_ATT){
+      send_att();
     } else {
       PRINTF("ble-mac input: unknown L2CAP channel: %x\n", channel_id);
       return;

@@ -104,6 +104,7 @@ static rf_ticks_t adv_event_next;
 /* CONNECTION                                                                */
 #define CONN_EVENT_NUM_DATA_CHANNELS       37
 #define CONN_EVENT_WINDOW_WIDENING       3000   /* 0.75 ms */
+#define CONN_EVENT_DELAY       5000   /* 1.25 ms */
 
 typedef struct {
   uint8_t initiator_address[6];
@@ -556,7 +557,7 @@ const struct ble_hal_driver ble_hal =
   send_list
 };
 /*---------------------------------------------------------------------------*/
-/* The parameter are parsed according to Bluetooth Specification v4 (page 2510)*/
+/* The parameter are parsed according to Bluetooth Specification v4 (page 2206) v4.2 (page 2587)*/
 static void
 parse_connect_request_data(ble_conn_param_t *p, uint8_t *entry)
 {
@@ -683,16 +684,21 @@ state_advertising(process_event_t ev, process_data_t data,
       rf_ble_cmd_create_adv_cmd(cmd, BLE_ADV_CHANNEL_1, param, output);
       rf_ble_cmd_send(cmd);
       rf_ble_cmd_wait(cmd);
+      PRINTF("ADV CHANNEL 1\n");
     }
     if(adv_param.channel_map & BLE_ADV_CHANNEL_2_MASK) {
+
       rf_ble_cmd_create_adv_cmd(cmd, BLE_ADV_CHANNEL_2, param, output);
       rf_ble_cmd_send(cmd);
       rf_ble_cmd_wait(cmd);
+      PRINTF("ADV CHANNEL 2\n");
     }
     if(adv_param.channel_map & BLE_ADV_CHANNEL_3_MASK) {
+
       rf_ble_cmd_create_adv_cmd(cmd, BLE_ADV_CHANNEL_3, param, output);
       rf_ble_cmd_send(cmd);
       rf_ble_cmd_wait(cmd);
+      PRINTF("ADV CHANNEL 3\n");
     }
     /* set timer interrupt for next advertising event */
     adv_event_next = adv_event_next + adv_param.interval;
@@ -703,6 +709,11 @@ state_advertising(process_event_t ev, process_data_t data,
     if(entry->status != DATA_ENTRY_FINISHED) {
       return;
     }
+
+    //test
+    /*for(int i=0;i<45;i++){
+      PRINTF("Data %d : 0x%x\n",i,current_rx_entry[i]);
+    }*/
 
     if((current_rx_entry[9] & 0x0F) == 5) {
       /* CONN REQ received */
@@ -724,9 +735,10 @@ state_advertising(process_event_t ev, process_data_t data,
       conn_event.counter = 0;
       conn_event.unmapped_channel = 0;
       update_data_channel();
-      first_conn_event_anchor = conn_param.timestamp + conn_param.win_offset;
+      first_conn_event_anchor = conn_param.timestamp + conn_param.win_offset + CONN_EVENT_DELAY;
 
       if(conn_param.win_offset <= 60000) {
+        //printf("too early");
         /* in this case the first anchor point starts too early,
          * ignore the first conn event and start with the 2nd */
         conn_event.counter++;
@@ -753,7 +765,7 @@ state_advertising(process_event_t ev, process_data_t data,
         set_adv_enable(1);
         return;
       }
-
+      //PRINTF("init connection\n");
       /* setup timer interrupt for first connection event */
       conn_event.next_start = first_conn_event_anchor + conn_param.interval;
 
@@ -780,6 +792,7 @@ process_ll_ctrl_msg(uint8_t *data)
   uint16_t i;
 
   if(op_code == BLE_LL_CHANNEL_MAP_REQ) {
+    PRINTF("Map request\n");
     memcpy(&channel_map, &data[1], 5);
     memcpy(&instant, &data[6], 2);
 
@@ -793,10 +806,12 @@ process_ll_ctrl_msg(uint8_t *data)
       }
     }
   } else if(op_code == BLE_LL_FEATURE_REQ) {
+    PRINTF("feature request\n");
     resp_data[0] = BLE_LL_FEATURE_RSP;
     memset(&resp_data[1], 0x00, 8);
     resp_len = 9;
   } else if(op_code == BLE_LL_VERSION_IND) {
+    PRINTF("Version ind\n");
     resp_data[0] = BLE_LL_VERSION_IND;
     resp_data[1] = BLE_VERSION_NR;
     resp_data[2] = (BLE_COMPANY_ID >> 8) & 0xFF;
@@ -840,6 +855,8 @@ process_rx_entry_data_channel(void)
     return;
   }
 
+  PRINTF("Data de type : %x\n",entry->config.type);
+
   while(entry->status == DATA_ENTRY_FINISHED) {
     /* the last 6 bytes of the data are status and timestamp bytes */
     data_len = current_rx_entry[8] - 6 - 2;
@@ -850,10 +867,12 @@ process_rx_entry_data_channel(void)
 
       /* process the received data */
       if(frame_type == BLE_DATA_PDU_LLID_CONTROL) {
+        PRINTF("received control LL\n");
         /* received frame is a LL control frame */
         /* exclude the header (first 2 bytes) */
         process_ll_ctrl_msg(&current_rx_entry[data_offset + 2]);
       } else if(frame_type == BLE_DATA_PDU_LLID_DATA_MESSAGE) {
+        PRINTF("received DATA LL\n");
         /* message start or complete message */
         packetbuf_clear();
         memcpy(packetbuf_dataptr(), &current_rx_entry[data_offset + 2], data_len);
@@ -871,6 +890,7 @@ process_rx_entry_data_channel(void)
         }
       } else if(frame_type == BLE_DATA_PDU_LLID_DATA_FRAGMENT) {
         /* message fragment */
+        PRINTF("received fragment LL\n");
         memcpy((packetbuf_dataptr() + packetbuf_datalen()),
                &current_rx_entry[data_offset + 2], data_len);
         packetbuf_set_datalen(packetbuf_datalen() + data_len);
@@ -936,15 +956,17 @@ state_conn_slave(process_event_t ev, process_data_t data,
                                 output,
                                 (conn_event.start - conn_param.window_widening));
 
+
     if(rf_ble_cmd_send(cmd) != RF_BLE_CMD_OK) {
       PRINTF("connection error; event counter: %u\n", conn_event.counter);
     }
-
+    PRINTF("Slave command\n");
     /* calculate next anchor point*/
     conn_event.next_start = conn_event.start + conn_param.interval;
-  } else if(ev == rf_core_data_rx_event) {
+  } else
+  if(ev == rf_core_data_rx_event) {
     process_rx_entry_data_channel();
-  }
+   }
 }
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(ble_hal_process, ev, data)
