@@ -67,7 +67,7 @@
 #include <stdio.h>
 #include <string.h>
 /*---------------------------------------------------------------------------*/
-#define DEBUG 0
+#define DEBUG 1
 #if DEBUG
 #define PRINTF(...) printf(__VA_ARGS__)
 #else
@@ -137,6 +137,7 @@ rf_core_send_cmd(uint32_t cmd, uint32_t *status)
   uint32_t timeout_count = 0;
   bool interrupts_disabled;
   bool is_radio_op = false;
+  PRINTF("Send command :");
 
   /*
    * If cmd is 4-byte aligned, then it's either a radio OP or an immediate
@@ -454,6 +455,7 @@ rf_core_start_timer_comp(uint32_t time)
     PRINTF("rf_core_start_timer_comp: CMDSTA=0x%08lx\n", cmd_status);
     return RF_CORE_CMD_ERROR;
   }
+  PRINTF("start timer\n");
   return RF_CORE_CMD_OK;
 }
 /*---------------------------------------------------------------------------*/
@@ -640,6 +642,7 @@ cc26xx_rf_cpe0_isr(void)
       return;
     }
   }
+  //printf("check\n");
 
   ti_lib_int_master_disable();
 
@@ -647,6 +650,7 @@ cc26xx_rf_cpe0_isr(void)
     /* Clear the RX_ENTRY_DONE interrupt flag */
     HWREG(RFC_DBELL_NONBUF_BASE + RFC_DBELL_O_RFCPEIFG) = 0xFF7FFFFF;
     process_post(PROCESS_BROADCAST, rf_core_data_rx_event, NULL);
+    PRINTF ("\ndata received\n");
   }
 
   if(HWREG(RFC_DBELL_NONBUF_BASE + RFC_DBELL_O_RFCPEIFG) & COMMAND_IRQ) {
