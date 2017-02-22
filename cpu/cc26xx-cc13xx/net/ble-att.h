@@ -31,52 +31,6 @@
  *
  */
 /*---------------------------------------------------------------------------*/
+#include <stdint.h>
 
-#include "ble-att.h"
-#include <stdio.h>
-#include "net/netstack.h"
-#include "net/packetbuf.h"
-
-#define L2CAP_ATT_CHANNEL           0x04
-
-#define ATT_MTU_REQUEST             0x02
-#define ATT_MTU_RESPONSE            0x03
-#define ATT_MTU_RESPONSE_LEN        0x03
-
-void send_mtu_resp(){
-
-  uint8_t data[ATT_MTU_RESPONSE_LEN];
-
-  data[0]= ATT_MTU_RESPONSE;
-
-  /* Server Rx MTU */
-  data[1]=0x17;
-  data[2]=0x00;
-
-  packetbuf_copyfrom((void *)data, 3);
-  NETSTACK_MAC.send(NULL, NULL);
-}
-
-
-void input_att(/*uint8_t *data, uint16_t data_len*/){
-  /*switch (data[1]){
-    case ATT_MTU_REQUEST:
-      send_mtu_resp();
-      break;
-    default :
-      printf("Opcode number 0x%x not available", data[1]);
-      break;
-  }*/
-  printf("coucou\n");
-}
-
-static void init(void){
-
-}
-
-const struct network_driver gatt_driver =
-{
-  "gatt_driver",
-  .init = init,
-  .input = input_att,
-};
+//void input_att(/*uint8_t *data, uint16_t data_len);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Arthur Courtel
+ * Copyright (c) 2017, Arthur Courtel
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,52 +31,33 @@
  *
  */
 /*---------------------------------------------------------------------------*/
+#ifndef PROJECT_CONF_H_
+#define PROJECT_CONF_H_
+/*---------------------------------------------------------------------------*/
+/* Disable button shutdown functionality */
+#define BUTTON_SENSOR_CONF_ENABLE_SHUTDOWN    0
+/*---------------------------------------------------------------------------*/
+/* Change to match your configuration */
+#define BOARD_CONF_DEBUGGER_DEVPACK           1
 
-#include "ble-att.h"
-#include <stdio.h>
-#include "net/netstack.h"
-#include "net/packetbuf.h"
+#define STARTUP_CONF_VERBOSE 1
+/*---------------------------------------------------------------------------*/
+/* network stack settings */
+#define PACKETBUF_CONF_SIZE                  1280
+#define QUEUEBUF_CONF_NUM                       1
+#define UIP_CONF_BUFFER_SIZE                 1280
 
-#define L2CAP_ATT_CHANNEL           0x04
+/* radio settings */
+#define NETSTACK_CONF_RADIO             ble_mode_driver
 
-#define ATT_MTU_REQUEST             0x02
-#define ATT_MTU_RESPONSE            0x03
-#define ATT_MTU_RESPONSE_LEN        0x03
+/* RDC settings */
+#define NETSTACK_CONF_RDC               nullrdc_noframer_driver
 
-void send_mtu_resp(){
+/* MAC settings */
+#define NETSTACK_CONF_MAC               ble_mac_driver
 
-  uint8_t data[ATT_MTU_RESPONSE_LEN];
-
-  data[0]= ATT_MTU_RESPONSE;
-
-  /* Server Rx MTU */
-  data[1]=0x17;
-  data[2]=0x00;
-
-  packetbuf_copyfrom((void *)data, 3);
-  NETSTACK_MAC.send(NULL, NULL);
-}
-
-
-void input_att(/*uint8_t *data, uint16_t data_len*/){
-  /*switch (data[1]){
-    case ATT_MTU_REQUEST:
-      send_mtu_resp();
-      break;
-    default :
-      printf("Opcode number 0x%x not available", data[1]);
-      break;
-  }*/
-  printf("coucou\n");
-}
-
-static void init(void){
-
-}
-
-const struct network_driver gatt_driver =
-{
-  "gatt_driver",
-  .init = init,
-  .input = input_att,
-};
+/* Network driver */
+#define NETSTACK_CONF_NETWORK           gatt_driver
+/*---------------------------------------------------------------------------*/
+#endif /* PROJECT_CONF_H_ */
+/*---------------------------------------------------------------------------*/

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Arthur Courtel
+ * Copyright (c) 2017,Arthur Courtel
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,52 +31,39 @@
  *
  */
 /*---------------------------------------------------------------------------*/
+#include "contiki.h"
+#include "contiki-net.h"
+#include "dev/leds.h"
 
-#include "ble-att.h"
 #include <stdio.h>
-#include "net/netstack.h"
-#include "net/packetbuf.h"
+/*---------------------------------------------------------------------------*/
+#define CLIENT_PORT     61617
+#define SERVER_ADDR     "aaaa::1"
+/*#define SERVER_ADDR     "fe80::21a:7dff:feda:7114" */
+#define SERVER_PORT     61616
 
-#define L2CAP_ATT_CHANNEL           0x04
+#define ECHO_INTERVAL   (1 * CLOCK_SECOND)
+#define SEND_INTERVAL   (1 * CLOCK_SECOND)
 
-#define ATT_MTU_REQUEST             0x02
-#define ATT_MTU_RESPONSE            0x03
-#define ATT_MTU_RESPONSE_LEN        0x03
+#define TEST_PAYLOAD    "IPv6 over BLE message from TI SensorTag"
+/*---------------------------------------------------------------------------*/
+ static struct etimer timer;
 
-void send_mtu_resp(){
+ PROCESS(ble_gatt_demo_process, "BLE gatt demo process");
+ AUTOSTART_PROCESSES(&ble_gatt_demo_process);
 
-  uint8_t data[ATT_MTU_RESPONSE_LEN];
-
-  data[0]= ATT_MTU_RESPONSE;
-
-  /* Server Rx MTU */
-  data[1]=0x17;
-  data[2]=0x00;
-
-  packetbuf_copyfrom((void *)data, 3);
-  NETSTACK_MAC.send(NULL, NULL);
-}
-
-
-void input_att(/*uint8_t *data, uint16_t data_len*/){
-  /*switch (data[1]){
-    case ATT_MTU_REQUEST:
-      send_mtu_resp();
-      break;
-    default :
-      printf("Opcode number 0x%x not available", data[1]);
-      break;
-  }*/
-  printf("coucou\n");
-}
-
-static void init(void){
-
-}
-
-const struct network_driver gatt_driver =
+PROCESS_THREAD(ble_gatt_demo_process, ev, data)
 {
-  "gatt_driver",
-  .init = init,
-  .input = input_att,
-};
+  PROCESS_BEGIN();
+  printf("BLE gatt demo process started\n");
+  leds_on(LEDS_GREEN);
+
+   do {
+     etimer_set(&timer, ECHO_INTERVAL);
+     PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&timer));
+} while(1);
+
+
+  PROCESS_END();
+}
+/*---------------------------------------------------------------------------*/
