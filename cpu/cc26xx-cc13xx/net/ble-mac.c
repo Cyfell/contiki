@@ -73,7 +73,7 @@
 #define L2CAP_NODE_FRAG_LEN     255
 #define L2CAP_NODE_INIT_CREDITS   8
 #define L2CAP_CREDIT_THRESHOLD    2
-#define L2CAP_ATT                 4
+#define L2CAP_ATT_CHANNEL         4
 
 #define L2CAP_FIRST_HEADER_SIZE         4
 #define L2CAP_FIRST_FRAGMENT_SIZE   (L2CAP_NODE_FRAG_LEN - L2CAP_FIRST_HEADER_SIZE)
@@ -100,15 +100,11 @@ typedef struct {
   /* index of the first byte not sent yet */
   uint16_t current_index;
   /* SDU CID */
-  uint8_t cid;
+  uint16_t cid;
 } l2cap_buffer_t;
 
 static l2cap_buffer_t tx_buffer;
 static l2cap_buffer_t rx_buffer;
-
-/*extern struct l2cap_drivers_s gatt_driver;
-char tabindex[0x7F];
-struct l2cap_drivers_s mydriverslist[1];*/
 
 /*---------------------------------------------------------------------------*/
 PROCESS(ble_mac_process, "BLE MAC process");
@@ -211,12 +207,6 @@ init(void)
 
   /* enable advertisement */
   NETSTACK_RADIO.set_value(RADIO_PARAM_BLE_ADV_ENABLE, 1);
-
-  // memset(tabindex, -1, sizeof(tabindex));
-  // int id = 0;
-  // tabindex[0x04] = id;
-  // mydriverslist[id] = gatt_driver;
-
   NETSTACK_MAC.on();
 }
 /*---------------------------------------------------------------------------*/
@@ -240,6 +230,7 @@ send(mac_callback_t sent_callback, void *ptr)
   PRINTF("ble_mac send() sending %d bytes\n", data_len);
 
   tx_buffer.sdu_length = data_len;
+  tx_buffer.cid = (uint16_t) packetbuf_attr(PACKETBUF_ATTR_CHANNEL);
   memcpy(tx_buffer.sdu, packetbuf_dataptr(), data_len);
 
   mac_call_sent_callback(sent_callback, ptr, MAC_TX_DEFERRED, 1);
@@ -298,7 +289,6 @@ l2cap_conn_req(uint8_t *data)
   memset(&resp_data[16], 0x00, 2);
 
   packetbuf_copyfrom((void *)resp_data, 18);
-  //tx_buffer.mutex = 1;
   tx_buffer.cid = 0x05;
   tx_buffer.sdu_length = 14;
   memcpy(tx_buffer.sdu, resp_data + 4, 14);
@@ -413,6 +403,21 @@ send_l2cap_credit()
   NETSTACK_RDC.send(NULL, NULL);
 }
 /*---------------------------------------------------------------------------*/
+static void
+l2cap_frame_att_channel(uint8_t* data, uint8_t data_len)
+{
+  if(data_len < 4) {
+    PRINTF("l2cap_frame: illegal L2CAP frame data_len: %d\n", data_len);
+    /* a L2CAP frame has a minimum length of 4 */
+    return;
+  }
+  /* Prepare packetbuffer with ATT datas */
+  memcpy(packetbuf_dataptr(), &data[4], data_len-4);
+  packetbuf_set_datalen(data_len-4);
+
+  packetbuf_set_attr(PACKETBUF_ATTR_CHANNEL, L2CAP_ATT_CHANNEL);
+  NETSTACK_LLSEC.input();
+}
 
 static void
 input(void)
@@ -436,14 +441,10 @@ input(void)
         send_l2cap_credit();
         l2cap_node.credits += L2CAP_NODE_INIT_CREDITS;
       }
-    }else if (channel_id == L2CAP_ATT) {
+    }else if (channel_id == L2CAP_ATT_CHANNEL) {
+      l2cap_frame_att_channel(data, len);
 
-      NETSTACK_LLSEC.input();
-    }
-    // } else if (channel_id < 0x80 && tabindex[channel_id] >= 0) {
-    //   if (mydriverslist[tabindex[channel_id]].input() > 0)
-    //     tx_buffer.cid = channel_id;
-     else {
+    }else {
      PRINTF("ble-mac input: unknown L2CAP channel: %x\n", channel_id);
      return;
     }
@@ -475,11 +476,6 @@ const struct mac_driver ble_mac_driver = {
   off,
   NULL,
 };
-
-/*void end_transmission(void *ptr, int status, int transmissions)
-{
-  tx_buffer.cid = l2cap_node.cid;
-}*/
 static struct etimer l2cap_timer;
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(ble_mac_process, ev, data)
@@ -507,11 +503,12 @@ PROCESS_THREAD(ble_mac_process, ev, data)
           /* length of the payload transmitted by this fragment */
           data_len = MIN(tx_buffer.sdu_length, L2CAP_FIRST_FRAGMENT_SIZE);
           frame_len = data_len;
+
+          /* Copy len */
           memcpy(packetbuf_hdrptr(), &frame_len, 2);
-          uint8_t *ptr = (uint8_t*) packetbuf_hdrptr();
-          ptr[2]=tx_buffer.cid;
-          ptr[3]=0x00;
-          //memcpy(packetbuf_hdrptr() + 4, &tx_buffer.sdu_length, 2);
+
+          /* Service CID */
+          memcpy(packetbuf_hdrptr() + 2, &tx_buffer.cid, 2);
 
           /* copy payload */
           memcpy(packetbuf_dataptr(), tx_buffer.sdu, data_len);

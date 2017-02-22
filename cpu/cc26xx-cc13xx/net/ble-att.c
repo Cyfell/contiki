@@ -40,34 +40,41 @@
 #define L2CAP_ATT_CHANNEL           0x04
 
 #define ATT_MTU_REQUEST             0x02
-#define ATT_MTU_RESPONSE            0x03
+//#define ATT_MTU_RESPONSE            0x03
 #define ATT_MTU_RESPONSE_LEN        0x03
 
 void send_mtu_resp(){
 
   uint8_t data[ATT_MTU_RESPONSE_LEN];
 
-  data[0]= ATT_MTU_RESPONSE;
+  data[0]= ATT_MTU_RESPONSE_LEN;
 
   /* Server Rx MTU */
   data[1]=0x17;
   data[2]=0x00;
-
-  packetbuf_copyfrom((void *)data, 3);
+  memcpy(packetbuf_dataptr(), data,ATT_MTU_RESPONSE_LEN);
+  packetbuf_set_datalen(ATT_MTU_RESPONSE_LEN);
+  //packetbuf_copyfrom((void *)data, 3);
   NETSTACK_MAC.send(NULL, NULL);
 }
 
 
-void input_att(/*uint8_t *data, uint16_t data_len*/){
-  /*switch (data[1]){
+void input_att(void){
+
+  uint8_t *data = (uint8_t *)packetbuf_dataptr();
+  //uint8_t len = packetbuf_datalen();
+  // while (--len>0){
+  //   printf("Data : 0x%x", *data++);
+  //
+  // }/*
+  switch (data[0]){
     case ATT_MTU_REQUEST:
       send_mtu_resp();
       break;
     default :
       printf("Opcode number 0x%x not available", data[1]);
       break;
-  }*/
-  printf("coucou\n");
+  }
 }
 
 static void init(void){
