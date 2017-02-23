@@ -33,86 +33,17 @@
 /*---------------------------------------------------------------------------*/
 
 #include "ble-att.h"
-#include <stdio.h>
 #include "net/netstack.h"
 #include "net/packetbuf.h"
 
-#define L2CAP_ATT_CHANNEL                 0x04
+#define DEBUG 1
+#if DEBUG
+#include <stdio.h>
+#define PRINTF(...) printf(__VA_ARGS__)
+#endif
 
 /*---------------------------------------------------------------------------*/
-/* opcode from spec v4.2 p 2201 and v5 p2211 */
-#define ATT_ERROR_RESPONSE                0x01 /* IMPLEMENTED*/
 
-#define ATT_MTU_REQUEST                   0x02 /* IMPLEMENTED*/
-#define ATT_MTU_RESPONSE                  0x03 /* IMPLEMENTED*/
-
-#define ATT_INFORMATION_REQUEST           0x04 /* NOT IMPLEMENTED*/
-#define ATT_INFORMATION_RESPONSE          0x05 /* NOT IMPLEMENTED*/
-
-#define ATT_FIND_INFO_BY_TYPE_REQUEST     0x06 /* NOT IMPLEMENTED*/
-#define ATT_FIND_INFO_BY_TYPE_RESPONSE    0x07 /* NOT IMPLEMENTED*/
-
-#define ATT_READ_BY_TYPE_REQUEST          0x08 /* NOT IMPLEMENTED*/
-#define ATT_READ_BY_TYPE_RESPONSE         0x09 /* NOT IMPLEMENTED*/
-
-#define ATT_READ_REQUEST                  0x0A /* NOT IMPLEMENTED*/
-#define ATT_READ_RESPONSE                 0x0B /* NOT IMPLEMENTED*/
-
-#define ATT_READ_BLOB_REQUEST             0x0C /* NOT IMPLEMENTED*/
-#define ATT_READ_BLOB_RESPONSE            0x0D /* NOT IMPLEMENTED*/
-
-#define ATT_READ_MULTIPLE_REQUEST         0x0E /* NOT IMPLEMENTED*/
-#define ATT_READ_MULTIPLE_RESPONSE        0x0F /* NOT IMPLEMENTED*/
-
-#define ATT_READ_BY_GROUP_TYPE_REQUEST    0x10 /* NOT IMPLEMENTED*/
-#define ATT_READ_BY_GROUP_TYPE_RESPONSE   0x11 /* NOT IMPLEMENTED*/
-
-#define ATT_WRITE_REQUEST                 0x12 /* NOT IMPLEMENTED*/
-#define ATT_WRITE_RESPONSE                0x13 /* NOT IMPLEMENTED*/
-
-#define ATT_WRITE_COMMAND_REQUEST         0x52 /* NOT IMPLEMENTED*/
-
-#define ATT_PREPARE_WRITE_REQUEST         0x16 /* NOT IMPLEMENTED*/
-#define ATT_PREPARE_WRITE_RESPONSE        0x17 /* NOT IMPLEMENTED*/
-
-#define ATT_EXECUTE_WRITE_REQUEST         0x18 /* NOT IMPLEMENTED*/
-#define ATT_EXECUTE_WRITE_RESPONSE        0x19 /* NOT IMPLEMENTED*/
-
-#define ATT_HANDLE_VALUE_NOTIFICATION     0x1B /* NOT IMPLEMENTED*/
-#define ATT_HANDLE_VALUE_INDICATION       0x1D /* NOT IMPLEMENTED*/
-#define ATT_HANDLE_VALUE_CONFIRMATION     0x1E /* NOT IMPLEMENTED*/
-
-#define ATT_SIGNED_WRITE_COMMAND          0xD2 /* NOT IMPLEMENTED*/
-/*---------------------------------------------------------------------------*/
-
-#define ATT_MTU_RESPONSE_LEN              0x03
-#define ATT_ERROR_RESPONSE_LEN            0x05
-
-#define ATT_MTU                           0x17
-
-/*---------------------------------------------------------------------------*/
-enum {
-  INVALID_HANDLE=1,
-  READ_NOT_PERMITTED,
-  WRITE_NOT_PERMITTED,
-  INVALID_PDU,
-  INSUFFICIENT_AUTHENTICATION,
-  REQUEST_NOT_SUPPORTED,
-  INVALID_OFFSET,
-  INSUFFICIENT_AUTHORIZATION,
-  PREPARE_QUEUE_FULL,
-  ATTRIBUTE_NOT_FOUND,
-  ATTRIBUTE_NOT_LONG,
-  INSUFFICIENT_ENCRYPTION_KEY_SIZE,
-  INVALID_ATTRIBUTE_VALUE_LENGTH,
-  UNLIKELY_ERROR,
-  INSUFFICIENT_ENCRYPTION,
-  UNSUPPORTED_GROUPE_TYPE,
-  INSUFFICIENT_RESOURCES
-};
-//enum error_code error;
-
-/*---------------------------------------------------------------------------*/
 static void send_mtu_resp(){
 
   uint8_t data[ATT_MTU_RESPONSE_LEN];
@@ -148,17 +79,68 @@ static void send_error_resp(uint8_t* opcode, uint8_t error)
 }
 
 /*---------------------------------------------------------------------------*/
+const char *error(uint8_t status)
+{
+	switch (status)  {
+	case ATT_ECODE_INVALID_HANDLE:
+		return "Invalid handle";
+	case ATT_ECODE_READ_NOT_PERM:
+		return "Attribute can't be read";
+	case ATT_ECODE_WRITE_NOT_PERM:
+		return "Attribute can't be written";
+	case ATT_ECODE_INVALID_PDU:
+		return "Attribute PDU was invalid";
+	case ATT_ECODE_AUTHENTICATION:
+		return "Attribute requires authentication before read/write";
+	case ATT_ECODE_REQ_NOT_SUPP:
+		return "Server doesn't support the request received";
+	case ATT_ECODE_INVALID_OFFSET:
+		return "Offset past the end of the attribute";
+	case ATT_ECODE_AUTHORIZATION:
+		return "Attribute requires authorization before read/write";
+	case ATT_ECODE_PREP_QUEUE_FULL:
+		return "Too many prepare writes have been queued";
+	case ATT_ECODE_ATTR_NOT_FOUND:
+		return "No attribute found within the given range";
+	case ATT_ECODE_ATTR_NOT_LONG:
+		return "Attribute can't be read/written using Read Blob Req";
+	case ATT_ECODE_INSUFF_ENCR_KEY_SIZE:
+		return "Encryption Key Size is insufficient";
+	case ATT_ECODE_INVAL_ATTR_VALUE_LEN:
+		return "Attribute value length is invalid";
+	case ATT_ECODE_UNLIKELY:
+		return "Request attribute has encountered an unlikely error";
+	case ATT_ECODE_INSUFF_ENC:
+		return "Encryption required before read/write";
+	case ATT_ECODE_UNSUPP_GRP_TYPE:
+		return "Attribute type is not a supported grouping attribute";
+	case ATT_ECODE_INSUFF_RESOURCES:
+		return "Insufficient Resources to complete the request";
+	case ATT_ECODE_IO:
+		return "Internal application error: I/O";
+	case ATT_ECODE_TIMEOUT:
+		return "A timeout occured";
+	case ATT_ECODE_ABORTED:
+		return "The operation was aborted";
+	default:
+		return "Unexpected error code";
+	}
+}
+/*---------------------------------------------------------------------------*/
 static void input(void){
 
   uint8_t *data = (uint8_t *)packetbuf_dataptr();
   //uint8_t len = packetbuf_datalen();
+
   switch (data[0]){
     case ATT_MTU_REQUEST:
       send_mtu_resp();
       break;
+    case ATT_ERROR_RESPONSE:
+        PRINTF("%s", error(data[4]));
+      break;
     default :
-
-      send_error_resp(data, REQUEST_NOT_SUPPORTED);
+      send_error_resp(data, ATT_ECODE_REQ_NOT_SUPP);
       break;
   }
 }

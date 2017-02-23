@@ -31,6 +31,67 @@
  *
  */
 /*---------------------------------------------------------------------------*/
+/* opcode from spec v4.2 p 2201 and v5 p2211 */
+#define ATT_ERROR_RESPONSE                0x01 /* IMPLEMENTED*/
+#define ATT_MTU_REQUEST                   0x02 /* IMPLEMENTED*/
+#define ATT_MTU_RESPONSE                  0x03 /* IMPLEMENTED*/
+#define ATT_INFORMATION_REQUEST           0x04 /* NOT IMPLEMENTED*/
+#define ATT_INFORMATION_RESPONSE          0x05 /* NOT IMPLEMENTED*/
+#define ATT_FIND_INFO_BY_TYPE_REQUEST     0x06 /* NOT IMPLEMENTED*/
+#define ATT_FIND_INFO_BY_TYPE_RESPONSE    0x07 /* NOT IMPLEMENTED*/
+#define ATT_READ_BY_TYPE_REQUEST          0x08 /* NOT IMPLEMENTED*/
+#define ATT_READ_BY_TYPE_RESPONSE         0x09 /* NOT IMPLEMENTED*/
+#define ATT_READ_REQUEST                  0x0A /* NOT IMPLEMENTED*/
+#define ATT_READ_RESPONSE                 0x0B /* NOT IMPLEMENTED*/
+#define ATT_READ_BLOB_REQUEST             0x0C /* NOT IMPLEMENTED*/
+#define ATT_READ_BLOB_RESPONSE            0x0D /* NOT IMPLEMENTED*/
+#define ATT_READ_MULTIPLE_REQUEST         0x0E /* NOT IMPLEMENTED*/
+#define ATT_READ_MULTIPLE_RESPONSE        0x0F /* NOT IMPLEMENTED*/
+#define ATT_READ_BY_GROUP_TYPE_REQUEST    0x10 /* NOT IMPLEMENTED*/
+#define ATT_READ_BY_GROUP_TYPE_RESPONSE   0x11 /* NOT IMPLEMENTED*/
+#define ATT_WRITE_REQUEST                 0x12 /* NOT IMPLEMENTED*/
+#define ATT_WRITE_RESPONSE                0x13 /* NOT IMPLEMENTED*/
+#define ATT_WRITE_COMMAND_REQUEST         0x52 /* NOT IMPLEMENTED*/
+#define ATT_PREPARE_WRITE_REQUEST         0x16 /* NOT IMPLEMENTED*/
+#define ATT_PREPARE_WRITE_RESPONSE        0x17 /* NOT IMPLEMENTED*/
+#define ATT_EXECUTE_WRITE_REQUEST         0x18 /* NOT IMPLEMENTED*/
+#define ATT_EXECUTE_WRITE_RESPONSE        0x19 /* NOT IMPLEMENTED*/
+#define ATT_HANDLE_VALUE_NOTIFICATION     0x1B /* NOT IMPLEMENTED*/
+#define ATT_HANDLE_VALUE_INDICATION       0x1D /* NOT IMPLEMENTED*/
+#define ATT_HANDLE_VALUE_CONFIRMATION     0x1E /* NOT IMPLEMENTED*/
+#define ATT_SIGNED_WRITE_COMMAND          0xD2 /* NOT IMPLEMENTED*/
+/*---------------------------------------------------------------------------*/
+/* Error codes for Error response PDU */
+#define ATT_ECODE_INVALID_HANDLE		      0x01
+#define ATT_ECODE_READ_NOT_PERM			      0x02
+#define ATT_ECODE_WRITE_NOT_PERM	       	0x03
+#define ATT_ECODE_INVALID_PDU		         	0x04
+#define ATT_ECODE_AUTHENTICATION	       	0x05
+#define ATT_ECODE_REQ_NOT_SUPP		      	0x06
+#define ATT_ECODE_INVALID_OFFSET	       	0x07
+#define ATT_ECODE_AUTHORIZATION		       	0x08
+#define ATT_ECODE_PREP_QUEUE_FULL	       	0x09
+#define ATT_ECODE_ATTR_NOT_FOUND	       	0x0A
+#define ATT_ECODE_ATTR_NOT_LONG		       	0x0B
+#define ATT_ECODE_INSUFF_ENCR_KEY_SIZE		0x0C
+#define ATT_ECODE_INVAL_ATTR_VALUE_LEN		0x0D
+#define ATT_ECODE_UNLIKELY		          	0x0E
+#define ATT_ECODE_INSUFF_ENC		        	0x0F
+#define ATT_ECODE_UNSUPP_GRP_TYPE	      	0x10
+#define ATT_ECODE_INSUFF_RESOURCES	     	0x11
+/*---------------------------------------------------------------------------*/
+/* Application error */
+#define ATT_ECODE_IO				0x80
+#define ATT_ECODE_TIMEOUT			0x81
+#define ATT_ECODE_ABORTED			0x82
+/*---------------------------------------------------------------------------*/
+
+#define ATT_MTU_RESPONSE_LEN              0x03
+#define ATT_ERROR_RESPONSE_LEN            0x05
+
+#define ATT_MTU                           0x17
+
+/*---------------------------------------------------------------------------*/
 #include <stdint.h>
 
 //void input_att(/*uint8_t *data, uint16_t data_len);
