@@ -88,16 +88,29 @@
 #define ATT_MTU_RESPONSE_LEN              0x03
 #define ATT_ERROR_RESPONSE_LEN            0x05
 
+#define ATT_MTU                           0x17
 
 /*---------------------------------------------------------------------------*/
-enum error_code {
-  INVALID_HANDLE,
+enum {
+  INVALID_HANDLE=1,
   READ_NOT_PERMITTED,
   WRITE_NOT_PERMITTED,
   INVALID_PDU,
-  INSUFFICIENT AUTHENTICATION,
-  REQUEST_NOT_SUPPORTED
-}
+  INSUFFICIENT_AUTHENTICATION,
+  REQUEST_NOT_SUPPORTED,
+  INVALID_OFFSET,
+  INSUFFICIENT_AUTHORIZATION,
+  PREPARE_QUEUE_FULL,
+  ATTRIBUTE_NOT_FOUND,
+  ATTRIBUTE_NOT_LONG,
+  INSUFFICIENT_ENCRYPTION_KEY_SIZE,
+  INVALID_ATTRIBUTE_VALUE_LENGTH,
+  UNLIKELY_ERROR,
+  INSUFFICIENT_ENCRYPTION,
+  UNSUPPORTED_GROUPE_TYPE,
+  INSUFFICIENT_RESOURCES
+};
+//enum error_code error;
 
 /*---------------------------------------------------------------------------*/
 static void send_mtu_resp(){
@@ -107,7 +120,7 @@ static void send_mtu_resp(){
   data[0]= ATT_MTU_RESPONSE;
 
   /* Server Rx MTU */
-  data[1]=0x17;
+  data[1]=ATT_MTU;
   data[2]=0x00;
 
   memcpy(packetbuf_dataptr(), data,ATT_MTU_RESPONSE_LEN);
@@ -116,7 +129,6 @@ static void send_mtu_resp(){
   NETSTACK_MAC.send(NULL, NULL);
 }
 /*---------------------------------------------------------------------------*/
-/* NOT TESTED */
 static void send_error_resp(uint8_t* opcode, uint8_t error)
 {
   uint8_t data[ATT_ERROR_RESPONSE_LEN];
@@ -124,19 +136,19 @@ static void send_error_resp(uint8_t* opcode, uint8_t error)
   data[0] = ATT_ERROR_RESPONSE;
 
   /* Server Rx MTU */
-  data[1] = opcode;
+  data[1] = opcode[0];
   data[2] = 0x00;
   data[3] = 0x00;
   data[4] = error;
 
-  memcpy(packetbuf_dataptr(), data,ATT_ERROR_RESPONSE_LEN);
+  memcpy(packetbuf_dataptr(), data, ATT_ERROR_RESPONSE_LEN);
   packetbuf_set_datalen(ATT_ERROR_RESPONSE_LEN);
 
   NETSTACK_MAC.send(NULL, NULL);
 }
 
 /*---------------------------------------------------------------------------*/
-static void input_att(void){
+static void input(void){
 
   uint8_t *data = (uint8_t *)packetbuf_dataptr();
   //uint8_t len = packetbuf_datalen();
@@ -146,7 +158,7 @@ static void input_att(void){
       break;
     default :
 
-      send_error_resp(data[0], REQUEST_NOT_SUPPORTED);
+      send_error_resp(data, REQUEST_NOT_SUPPORTED);
       break;
   }
 }
@@ -159,5 +171,5 @@ const struct network_driver gatt_driver =
 {
   "gatt_driver",
   .init = init,
-  .input = input_att,
+  .input = input,
 };
