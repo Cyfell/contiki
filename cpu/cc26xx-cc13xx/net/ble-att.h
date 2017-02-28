@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Arthur Courtel
+ * Copyright (c) 2017, Arthur Courtel
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,17 +81,15 @@
 #define ATT_ECODE_INSUFF_RESOURCES	     	0x11
 /*---------------------------------------------------------------------------*/
 /* Application error */
-#define ATT_ECODE_IO				0x80
-#define ATT_ECODE_TIMEOUT			0x81
-#define ATT_ECODE_ABORTED			0x82
+#define ATT_ECODE_IO				              0x80
+#define ATT_ECODE_TIMEOUT			            0x81
+#define ATT_ECODE_ABORTED			            0x82
 /*---------------------------------------------------------------------------*/
 
 #define ATT_MTU_RESPONSE_LEN              0x03
 #define ATT_ERROR_RESPONSE_LEN            0x05
 
 #define ATT_MTU                           0x17
+#define SUCCESS                           0xFF
 
 /*---------------------------------------------------------------------------*/
-#include <stdint.h>
-
-//void input_att(/*uint8_t *data, uint16_t data_len);

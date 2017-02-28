@@ -31,54 +31,93 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-
-#include "ble-att.h"
+#include <stdint.h>
+#include "net/ble-att.h"
 #include "net/netstack.h"
 #include "net/packetbuf.h"
+#include "net/att-database.h"
+
 
 #define DEBUG 1
 #if DEBUG
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
+#else
+#define PRINTF(...)
 #endif
 
 /*---------------------------------------------------------------------------*/
+/* L2CAP fragmentation buffers and utilities                                 */
 
-static void send_mtu_resp(){
+typedef struct {
+  /* ATT Service Data Unit (SDU) */
+  uint8_t sdu[ATT_MTU];
+  /* length of the ATT SDU */
+  uint16_t sdu_length;
+} att_buffer_t;
 
-  uint8_t data[ATT_MTU_RESPONSE_LEN];
-
-  data[0]= ATT_MTU_RESPONSE;
-
-  /* Server Rx MTU */
-  data[1]=ATT_MTU;
-  data[2]=0x00;
-
-  memcpy(packetbuf_dataptr(), data,ATT_MTU_RESPONSE_LEN);
-  packetbuf_set_datalen(ATT_MTU_RESPONSE_LEN);
-
-  NETSTACK_MAC.send(NULL, NULL);
-}
+static att_buffer_t tx_buffer;
 /*---------------------------------------------------------------------------*/
-static void send_error_resp(uint8_t* opcode, uint8_t error)
+attribute_t *list_attr[]=
 {
-  uint8_t data[ATT_ERROR_RESPONSE_LEN];
+  &(attribute_t){
+    .att_handle = 0x0001,
+    .att_uuid.type = BT_SIZE16,
+    .att_uuid.value.u16 = 0x0200,
+    .att_read_lock = 0,
+    .att_write_lock = 1,
+    .read = read_temp,
+  },
+  &(attribute_t){
+    .att_handle = 0x0002,
+    .att_uuid.type = BT_SIZE16,
+    .att_uuid.value.u16 = 0x0300,
+    .att_read_lock = 1,
+    .att_write_lock = 1,
+    .read = read_hum,
+  },
 
-  data[0] = ATT_ERROR_RESPONSE;
+  NULL
+};
 
-  /* Server Rx MTU */
-  data[1] = opcode[0];
-  data[2] = 0x00;
-  data[3] = 0x00;
-  data[4] = error;
+/*---------------------------------------------------------------------------*/
+static void send(){
+  /* TODO: Add ATT MTU controll */
 
-  memcpy(packetbuf_dataptr(), data, ATT_ERROR_RESPONSE_LEN);
-  packetbuf_set_datalen(ATT_ERROR_RESPONSE_LEN);
+  memcpy(packetbuf_dataptr(), tx_buffer.sdu, tx_buffer.sdu_length);
+  packetbuf_set_datalen(tx_buffer.sdu_length);
 
   NETSTACK_MAC.send(NULL, NULL);
 }
 
 /*---------------------------------------------------------------------------*/
+static void prepare_mtu_resp(){
+  /* Response code */
+  tx_buffer.sdu[0]= ATT_MTU_RESPONSE;
+  /* Server Rx MTU */
+  tx_buffer.sdu[1]=ATT_MTU;
+  tx_buffer.sdu[2]=0x00;
+  /* set sdu length */
+  tx_buffer.sdu_length = 3;
+}
+/*---------------------------------------------------------------------------*/
+static void prepare_error_resp(uint8_t* opcode, uint8_t error)
+{
+  /* Response code */
+  tx_buffer.sdu[0] = ATT_ERROR_RESPONSE;
+  /* Operation asked */
+  tx_buffer.sdu[1] = opcode[0];
+  /* Attribute handle that generate an error */
+  tx_buffer.sdu[2] = 0x00;
+  tx_buffer.sdu[3] = 0x00;
+  /* Error code */
+  tx_buffer.sdu[4] = error;
+  /* set sdu length */
+  tx_buffer.sdu_length = 5;
+}
+
+/*---------------------------------------------------------------------------*/
+/* NOT TESTED */
 const char *error(uint8_t status)
 {
 	switch (status)  {
@@ -127,28 +166,89 @@ const char *error(uint8_t status)
 	}
 }
 /*---------------------------------------------------------------------------*/
+/* look for attribute with correct handle */
+static attribute_t* find_attribute(uint16_t* handle){
+
+  for(int i=0;list_attr[i]!=NULL;i++){
+    if (list_attr[i]->att_handle == *handle){
+
+      list_attr[i]->read(&list_attr[i]->att_value);
+
+      return list_attr[i];
+    }
+  }
+  return NULL;
+}
+
+/*---------------------------------------------------------------------------*/
+/* send read response */
+static uint8_t prepare_read(uint8_t *data){
+
+  uint16_t handle;
+
+  /* Copy handle to read */
+  memcpy(&handle, &data[1], 2);
+
+  /* look the list for specific handle */
+  attribute_t* attr = find_attribute(&handle);
+
+  /* Check if this attribute is read lock */
+  if(attr->att_read_lock){
+    return ATT_ECODE_READ_NOT_PERM;
+  }
+  /* Prepare payload */
+
+  if (attr != NULL){
+    /* Response code */
+    tx_buffer.sdu[0] = ATT_READ_RESPONSE;
+
+    /* copy value in sdu */
+    memcpy(&tx_buffer.sdu[1], &attr->att_value.value, attr->att_value.type);
+    tx_buffer.sdu_length = attr->att_value.type+1;
+  }else{
+    return ATT_ECODE_ATTR_NOT_FOUND;
+  }
+  return SUCCESS;
+}
+
+
+/*---------------------------------------------------------------------------*/
 static void input(void){
+  /* TODO: change error handeling */
+  uint8_t control = 1;
 
   uint8_t *data = (uint8_t *)packetbuf_dataptr();
   //uint8_t len = packetbuf_datalen();
 
   switch (data[0]){
-    case ATT_MTU_REQUEST:
-      send_mtu_resp();
-      break;
     case ATT_ERROR_RESPONSE:
+    /* NOT TESTED */
         PRINTF("%s", error(data[4]));
       break;
+    case ATT_MTU_REQUEST:
+      prepare_mtu_resp();
+      break;
+    case ATT_READ_REQUEST :
+      control = prepare_read(data);
+      break;
     default :
-      send_error_resp(data, ATT_ECODE_REQ_NOT_SUPP);
+      control = ATT_ECODE_REQ_NOT_SUPP;
       break;
   }
+  if(control != SUCCESS)
+  {
+    prepare_error_resp(data, control);
+  }
+  send();
 }
 
-static void init(void){
-  /* Nothing to do for now */
+/*---------------------------------------------------------------------------*/
+static void init(void)
+{
+/* NOTHING TO DO FOR NOW */
 }
 
+/*---------------------------------------------------------------------------*/
 const struct network_driver gatt_driver =
 {
   "gatt_driver",
