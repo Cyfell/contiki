@@ -41,10 +41,8 @@ typedef struct {
 // 			0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 // };
 
-
 typedef struct {
 	enum {
-		BT_SIZE_UNSPEC = 0,
 		BT_SIZE8 = 1,
 		BT_SIZE16 = 2,
 		BT_SIZE32 = 4,

@@ -64,17 +64,21 @@ attribute_t *list_attr[]=
     .att_handle = 0x0001,
     .att_uuid.type = BT_SIZE16,
     .att_uuid.value.u16 = 0x0200,
-    .att_read_lock = 0,
-    .att_write_lock = 1,
+    .att_readable = 0,
+    .att_writable = 0,
     .read = read_temp,
+    .att_value.type = BT_SIZE8,
+    .att_value.value.u8 = 4,
   },
   &(attribute_t){
     .att_handle = 0x0002,
     .att_uuid.type = BT_SIZE16,
     .att_uuid.value.u16 = 0x0300,
-    .att_read_lock = 1,
-    .att_write_lock = 1,
+    .att_readable = 1,
+    .att_writable = 1,
     .read = read_hum,
+    .att_value.type = BT_SIZE8,
+    .att_value.value.u8 = 5,
   },
 
   NULL
@@ -89,7 +93,6 @@ static void send(){
 
   NETSTACK_MAC.send(NULL, NULL);
 }
-
 /*---------------------------------------------------------------------------*/
 static void prepare_mtu_resp(){
   /* Response code */
@@ -115,7 +118,6 @@ static void prepare_error_resp(uint8_t* opcode, uint8_t error)
   /* set sdu length */
   tx_buffer.sdu_length = 5;
 }
-
 /*---------------------------------------------------------------------------*/
 /* NOT TESTED */
 const char *error(uint8_t status)
@@ -171,39 +173,34 @@ static attribute_t* find_attribute(uint16_t* handle){
 
   for(int i=0;list_attr[i]!=NULL;i++){
     if (list_attr[i]->att_handle == *handle){
-
-      list_attr[i]->read(&list_attr[i]->att_value);
-
       return list_attr[i];
     }
   }
   return NULL;
 }
-
 /*---------------------------------------------------------------------------*/
 /* send read response */
 static uint8_t prepare_read(uint8_t *data){
-
   uint16_t handle;
-
   /* Copy handle to read */
   memcpy(&handle, &data[1], 2);
-
   /* look the list for specific handle */
   attribute_t* attr = find_attribute(&handle);
 
   /* Check if this attribute is read lock */
-  if(attr->att_read_lock){
+  if(attr->att_readable){
     return ATT_ECODE_READ_NOT_PERM;
   }
-  /* Prepare payload */
+  /* Read attriute value */
+  if (attr->read)
+    attr->read(&attr->att_value);
 
+    /* Prepare payload */
   if (attr != NULL){
     /* Response code */
     tx_buffer.sdu[0] = ATT_READ_RESPONSE;
-
     /* copy value in sdu */
-    memcpy(&tx_buffer.sdu[1], &attr->att_value.value, attr->att_value.type);
+    memcpy(&tx_buffer.sdu[1], &attr->att_value.value.u8, attr->att_value.type);
     tx_buffer.sdu_length = attr->att_value.type+1;
   }else{
     return ATT_ECODE_ATTR_NOT_FOUND;
@@ -211,14 +208,60 @@ static uint8_t prepare_read(uint8_t *data){
   return SUCCESS;
 }
 
+/*---------------------------------------------------------------------------*/
+static void write_att_value(bt_size_t *att_value, uint8_t *data){
+  uint8_t *payload = &data[3];
+  switch(att_value->type){
+    case BT_SIZE8 :
+      att_value->value.u8 = *payload;
+      break;
+    case BT_SIZE16 :
+      att_value->value.u16 = *(uint16_t *)payload;
+      break;
+    case BT_SIZE32 :
+      att_value->value.u32 = *(uint32_t *)payload;
+      break;
+    case BT_SIZE128 :
+      att_value->value.u128 = *(uint128_t *)payload;
+      break;
+  }
+}
+static uint8_t prepare_write(uint8_t *data, uint16_t *len){
+  uint16_t handle;
+  /* Copy handle to write */
+  memcpy(&handle, &data[1], 2);
+  /* look the list for specific handle */
+  attribute_t* attr = find_attribute(&handle);
+
+  /* Check if this attribute is write lock */
+  if(attr->att_writable){
+    return ATT_ECODE_WRITE_NOT_PERM;
+  }
+
+  /* Check if new data length is not longer than the actual data size *///NOT TESTED
+  if(attr->att_value.type < *len-3){
+    return ATT_ECODE_INVAL_ATTR_VALUE_LEN;
+  }
+
+  if (attr != NULL){
+    /* Copy new data */
+    write_att_value(&attr->att_value, data);
+    /* Prepare payload */
+    /* Response code */
+    tx_buffer.sdu[0] = ATT_WRITE_RESPONSE;
+    tx_buffer.sdu_length =1;
+  }else{
+    return ATT_ECODE_ATTR_NOT_FOUND;
+  }
+  return SUCCESS;
+}
 
 /*---------------------------------------------------------------------------*/
 static void input(void){
-  /* TODO: change error handeling */
-  uint8_t control = 1;
+  uint8_t control = ATT_ECODE_REQ_NOT_SUPP;
 
   uint8_t *data = (uint8_t *)packetbuf_dataptr();
-  //uint8_t len = packetbuf_datalen();
+  uint16_t len = packetbuf_datalen();
 
   switch (data[0]){
     case ATT_ERROR_RESPONSE:
@@ -230,6 +273,9 @@ static void input(void){
       break;
     case ATT_READ_REQUEST :
       control = prepare_read(data);
+      break;
+    case ATT_WRITE_REQUEST :
+      control = prepare_write(data, &len);
       break;
     default :
       control = ATT_ECODE_REQ_NOT_SUPP;

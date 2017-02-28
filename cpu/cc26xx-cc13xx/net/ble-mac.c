@@ -427,7 +427,9 @@ input(void)
   uint16_t channel_id;
 
   memcpy(&channel_id, &data[2], 2);
-
+  // for(int i = 0;i<=len;i++){
+  //   printf("DATA : 0x%x\n",*data++);
+  // }
   PRINTF("ble-mac input: %d bytes\n", len);
 
   if(len > 0) {

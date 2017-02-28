@@ -41,11 +41,13 @@ void read_temp(bt_size_t *value);
 
 typedef struct{
     void (*read)(bt_size_t* value);
+    void (*write)(bt_size_t* value);
+
     bt_size_t att_value;
-  // uint8_t (*write)(void);
+
     bt_size_t att_uuid;
-  	int att_read_lock;		/* Read requirement */
-  	int att_write_lock;		/* Write requirement */
+  	int att_readable;		/* Read requirement */
+  	int att_writable;		/* Write requirement */
   	uint16_t att_handle;
   	//uint8_t len;
 

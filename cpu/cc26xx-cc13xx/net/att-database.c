@@ -45,11 +45,8 @@
 
 
 void read_temp(bt_size_t *value){
-  value->type=BT_SIZE8;
-  value->value.u8 = 4;
+  PRINTF("vraie addr : %p\n", &value->value.u8);
 }
 
 void read_hum(bt_size_t *value){
-  value->type=BT_SIZE8;
-  value->value.u8 = 3;
 }
