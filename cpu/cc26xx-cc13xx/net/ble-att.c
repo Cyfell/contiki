@@ -35,7 +35,7 @@
 #include "net/ble-att.h"
 #include "net/netstack.h"
 #include "net/packetbuf.h"
-#include "net/att-database.h"
+#include "net/profiles/gatt-sensors.h"
 
 
 #define DEBUG 1
@@ -60,23 +60,23 @@ static att_buffer_t tx_buffer;
 /*---------------------------------------------------------------------------*/
 attribute_t *list_attr[]=
 {
-  &(attribute_t){
+  &(attribute_t){                 /* Temperature ambiant value */
     .att_handle = 0x0001,
     .att_uuid.type = BT_SIZE16,
     .att_uuid.value.u16 = 0x0200,
-    .att_readable = 0,
+    .att_readable = 1,
     .att_writable = 0,
-    .read = read_temp,
-    .att_value.type = BT_SIZE8,
+    .action = actualise_temp,
+    .att_value.type = BT_SIZE16,
     .att_value.value.u8 = 4,
   },
-  &(attribute_t){
+  &(attribute_t){                 /* Temperature enable/disable */
     .att_handle = 0x0002,
     .att_uuid.type = BT_SIZE16,
     .att_uuid.value.u16 = 0x0300,
     .att_readable = 1,
     .att_writable = 1,
-    .read = read_hum,
+    .execute_write = enable_disable,
     .att_value.type = BT_SIZE8,
     .att_value.value.u8 = 5,
   },
@@ -188,12 +188,13 @@ static uint8_t prepare_read(uint8_t *data){
   attribute_t* attr = find_attribute(&handle);
 
   /* Check if this attribute is read lock */
-  if(attr->att_readable){
+  if(!attr->att_readable){
     return ATT_ECODE_READ_NOT_PERM;
   }
-  /* Read attriute value */
-  if (attr->read)
-    attr->read(&attr->att_value);
+  /* actualise attribute value */
+  if (!attr->action || attr->action(&attr->att_value) != SUCCESS){
+    return ATT_ECODE_UNLIKELY;
+  }
 
     /* Prepare payload */
   if (attr != NULL){
@@ -209,7 +210,7 @@ static uint8_t prepare_read(uint8_t *data){
 }
 
 /*---------------------------------------------------------------------------*/
-static void write_att_value(bt_size_t *att_value, uint8_t *data){
+static void register_new_att_value(bt_size_t *att_value, uint8_t *data){
   uint8_t *payload = &data[3];
   switch(att_value->type){
     case BT_SIZE8 :
@@ -226,15 +227,17 @@ static void write_att_value(bt_size_t *att_value, uint8_t *data){
       break;
   }
 }
+/*---------------------------------------------------------------------------*/
 static uint8_t prepare_write(uint8_t *data, uint16_t *len){
   uint16_t handle;
+  uint8_t error_code;
   /* Copy handle to write */
   memcpy(&handle, &data[1], 2);
   /* look the list for specific handle */
   attribute_t* attr = find_attribute(&handle);
 
   /* Check if this attribute is write lock */
-  if(attr->att_writable){
+  if(!attr->att_writable){
     return ATT_ECODE_WRITE_NOT_PERM;
   }
 
@@ -244,8 +247,13 @@ static uint8_t prepare_write(uint8_t *data, uint16_t *len){
   }
 
   if (attr != NULL){
-    /* Copy new data */
-    write_att_value(&attr->att_value, data);
+    /* Try to apply the new value */
+    error_code = attr->execute_write(data);
+    if (error_code != SUCCESS)
+      return error_code;
+    /* Register new value */
+    register_new_att_value(&attr->att_value, data);
+
     /* Prepare payload */
     /* Response code */
     tx_buffer.sdu[0] = ATT_WRITE_RESPONSE;

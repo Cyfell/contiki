@@ -31,22 +31,4 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-
-#define DEBUG 1
-#if DEBUG
-#include <stdio.h>
-#define PRINTF(...) printf(__VA_ARGS__)
-#else
-#define PRINTF(...)
-#endif
-
-#include "net/att-database.h"
-
-
-
-void read_temp(bt_size_t *value){
-  PRINTF("vraie addr : %p\n", &value->value.u8);
-}
-
-void read_hum(bt_size_t *value){
-}
+#include "temp.h"

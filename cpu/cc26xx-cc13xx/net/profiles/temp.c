@@ -31,27 +31,45 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-#include "net/uuid.h"
 
+#define DEBUG 1
+#if DEBUG
+#include <stdio.h>
+#define PRINTF(...) printf(__VA_ARGS__)
+#else
+#define PRINTF(...)
+#endif
 
+#include "temp.h"
+#include "board-peripherals.h"
+#include "ble-att.h"
+/*---------------------------------------------------------------------------*/
+uint8_t actualise_temp(bt_size_t *value){
+  int temp;
 
-//void read_hum(bt_size_t *value);
+  temp = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_ALL);
 
+  if(temp == CC26XX_SENSOR_READING_ERROR)
+    return -1;
 
-
-// void read_hum(bt_size_t *value){
-// }
-
-typedef struct{
-    uint8_t (*action)(bt_size_t* value);
-    uint8_t (*execute_write)(uint8_t * data);
-
-    bt_size_t att_value;
-
-    bt_size_t att_uuid;
-  	int att_readable;		/* Read requirement 0 = not readable,  1 = readable*/
-  	int att_writable;		/* Write requirement 0 = not readable,  1 = readable*/
-  	uint16_t att_handle;
-  	//uint8_t len;
-
-} attribute_t;
+  temp = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_AMBIENT);
+  PRINTF("TEMP : %02X", temp);
+  value->value.u16 = (uint16_t) temp;
+  return SUCCESS;
+}
+/*---------------------------------------------------------------------------*/
+uint8_t enable_disable(uint8_t *data){
+  switch(data[3]){
+    case 1:
+    PRINTF("ACTIVATION CAPTEUR\n");
+    SENSORS_ACTIVATE(tmp_007_sensor);
+      break;
+    case 0:
+    PRINTF("DESACTIVATION CAPTEUR");
+    SENSORS_DEACTIVATE(tmp_007_sensor);
+      break;
+    default:
+      return ATT_ECODE_INVALID_PDU;
+  }
+  return SUCCESS;
+}

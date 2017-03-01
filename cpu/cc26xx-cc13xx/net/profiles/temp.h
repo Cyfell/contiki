@@ -31,27 +31,7 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-#include "net/uuid.h"
+#include "net/att-database.h"
 
-
-
-//void read_hum(bt_size_t *value);
-
-
-
-// void read_hum(bt_size_t *value){
-// }
-
-typedef struct{
-    uint8_t (*action)(bt_size_t* value);
-    uint8_t (*execute_write)(uint8_t * data);
-
-    bt_size_t att_value;
-
-    bt_size_t att_uuid;
-  	int att_readable;		/* Read requirement 0 = not readable,  1 = readable*/
-  	int att_writable;		/* Write requirement 0 = not readable,  1 = readable*/
-  	uint16_t att_handle;
-  	//uint8_t len;
-
-} attribute_t;
+uint8_t actualise_temp(bt_size_t *value);
+uint8_t enable_disable(uint8_t *data);
