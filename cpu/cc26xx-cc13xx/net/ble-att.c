@@ -220,6 +220,11 @@ static void input(void){
 static void init(void)
 {
   register_ble_attribute(TEMPERATURE);
+
+  // bt_size_t test;
+  // bt_size_t *ptr = test;
+  // PRINTF("test : %d", get_value(1, ptr));
+
 }
 /*---------------------------------------------------------------------------*/
 const struct network_driver gatt_driver =

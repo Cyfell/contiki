@@ -56,3 +56,19 @@ uint8_t actualise_temp(bt_size_t *value){
   value->value.u16 = (uint16_t) temp;
   return SUCCESS;
 }
+/*---------------------------------------------------------------------------*/
+uint8_t enable_disable(bt_size_t *value){
+  switch(value->value.u8){
+    case 1:
+    PRINTF("ACTIVATION CAPTEUR\n");
+    SENSORS_ACTIVATE(tmp_007_sensor);
+      break;
+    case 0:
+    PRINTF("DESACTIVATION CAPTEUR");
+    SENSORS_DEACTIVATE(tmp_007_sensor);
+      break;
+    default:
+      return ATT_ECODE_INVALID_PDU;
+  }
+  return SUCCESS;
+}

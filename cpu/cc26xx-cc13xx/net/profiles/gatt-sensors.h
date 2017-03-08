@@ -39,7 +39,6 @@
 #include "net/att-database.h"
 #include "net/ble-att.h"
 #include "net/profiles/temp.h"
-#include "net/profiles/temp_ed.h"
 /*---------------------------------------------------------------------------*/
 void register_ble_attribute(const uint8_t type);
 uint8_t get_value(const uint16_t handle, bt_size_t **value_ptr);
