@@ -31,7 +31,7 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-#define ATTRIBUTE_NUMBER_MAX 3
+#define ATTRIBUTE_NUMBER_MAX 5
 
 #define DEBUG 1
 #if DEBUG
@@ -46,30 +46,78 @@
 #include <stddef.h>
 /*---------------------------------------------------------------------------*/
 attribute_t list_attr[ATTRIBUTE_NUMBER_MAX];
+attribute_t primary_generic_access_service, characteristic_generic_access_service;
 attribute_t primary_temp, temp, temp_ed;
 /*---------------------------------------------------------------------------*/
-static void register_att_uuid16_value16( attribute_t *att, uint8_t handle, uint16_t uuid, uint8_t readable, uint8_t writable, void *get, void *set, uint8_t value_type, uint16_t value){
-  att->att_handle = handle;
+static void register_uuid_16(attribute_t *att, uint16_t uuid){
   att->att_uuid.type = BT_SIZE16;
   att->att_uuid.value.u16 = uuid;
+}
+static void register_uuid_128(attribute_t *att, uint128_t uuid){
+  att->att_uuid.type = BT_SIZE128;
+  att->att_uuid.value.u128 = uuid;
+}
+static void register_value_8(attribute_t *att, uint8_t value){
+  att->att_value.type = BT_SIZE8;
+  att->att_value.value.u8 = value;
+}
+static void register_value_16(attribute_t *att, uint16_t value){
+  att->att_value.type = BT_SIZE16;
+  att->att_value.value.u16 = value;
+}
+static void register_value_32(attribute_t *att, uint32_t value){
+  att->att_value.type = BT_SIZE32;
+  att->att_value.value.u32 = value;
+}
+static void register_value_64(attribute_t *att, uint64_t value){
+  att->att_value.type = BT_SIZE64;
+  att->att_value.value.u64 = value;
+}
+static void register_value_128(attribute_t *att, uint128_t value){
+  att->att_value.type = BT_SIZE128;
+  att->att_value.value.u128 = value;
+}
+static void register_att( attribute_t *att, uint8_t handle, uint8_t readable, uint8_t writable, void *get, void *set){
+  att->att_handle = handle;
   att->att_readable = readable;
   att->att_writable = writable;
   att->get_action = get;
   att->set_action = set;
-  att->att_value.type = value_type;
-  att->att_value.value.u16 = value;
 }
-static uint8_t no_action(){return SUCCESS;}
+static uint8_t no_action(){
+  return SUCCESS;
+}
 /*---------------------------------------------------------------------------*/
 void register_ble_attribute(const uint8_t type){
   switch(type){
+    case GENERIC_ACCESS_SERVICE:
+      register_att(&primary_generic_access_service, 0x0001, 1, 0,no_action, no_action);
+      register_value_16(&primary_generic_access_service, 0x1800);
+      register_uuid_16(&primary_generic_access_service, 0x2800);
+
+      register_att(&characteristic_generic_access_service, 0x0002, 1, 0,no_action, no_action);
+      register_value_64(&characteristic_generic_access_service, 0x020300002A);
+      register_uuid_16(&characteristic_generic_access_service,  0x2803);
+      list_attr[0]=primary_generic_access_service;
+      list_attr[1]=characteristic_generic_access_service;
+      break;
+
     case TEMPERATURE:
-      register_att_uuid16_value16(&primary_temp, 0x0001, 0x2800, 1, 0,no_action, no_action, BT_SIZE16, 0x0200);
-      register_att_uuid16_value16(&temp, 0x0002, 0x0200, 1, 0, actualise_temp, no_action, BT_SIZE16 ,0);
-      register_att_uuid16_value16(&temp_ed, 0x0003, 0x0300, 1, 1, no_action, enable_disable, BT_SIZE16, 0);
-      list_attr[0]=primary_temp;
-      list_attr[1]=temp;
-      list_attr[2]=temp_ed;
+      register_att(&primary_temp, 0x0003, 1, 0,no_action, no_action);
+      register_value_16(&primary_temp, 0x0200);
+      register_uuid_16(&primary_temp,0x2800);
+
+      register_att(&temp, 0x0004, 1, 0, actualise_temp, no_action);
+      register_value_16(&primary_temp, 0x00);
+      register_uuid_16(&primary_temp,0x0200);
+
+      register_att(&temp_ed, 0x0005, 1, 1, no_action, enable_disable);
+      register_value_16(&primary_temp, 0x0);
+      register_uuid_16(&primary_temp,0x0300);
+
+      list_attr[2]=primary_temp;
+      list_attr[3]=temp;
+      list_attr[4]=temp_ed;
       break;
   }
 }
@@ -95,6 +143,9 @@ static void register_new_att_value(bt_size_t *att_value, uint8_t *data){
     case BT_SIZE32 :
       att_value->value.u32 = *(uint32_t *)payload;
       break;
+      case BT_SIZE64 :
+        att_value->value.u64 = *(uint64_t *)payload;
+        break;
     case BT_SIZE128 :
       att_value->value.u128 = *(uint128_t *)payload;
       break;

@@ -39,6 +39,7 @@
 #else
 #define PRINTF(...)
 #endif
+
 #include "ble-att.h"
 #include "temp.h"
 #include "board-peripherals.h"

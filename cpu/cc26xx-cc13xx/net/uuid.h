@@ -51,12 +51,14 @@ typedef struct {
 		BT_SIZE8 = 1,
 		BT_SIZE16 = 2,
 		BT_SIZE32 = 4,
+		BT_SIZE64 = 8,
 		BT_SIZE128 = 16,
 	} type;
 	union {
 		uint8_t		u8;
 		uint16_t  u16;
 		uint32_t  u32;
+		uint64_t  u64;
 		uint128_t u128;
 	} value;
 } bt_size_t;

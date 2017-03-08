@@ -35,6 +35,7 @@
 #define GATT_SENSORS_H_
 /*---------------------------------------------------------------------------*/
 #define TEMPERATURE 1
+#define GENERIC_ACCESS_SERVICE 2
 /*---------------------------------------------------------------------------*/
 #include "net/att-database.h"
 #include "net/ble-att.h"

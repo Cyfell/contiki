@@ -217,13 +217,15 @@ static void input(void){
   send();
 }
 /*---------------------------------------------------------------------------*/
+bt_size_t test;
 static void init(void)
 {
   register_ble_attribute(TEMPERATURE);
+  register_ble_attribute(GENERIC_ACCESS_SERVICE);
 
-  // bt_size_t test;
-  // bt_size_t *ptr = test;
-  // PRINTF("test : %d", get_value(1, ptr));
+  bt_size_t *ptr = &test;
+  uint8_t error = get_value(2, &ptr);
+  PRINTF("error : 0x%02X value : 0x%04llX\n", error, ptr->value.u64);
 
 }
 /*---------------------------------------------------------------------------*/
