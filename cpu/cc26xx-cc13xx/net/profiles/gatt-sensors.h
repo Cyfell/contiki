@@ -31,4 +31,18 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-#include "temp.h"
+#ifndef GATT_SENSORS_H_
+#define GATT_SENSORS_H_
+/*---------------------------------------------------------------------------*/
+#define TEMPERATURE 1
+/*---------------------------------------------------------------------------*/
+#include "net/att-database.h"
+#include "net/ble-att.h"
+#include "net/profiles/temp.h"
+#include "net/profiles/temp_ed.h"
+/*---------------------------------------------------------------------------*/
+void register_ble_attribute(const uint8_t type);
+uint8_t get_value(const uint16_t handle, bt_size_t **value_ptr);
+uint8_t set_value(const uint16_t handle, uint8_t *data, uint16_t len);
+/*---------------------------------------------------------------------------*/
+#endif //GATT_SENSORS_H_

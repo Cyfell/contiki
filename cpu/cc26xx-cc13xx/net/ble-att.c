@@ -57,32 +57,6 @@ typedef struct {
 } att_buffer_t;
 
 static att_buffer_t tx_buffer;
-/*---------------------------------------------------------------------------*/
-attribute_t *list_attr[]=
-{
-  &(attribute_t){                 /* Temperature ambiant value */
-    .att_handle = 0x0001,
-    .att_uuid.type = BT_SIZE16,
-    .att_uuid.value.u16 = 0x0200,
-    .att_readable = 1,
-    .att_writable = 0,
-    .action = actualise_temp,
-    .att_value.type = BT_SIZE16,
-    .att_value.value.u8 = 4,
-  },
-  &(attribute_t){                 /* Temperature enable/disable */
-    .att_handle = 0x0002,
-    .att_uuid.type = BT_SIZE16,
-    .att_uuid.value.u16 = 0x0300,
-    .att_readable = 1,
-    .att_writable = 1,
-    .execute_write = enable_disable,
-    .att_value.type = BT_SIZE8,
-    .att_value.value.u8 = 5,
-  },
-
-  NULL
-};
 
 /*---------------------------------------------------------------------------*/
 static void send(){
@@ -168,102 +142,47 @@ const char *error(uint8_t status)
 	}
 }
 /*---------------------------------------------------------------------------*/
-/* look for attribute with correct handle */
-static attribute_t* find_attribute(uint16_t* handle){
-
-  for(int i=0;list_attr[i]!=NULL;i++){
-    if (list_attr[i]->att_handle == *handle){
-      return list_attr[i];
-    }
-  }
-  return NULL;
-}
-/*---------------------------------------------------------------------------*/
 /* send read response */
-static uint8_t prepare_read(uint8_t *data){
+static uint8_t prepare_read(const uint8_t *data){
   uint16_t handle;
+  uint8_t error;
   /* Copy handle to read */
   memcpy(&handle, &data[1], 2);
-  /* look the list for specific handle */
-  attribute_t* attr = find_attribute(&handle);
 
-  /* Check if this attribute is read lock */
-  if(!attr->att_readable){
-    return ATT_ECODE_READ_NOT_PERM;
-  }
-  /* actualise attribute value */
-  if (!attr->action || attr->action(&attr->att_value) != SUCCESS){
-    return ATT_ECODE_UNLIKELY;
-  }
+  bt_size_t *value_ptr;
+  error = get_value(handle, &value_ptr);
+
+  if(error != SUCCESS)
+    return error;
 
     /* Prepare payload */
-  if (attr != NULL){
     /* Response code */
-    tx_buffer.sdu[0] = ATT_READ_RESPONSE;
-    /* copy value in sdu */
-    memcpy(&tx_buffer.sdu[1], &attr->att_value.value.u8, attr->att_value.type);
-    tx_buffer.sdu_length = attr->att_value.type+1;
-  }else{
-    return ATT_ECODE_ATTR_NOT_FOUND;
-  }
+  tx_buffer.sdu[0] = ATT_READ_RESPONSE;
+  /* copy value in sdu */
+  memcpy(&tx_buffer.sdu[1], &value_ptr->value, value_ptr->type);
+  tx_buffer.sdu_length = value_ptr->type+1;
+
   return SUCCESS;
 }
 
 /*---------------------------------------------------------------------------*/
-static void register_new_att_value(bt_size_t *att_value, uint8_t *data){
-  uint8_t *payload = &data[3];
-  switch(att_value->type){
-    case BT_SIZE8 :
-      att_value->value.u8 = *payload;
-      break;
-    case BT_SIZE16 :
-      att_value->value.u16 = *(uint16_t *)payload;
-      break;
-    case BT_SIZE32 :
-      att_value->value.u32 = *(uint32_t *)payload;
-      break;
-    case BT_SIZE128 :
-      att_value->value.u128 = *(uint128_t *)payload;
-      break;
-  }
-}
-/*---------------------------------------------------------------------------*/
-static uint8_t prepare_write(uint8_t *data, uint16_t *len){
+static uint8_t prepare_write(uint8_t *data, const uint16_t len){
   uint16_t handle;
-  uint8_t error_code;
+  uint8_t error;
   /* Copy handle to write */
   memcpy(&handle, &data[1], 2);
-  /* look the list for specific handle */
-  attribute_t* attr = find_attribute(&handle);
 
-  /* Check if this attribute is write lock */
-  if(!attr->att_writable){
-    return ATT_ECODE_WRITE_NOT_PERM;
-  }
+  error = set_value(handle, data, len);
 
-  /* Check if new data length is not longer than the actual data size *///NOT TESTED
-  if(attr->att_value.type < *len-3){
-    return ATT_ECODE_INVAL_ATTR_VALUE_LEN;
-  }
+  if(error != SUCCESS)
+    return error;
+  /* Prepare payload */
+  /* Response code */
+  tx_buffer.sdu[0] = ATT_WRITE_RESPONSE;
+  tx_buffer.sdu_length =1;
 
-  if (attr != NULL){
-    /* Try to apply the new value */
-    error_code = attr->execute_write(data);
-    if (error_code != SUCCESS)
-      return error_code;
-    /* Register new value */
-    register_new_att_value(&attr->att_value, data);
-
-    /* Prepare payload */
-    /* Response code */
-    tx_buffer.sdu[0] = ATT_WRITE_RESPONSE;
-    tx_buffer.sdu_length =1;
-  }else{
-    return ATT_ECODE_ATTR_NOT_FOUND;
-  }
   return SUCCESS;
 }
-
 /*---------------------------------------------------------------------------*/
 static void input(void){
   uint8_t control = ATT_ECODE_REQ_NOT_SUPP;
@@ -280,10 +199,12 @@ static void input(void){
       prepare_mtu_resp();
       break;
     case ATT_READ_REQUEST :
+      PRINTF("READ REQUEST\n");
       control = prepare_read(data);
       break;
     case ATT_WRITE_REQUEST :
-      control = prepare_write(data, &len);
+    PRINTF("WRITE REQUEST\n");
+      control = prepare_write(data, len);
       break;
     default :
       control = ATT_ECODE_REQ_NOT_SUPP;
@@ -295,13 +216,11 @@ static void input(void){
   }
   send();
 }
-
 /*---------------------------------------------------------------------------*/
 static void init(void)
 {
-/* NOTHING TO DO FOR NOW */
+  register_ble_attribute(TEMPERATURE);
 }
-
 /*---------------------------------------------------------------------------*/
 const struct network_driver gatt_driver =
 {

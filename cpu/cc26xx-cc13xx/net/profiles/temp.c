@@ -39,37 +39,20 @@
 #else
 #define PRINTF(...)
 #endif
-
+#include "ble-att.h"
 #include "temp.h"
 #include "board-peripherals.h"
-#include "ble-att.h"
+
 /*---------------------------------------------------------------------------*/
 uint8_t actualise_temp(bt_size_t *value){
   int temp;
-
   temp = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_ALL);
 
   if(temp == CC26XX_SENSOR_READING_ERROR)
-    return -1;
+    return 0;
 
   temp = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_AMBIENT);
-  PRINTF("TEMP : %02X", temp);
+  PRINTF("TEMP : %02X\n", temp);
   value->value.u16 = (uint16_t) temp;
-  return SUCCESS;
-}
-/*---------------------------------------------------------------------------*/
-uint8_t enable_disable(uint8_t *data){
-  switch(data[3]){
-    case 1:
-    PRINTF("ACTIVATION CAPTEUR\n");
-    SENSORS_ACTIVATE(tmp_007_sensor);
-      break;
-    case 0:
-    PRINTF("DESACTIVATION CAPTEUR");
-    SENSORS_DEACTIVATE(tmp_007_sensor);
-      break;
-    default:
-      return ATT_ECODE_INVALID_PDU;
-  }
   return SUCCESS;
 }

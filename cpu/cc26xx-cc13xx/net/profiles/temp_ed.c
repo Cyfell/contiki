@@ -31,11 +31,30 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-#ifndef TEMP_H_
-#define TEMP_H_
+#define DEBUG 1
+#if DEBUG
+#include <stdio.h>
+#define PRINTF(...) printf(__VA_ARGS__)
+#else
+#define PRINTF(...)
+#endif
+#include "ble-att.h"
+#include "temp_ed.h"
+#include "board-peripherals.h"
 
-#include "net/att-database.h"
 /*---------------------------------------------------------------------------*/
-uint8_t actualise_temp(bt_size_t *value);
-/*---------------------------------------------------------------------------*/
-#endif  // TEMP_H_
+uint8_t enable_disable(bt_size_t *value){
+  switch(value->value.u8){
+    case 1:
+    PRINTF("ACTIVATION CAPTEUR\n");
+    SENSORS_ACTIVATE(tmp_007_sensor);
+      break;
+    case 0:
+    PRINTF("DESACTIVATION CAPTEUR");
+    SENSORS_DEACTIVATE(tmp_007_sensor);
+      break;
+    default:
+      return ATT_ECODE_INVALID_PDU;
+  }
+  return SUCCESS;
+}

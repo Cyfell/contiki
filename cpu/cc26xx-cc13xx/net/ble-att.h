@@ -31,6 +31,10 @@
  *
  */
 /*---------------------------------------------------------------------------*/
+#ifndef BLE_ATT_H_
+#define BLE_ATT_H_
+
+#include "net/att-database.h"
 /* opcode from spec v4.2 p 2201 and v5 p2211 */
 #define ATT_ERROR_RESPONSE                0x01 /* IMPLEMENTED*/
 #define ATT_MTU_REQUEST                   0x02 /* IMPLEMENTED*/
@@ -93,3 +97,4 @@
 #define SUCCESS                           0xFF
 
 /*---------------------------------------------------------------------------*/
+#endif //BLE_ATT_H_

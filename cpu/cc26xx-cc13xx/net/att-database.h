@@ -31,20 +31,13 @@
  *
  */
 /*---------------------------------------------------------------------------*/
+#ifndef ATT_DATABASE_H_
+#define ATT_DATABASE_H_
 #include "net/uuid.h"
-
-
-
-//void read_hum(bt_size_t *value);
-
-
-
-// void read_hum(bt_size_t *value){
-// }
 
 typedef struct{
     uint8_t (*action)(bt_size_t* value);
-    uint8_t (*execute_write)(uint8_t * data);
+    //uint8_t (*execute_write)(uint8_t * data);
 
     bt_size_t att_value;
 
@@ -55,3 +48,4 @@ typedef struct{
   	//uint8_t len;
 
 } attribute_t;
+#endif
