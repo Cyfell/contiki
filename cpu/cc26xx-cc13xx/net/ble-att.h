@@ -34,7 +34,7 @@
 #ifndef BLE_ATT_H_
 #define BLE_ATT_H_
 
-#include "net/att-database.h"
+#include "att-database.h"
 /* opcode from spec v4.2 p 2201 and v5 p2211 */
 #define ATT_ERROR_RESPONSE                0x01 /* IMPLEMENTED*/
 #define ATT_MTU_REQUEST                   0x02 /* IMPLEMENTED*/
@@ -53,8 +53,8 @@
 #define ATT_READ_MULTIPLE_RESPONSE        0x0F /* NOT IMPLEMENTED*/
 #define ATT_READ_BY_GROUP_TYPE_REQUEST    0x10 /* NOT IMPLEMENTED*/
 #define ATT_READ_BY_GROUP_TYPE_RESPONSE   0x11 /* NOT IMPLEMENTED*/
-#define ATT_WRITE_REQUEST                 0x12 /* NOT IMPLEMENTED*/
-#define ATT_WRITE_RESPONSE                0x13 /* NOT IMPLEMENTED*/
+#define ATT_WRITE_REQUEST                 0x12 /* IMPLEMENTED*/
+#define ATT_WRITE_RESPONSE                0x13 /* IMPLEMENTED*/
 #define ATT_WRITE_COMMAND_REQUEST         0x52 /* NOT IMPLEMENTED*/
 #define ATT_PREPARE_WRITE_REQUEST         0x16 /* NOT IMPLEMENTED*/
 #define ATT_PREPARE_WRITE_RESPONSE        0x17 /* NOT IMPLEMENTED*/
@@ -94,6 +94,8 @@
 #define ATT_ERROR_RESPONSE_LEN            0x05
 
 #define ATT_MTU                           0x17
+#define GROUP_RESPONSE_HEADER             0x02
+#define GROUP_RESPONSE_MAX_LENGTH         0x14
 #define SUCCESS                           0xFF
 
 /*---------------------------------------------------------------------------*/

@@ -33,15 +33,15 @@
 /*---------------------------------------------------------------------------*/
 #ifndef ATT_DATABASE_H_
 #define ATT_DATABASE_H_
-#include "net/uuid.h"
+#include "uuid.h"
 
 typedef struct{
     uint8_t (*get_action)(bt_size_t* value);
     uint8_t (*set_action)(bt_size_t* value);
     bt_size_t att_value;
     bt_size_t att_uuid;
-  	int att_readable;		/* Read requirement 0 = not readable,  1 = readable*/
-  	int att_writable;		/* Write requirement 0 = not readable,  1 = readable*/
+  	uint8_t att_readable;		/* Read requirement 0 = not readable,  1 = readable*/
+  	uint8_t att_writable;		/* Write requirement 0 = not readable,  1 = readable*/
   	uint16_t att_handle;
 
 

@@ -183,6 +183,49 @@ static uint8_t prepare_write(uint8_t *data, const uint16_t len){
 
   return SUCCESS;
 }
+static uint8_t parse_group_req(uint8_t *data, uint16_t *starting_handle, uint16_t *ending_handle, bt_size_t *uuid_to_match, uint16_t len){
+  /* Copy starting handle */
+  memcpy(starting_handle, &data[1], 2);
+  /* Copy ending handle */
+  memcpy(ending_handle, &data[3], 2);
+  PRINTF("start : 0x%x end : 0x%x", *starting_handle, *ending_handle);
+  /* see spec Bluetooth v5 p2198 */
+  if(starting_handle > ending_handle)
+    return ATT_ECODE_INVALID_HANDLE;
+    /* copy uudi to match */
+  memcpy(&(uuid_to_match->value.u16), &data[5], BT_SIZE16);
+  uuid_to_match->type = BT_SIZE16;
+
+  return SUCCESS;
+}
+static uint8_t prepare_group(uint8_t *data, uint16_t len){
+  PRINTF("READ BY GROUP\n");
+  bt_size_t uuid_to_match;
+  uint16_t starting_handle, ending_handle;
+  uint8_t error, num_of_groups,lenght_group, tab_response[ATT_MTU - GROUP_RESPONSE_HEADER];
+  starting_handle = ending_handle = 0;
+
+  error = parse_group_req(data, &starting_handle, &ending_handle, &uuid_to_match, len);
+  if(error != SUCCESS)
+    return error;
+
+  PRINTF("uuid to match : 0x%X", uuid_to_match.value.u16);
+  num_of_groups = 0;
+  lenght_group = 0;
+
+  error = get_group(starting_handle, ending_handle, &uuid_to_match, tab_response, &lenght_group, &num_of_groups);
+  if(error != SUCCESS)
+    return error;
+  /* Prepare payload */
+  /* Response code */
+  tx_buffer.sdu[0] = ATT_READ_BY_GROUP_TYPE_RESPONSE;
+  tx_buffer.sdu[1] =lenght_group;
+  PRINTF("NUM to send : %X length : %X\n", num_of_groups, lenght_group);
+  memcpy(&tx_buffer.sdu[2], tab_response, num_of_groups*lenght_group);
+  tx_buffer.sdu_length = (num_of_groups*lenght_group)+2;
+
+return SUCCESS;
+}
 /*---------------------------------------------------------------------------*/
 static void input(void){
   uint8_t control = ATT_ECODE_REQ_NOT_SUPP;
@@ -192,20 +235,25 @@ static void input(void){
 
   switch (data[0]){
     case ATT_ERROR_RESPONSE:
-    /* NOT TESTED */
         PRINTF("%s", error(data[4]));
       break;
     case ATT_MTU_REQUEST:
       prepare_mtu_resp();
       break;
+
     case ATT_READ_REQUEST :
-      PRINTF("READ REQUEST\n");
       control = prepare_read(data);
       break;
+
     case ATT_WRITE_REQUEST :
-    PRINTF("WRITE REQUEST\n");
       control = prepare_write(data, len);
       break;
+
+    case ATT_READ_BY_GROUP_TYPE_REQUEST: /* see spec v5 p2200 */
+      /* support only 16 bits attributes */
+      control = prepare_group(data, len);
+      break;
+
     default :
       control = ATT_ECODE_REQ_NOT_SUPP;
       break;
@@ -217,15 +265,26 @@ static void input(void){
   send();
 }
 /*---------------------------------------------------------------------------*/
-bt_size_t test;
+
+// bt_size_t test;
 static void init(void)
 {
-  register_ble_attribute(TEMPERATURE);
   register_ble_attribute(GENERIC_ACCESS_SERVICE);
+  register_ble_attribute(TEMPERATURE);
 
-  bt_size_t *ptr = &test;
-  uint8_t error = get_value(2, &ptr);
-  PRINTF("error : 0x%02X value : 0x%04llX\n", error, ptr->value.u64);
+  // uint8_t tab_response[20];
+  // uint8_t len_resp=0;
+  // uint8_t num_of_groups=0;
+  // test.value.u16 = 0x2800;
+  // test.type = BT_SIZE16;
+  // uint8_t error = get_group(0x0001, 0xffff, &test, tab_response, &len_resp, &num_of_groups);
+  //
+  // for(int i=0; i<20; i++){
+  //   PRINTF("i=%d, tab=0x%.X\n",i, tab_response[i]);
+  // }
+
+
+  // PRINTF("error : 0x%02X value : 0x%04llX\n", error, ptr->value.u64);
 
 }
 /*---------------------------------------------------------------------------*/

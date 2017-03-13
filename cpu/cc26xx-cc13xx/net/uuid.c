@@ -30,22 +30,61 @@
  * Author: Arthur Courtel <arthurcourtel@gmail.com>
  *
  */
-/*---------------------------------------------------------------------------*/
-#ifndef GATT_SENSORS_H_
-#define GATT_SENSORS_H_
-/*---------------------------------------------------------------------------*/
-#define TEMPERATURE 1
-#define GENERIC_ACCESS_SERVICE 2
-/*---------------------------------------------------------------------------*/
-#include "net/att-database.h"
-#include "net/ble-att.h"
-#include "net/profiles/temp.h"
-/*---------------------------------------------------------------------------*/
-uint16_t index_attr;
 
-void register_ble_attribute(uint8_t type);
-uint8_t get_value(const uint16_t handle, bt_size_t **value_ptr);
-uint8_t set_value(const uint16_t handle, uint8_t *data, uint16_t len);
-uint8_t get_group(const uint16_t starting_handle, const uint16_t ending_handle, const bt_size_t *uuid_to_match,uint8_t *tab_ptr, uint8_t *len, uint8_t *len_tab);
-/*---------------------------------------------------------------------------*/
-#endif //GATT_SENSORS_H_
+#include "uuid.h"
+#include <string.h>
+#include <stdio.h>
+
+#define BASE_UUID16_OFFSET	2
+static void bt_uuid_to_string(const uint128_t *uuid, char *str, size_t n)
+{
+	unsigned int   data0;
+	unsigned short data1;
+	unsigned short data2;
+	unsigned short data3;
+	unsigned int   data4;
+	unsigned short data5;
+	const uint8_t *data;
+
+
+	data = (uint8_t *) uuid;
+
+	memcpy(&data0, &data[0], 4);
+	memcpy(&data1, &data[4], 2);
+	memcpy(&data2, &data[6], 2);
+	memcpy(&data3, &data[8], 2);
+	memcpy(&data4, &data[10], 4);
+	memcpy(&data5, &data[14], 2);
+
+	snprintf(str, n, "%.8x-%.4x-%.4x-%.4x-%.8x%.4x",
+				data0, data1,
+				data2, data3,
+				data4, data5);
+
+}
+static uint128_t bluetooth_base_uuid = {
+	.data = {	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00,
+			0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+};
+
+uint128_t uuid_16_to_128(const uint16_t uuid_16){
+ uint128_t result;
+ /* Set base uuid */
+ result = bluetooth_base_uuid;
+
+ memcpy(&result.data[BASE_UUID16_OFFSET], &uuid_16, sizeof(uuid_16));
+ char uuid[40];
+ size_t s = 40;
+ bt_uuid_to_string(&result, uuid, s);
+ //printf("uuid : %s\n", uuid);
+ return result;
+}
+
+uint16_t uuid_128_to_16(const uint128_t uuid_128){
+ uint16_t result;
+
+ memcpy(&result, &uuid_128.data[BASE_UUID16_OFFSET], sizeof(result));
+
+ //printf("uuid : %d\n", result);
+ return result;
+}

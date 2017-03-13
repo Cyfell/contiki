@@ -40,12 +40,6 @@ typedef struct {
 } uint128_t;
 
 
-
-// static uint128_t bluetooth_base_uuid = {
-// 	.data = {	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00,
-// 			0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
-// };
-
 typedef struct {
 	enum {
 		BT_SIZE8 = 1,
@@ -63,4 +57,6 @@ typedef struct {
 	} value;
 } bt_size_t;
 /*---------------------------------------------------------------------------*/
+uint128_t uuid_16_to_128(uint16_t uuid_16);
+uint16_t uuid_128_to_16(const uint128_t uuid_128);
 #endif
