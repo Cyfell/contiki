@@ -53,16 +53,6 @@ attribute_t *list_attr[ATTRIBUTE_NUMBER_MAX+1];
 attribute_t primary_generic_access_service, characteristic_generic_access_service;
 attribute_t primary_temp, temp, temp_ed;
 /*---------------------------------------------------------------------------*/
-static void register_uuid_16(attribute_t *att, const uint16_t uuid){
-  att->att_uuid.type = BT_SIZE16;
-  att->att_uuid.value.u16 = uuid;
-}
-/*---------------------------------------------------------------------------*/
-// static void register_uuid_128(attribute_t *att, const uint128_t uuid){
-//   att->att_uuid.type = BT_SIZE128;
-//   att->att_uuid.value.u128 = uuid;
-// }
-/*---------------------------------------------------------------------------*/
 // static void register_value_8(attribute_t *att, const uint8_t value){
 //   att->att_value.type = BT_SIZE8;
 //   att->att_value.value.u8 = value;
@@ -88,8 +78,10 @@ static void register_value_64(attribute_t *att, const uint64_t value){
 //   att->att_value.value.u128 = value;
 // }
 /*---------------------------------------------------------------------------*/
-static void register_att( attribute_t *att, const uint8_t handle, const uint8_t readable, const uint8_t writable, const void *get, const void *set){
+static void register_att( attribute_t *att, const uint8_t handle, const uint128_t uuid, const uint8_t readable, const uint8_t writable, const void *get, const void *set){
   att->att_handle = handle;
+  att->att_uuid.type = BT_SIZE128;
+  att->att_uuid.value.u128 = uuid;
   att->att_readable = readable;
   att->att_writable = writable;
   att->get_action = get;
@@ -102,28 +94,23 @@ static uint8_t no_action(){
 void register_ble_attribute(uint8_t type){
   switch(type){
     case GENERIC_ACCESS_SERVICE:
-      register_att(&primary_generic_access_service, 0x0001, 1, 0,no_action, no_action);
-      register_uuid_16(&primary_generic_access_service,0x2800);
+      register_att(&primary_generic_access_service, 0x0001, uuid_16_to_128(0x2800), 1, 0,no_action, no_action);
       register_value_16(&primary_generic_access_service, 0x1800);
 
-      register_att(&characteristic_generic_access_service, 0x0002, 1, 0,no_action, no_action);
-      register_uuid_16(&characteristic_generic_access_service,0x2803);
+      register_att(&characteristic_generic_access_service, 0x0002, uuid_16_to_128(0x2803), 1, 0,no_action, no_action);
       register_value_64(&characteristic_generic_access_service, 0x020300002A);
       list_attr[index_attr++]=&primary_generic_access_service;
       list_attr[index_attr++]=&characteristic_generic_access_service;
       break;
 
     case TEMPERATURE:
-      register_att(&primary_temp, 0x0003, 1, 0,no_action, no_action);
-      register_uuid_16(&primary_temp,0x2800);
+      register_att(&primary_temp, 0x0003, uuid_16_to_128(0x2800), 1, 0,no_action, no_action);
       register_value_16(&primary_temp, 0x0200);
 
-      register_att(&temp, 0x0004, 1, 0, actualise_temp, no_action);
-      register_uuid_16(&temp,0x0200);
+      register_att(&temp, 0x0004, uuid_16_to_128(0x0200), 1, 0, actualise_temp, no_action);
       register_value_16(&temp, 0x00);
 
-      register_att(&temp_ed, 0x0005, 1, 1, no_action, enable_disable);
-      register_uuid_16(&temp,0x0300);
+      register_att(&temp_ed, 0x0005, uuid_16_to_128(0x0300), 1, 1, no_action, enable_disable);
       register_value_16(&temp_ed, 0x0);
 
       list_attr[index_attr++]=&primary_temp;
@@ -208,8 +195,7 @@ uint8_t set_value(const uint16_t handle, uint8_t *data, uint16_t len){
 /*---------------------------------------------------------------------------*/
 static uint16_t get_group_end(const uint16_t handle, const bt_size_t *uuid_to_match){
   for(uint16_t i=handle; i<ATTRIBUTE_NUMBER_MAX; i++){
-
-    if (list_attr[i]->att_uuid.value.u16 == uuid_to_match->value.u16){
+    if (uuid_128_compare(list_attr[i]->att_uuid.value.u128, uuid_to_match->value.u128) == 1){
       return list_attr[i-1]->att_handle;
     }
 
@@ -226,7 +212,7 @@ static attribute_t *get_group_att_start(const uint16_t starting_handle, const bt
     if (!att)
       return NULL;
 
-    if (att->att_uuid.value.u16 == uuid_to_match->value.u16){
+    if (uuid_128_compare(att->att_uuid.value.u128, uuid_to_match->value.u128) == 1){
       return att;
     }
   }
@@ -260,6 +246,7 @@ curr_size = 0;
     type_previous_value = att->att_value.type;
     att = get_attribute(group_end_handle+1);
 
+
     /* Check if next group is not null or contain other value type */
     if ((att == NULL) || (att->att_value.type != type_previous_value )){
       /* length of one group */
@@ -275,6 +262,10 @@ curr_size = 0;
 uint8_t get_group(const uint16_t starting_handle, const uint16_t ending_handle, const bt_size_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups){
   attribute_t *att_groupe_start;
   PRINTF("GET GROUPE\n");
+
+  /* Change this to support other group type */
+  if(uuid_128_compare(uuid_to_match->value.u128, uuid_16_to_128(PRIMARY_GROUP_TYPE)) == 0)
+    return ATT_ECODE_UNSUPP_GRP_TYPE;
 
   /* check if attribute is not null */
   att_groupe_start = get_group_att_start(starting_handle, uuid_to_match);

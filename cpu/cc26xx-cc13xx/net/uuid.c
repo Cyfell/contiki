@@ -33,7 +33,13 @@
 
 #include "uuid.h"
 #include <string.h>
+#define DEBUG 1
+#if DEBUG
 #include <stdio.h>
+#define PRINTF(...) printf(__VA_ARGS__)
+#else
+#define PRINTF(...)
+#endif
 
 #define BASE_UUID16_OFFSET	2
 static void bt_uuid_to_string(const uint128_t *uuid, char *str, size_t n)
@@ -73,9 +79,9 @@ uint128_t uuid_16_to_128(const uint16_t uuid_16){
  result = bluetooth_base_uuid;
 
  memcpy(&result.data[BASE_UUID16_OFFSET], &uuid_16, sizeof(uuid_16));
- char uuid[40];
- size_t s = 40;
- bt_uuid_to_string(&result, uuid, s);
+ // char uuid[40];
+ // size_t s = 40;
+ //bt_uuid_to_string(&result, uuid, s);
  //printf("uuid : %s\n", uuid);
  return result;
 }
@@ -87,4 +93,11 @@ uint16_t uuid_128_to_16(const uint128_t uuid_128){
 
  //printf("uuid : %d\n", result);
  return result;
+}
+uint8_t uuid_128_compare(const uint128_t u1, const uint128_t u2){
+	for (uint8_t i = 0; i < sizeof(uint128_t); i++){
+		if (u1.data[i] != u2.data[i])
+			return 0;
+	}
+	return 1;
 }

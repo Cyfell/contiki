@@ -97,6 +97,7 @@
 #define GROUP_RESPONSE_HEADER             0x02
 #define GROUP_RESPONSE_MAX_LENGTH         0x14
 #define SUCCESS                           0xFF
+#define PRIMARY_GROUP_TYPE                0x2800
 
 /*---------------------------------------------------------------------------*/
 #endif //BLE_ATT_H_

@@ -68,7 +68,7 @@ static void send(){
   NETSTACK_MAC.send(NULL, NULL);
 }
 /*---------------------------------------------------------------------------*/
-static void prepare_mtu_resp(){
+static uint8_t prepare_mtu_resp(){
   /* Response code */
   tx_buffer.sdu[0]= ATT_MTU_RESPONSE;
   /* Server Rx MTU */
@@ -76,6 +76,7 @@ static void prepare_mtu_resp(){
   tx_buffer.sdu[2]=0x00;
   /* set sdu length */
   tx_buffer.sdu_length = 3;
+  return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
 static void prepare_error_resp(uint8_t* opcode, uint8_t error)
@@ -184,17 +185,25 @@ static uint8_t prepare_write(uint8_t *data, const uint16_t len){
   return SUCCESS;
 }
 static uint8_t parse_group_req(uint8_t *data, uint16_t *starting_handle, uint16_t *ending_handle, bt_size_t *uuid_to_match, uint16_t len){
+  uint16_t tmp_uuid_16;
   /* Copy starting handle */
   memcpy(starting_handle, &data[1], 2);
   /* Copy ending handle */
   memcpy(ending_handle, &data[3], 2);
-  PRINTF("start : 0x%x end : 0x%x", *starting_handle, *ending_handle);
   /* see spec Bluetooth v5 p2198 */
   if(starting_handle > ending_handle)
     return ATT_ECODE_INVALID_HANDLE;
+  /* for group request if len < 8 a 16bits uuid is sent, 128bits otherwise */
+  if(len<8){
     /* copy uudi to match */
-  memcpy(&(uuid_to_match->value.u16), &data[5], BT_SIZE16);
-  uuid_to_match->type = BT_SIZE16;
+    memcpy(&tmp_uuid_16, &data[5], BT_SIZE16);
+    uuid_to_match->value.u128 = uuid_16_to_128(tmp_uuid_16);
+  }else{
+    /* copy uudi to match */
+    memcpy(&(uuid_to_match->value.u128), &data[5], BT_SIZE128);
+  }
+  uuid_to_match->type = BT_SIZE128;
+    /* copy uudi to match */
 
   return SUCCESS;
 }
@@ -209,7 +218,6 @@ static uint8_t prepare_group(uint8_t *data, uint16_t len){
   if(error != SUCCESS)
     return error;
 
-  PRINTF("uuid to match : 0x%X", uuid_to_match.value.u16);
   num_of_groups = 0;
   lenght_group = 0;
 
@@ -220,7 +228,7 @@ static uint8_t prepare_group(uint8_t *data, uint16_t len){
   /* Response code */
   tx_buffer.sdu[0] = ATT_READ_BY_GROUP_TYPE_RESPONSE;
   tx_buffer.sdu[1] =lenght_group;
-  PRINTF("NUM to send : %X length : %X\n", num_of_groups, lenght_group);
+  //PRINTF("NUM to send : %X length : %X\n", num_of_groups, lenght_group);
   memcpy(&tx_buffer.sdu[2], tab_response, num_of_groups*lenght_group);
   tx_buffer.sdu_length = (num_of_groups*lenght_group)+2;
 
@@ -232,13 +240,13 @@ static void input(void){
 
   uint8_t *data = (uint8_t *)packetbuf_dataptr();
   uint16_t len = packetbuf_datalen();
-
   switch (data[0]){
     case ATT_ERROR_RESPONSE:
         PRINTF("%s", error(data[4]));
       break;
+
     case ATT_MTU_REQUEST:
-      prepare_mtu_resp();
+      control = prepare_mtu_resp();
       break;
 
     case ATT_READ_REQUEST :
