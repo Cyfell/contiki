@@ -48,16 +48,13 @@
 
 /*---------------------------------------------------------------------------*/
 /* L2CAP fragmentation buffers and utilities                                 */
-
 typedef struct {
   /* ATT Service Data Unit (SDU) */
   uint8_t sdu[ATT_MTU];
   /* length of the ATT SDU */
   uint16_t sdu_length;
 } att_buffer_t;
-
 static att_buffer_t tx_buffer;
-
 /*---------------------------------------------------------------------------*/
 static void send(){
   /* TODO: Add ATT MTU controll */
@@ -79,8 +76,7 @@ static uint8_t prepare_mtu_resp(){
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-static void prepare_error_resp(uint8_t* opcode, uint8_t error)
-{
+static void prepare_error_resp(uint8_t* opcode, uint8_t error){
   /* Response code */
   tx_buffer.sdu[0] = ATT_ERROR_RESPONSE;
   /* Operation asked */
@@ -95,8 +91,7 @@ static void prepare_error_resp(uint8_t* opcode, uint8_t error)
 }
 /*---------------------------------------------------------------------------*/
 /* NOT TESTED */
-const char *error(uint8_t status)
-{
+const char *error(uint8_t status){
 	switch (status)  {
 	case ATT_ECODE_INVALID_HANDLE:
 		return "Invalid handle";
@@ -143,7 +138,7 @@ const char *error(uint8_t status)
 	}
 }
 /*---------------------------------------------------------------------------*/
-/* send read response */
+/* prepare read response */
 static uint8_t prepare_read(const uint8_t *data){
   uint16_t handle;
   uint8_t error;
@@ -160,12 +155,17 @@ static uint8_t prepare_read(const uint8_t *data){
     /* Response code */
   tx_buffer.sdu[0] = ATT_READ_RESPONSE;
   /* copy value in sdu */
-  memcpy(&tx_buffer.sdu[1], &value_ptr->value, value_ptr->type);
-  tx_buffer.sdu_length = value_ptr->type+1;
+  if (value_ptr->type == BT_SIZE_STR){ //specific treatment if value is a string
+    memcpy(&tx_buffer.sdu[1], &value_ptr->value, strlen(value_ptr->value.str));
+    tx_buffer.sdu_length =  strlen(value_ptr->value.str)+1;
+  }else{
+    memcpy(&tx_buffer.sdu[1], &value_ptr->value, value_ptr->type);
+    tx_buffer.sdu_length = value_ptr->type+1;
+  }
+
 
   return SUCCESS;
 }
-
 /*---------------------------------------------------------------------------*/
 static uint8_t prepare_write(uint8_t *data, const uint16_t len){
   uint16_t handle;
@@ -184,6 +184,7 @@ static uint8_t prepare_write(uint8_t *data, const uint16_t len){
 
   return SUCCESS;
 }
+/*---------------------------------------------------------------------------*/
 static uint8_t parse_group_req(uint8_t *data, uint16_t *starting_handle, uint16_t *ending_handle, bt_size_t *uuid_to_match, uint16_t len){
   uint16_t tmp_uuid_16;
   /* Copy starting handle */
@@ -207,6 +208,7 @@ static uint8_t parse_group_req(uint8_t *data, uint16_t *starting_handle, uint16_
 
   return SUCCESS;
 }
+/*---------------------------------------------------------------------------*/
 static uint8_t prepare_group(uint8_t *data, uint16_t len){
   PRINTF("READ BY GROUP\n");
   bt_size_t uuid_to_match;
@@ -228,11 +230,11 @@ static uint8_t prepare_group(uint8_t *data, uint16_t len){
   /* Response code */
   tx_buffer.sdu[0] = ATT_READ_BY_GROUP_TYPE_RESPONSE;
   tx_buffer.sdu[1] =lenght_group;
-  //PRINTF("NUM to send : %X length : %X\n", num_of_groups, lenght_group);
   memcpy(&tx_buffer.sdu[2], tab_response, num_of_groups*lenght_group);
+
   tx_buffer.sdu_length = (num_of_groups*lenght_group)+2;
 
-return SUCCESS;
+  return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
 static void input(void){
@@ -258,7 +260,6 @@ static void input(void){
       break;
 
     case ATT_READ_BY_GROUP_TYPE_REQUEST: /* see spec v5 p2200 */
-      /* support only 16 bits attributes */
       control = prepare_group(data, len);
       break;
 
@@ -273,10 +274,8 @@ static void input(void){
   send();
 }
 /*---------------------------------------------------------------------------*/
-
 // bt_size_t test;
-static void init(void)
-{
+static void init(void){
   register_ble_attribute(GENERIC_ACCESS_SERVICE);
   register_ble_attribute(TEMPERATURE);
 
@@ -296,8 +295,7 @@ static void init(void)
 
 }
 /*---------------------------------------------------------------------------*/
-const struct network_driver gatt_driver =
-{
+const struct network_driver gatt_driver ={
   "gatt_driver",
   .init = init,
   .input = input,

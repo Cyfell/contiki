@@ -31,7 +31,7 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-#define ATTRIBUTE_NUMBER_MAX 5
+#define ATTRIBUTE_NUMBER_MAX 6
 
 
 #define DEBUG 1
@@ -50,13 +50,13 @@
 
 /*---------------------------------------------------------------------------*/
 attribute_t *list_attr[ATTRIBUTE_NUMBER_MAX+1];
-attribute_t primary_generic_access_service, characteristic_generic_access_service;
+attribute_t primary_generic_access_service, characteristic_generic_access_service, device_name;
 attribute_t primary_temp, temp, temp_ed;
 /*---------------------------------------------------------------------------*/
-// static void register_value_8(attribute_t *att, const uint8_t value){
-//   att->att_value.type = BT_SIZE8;
-//   att->att_value.value.u8 = value;
-// }
+static void register_value_8(attribute_t *att, const uint8_t value){
+  att->att_value.type = BT_SIZE8;
+  att->att_value.value.u8 = value;
+}
 /*---------------------------------------------------------------------------*/
 static void register_value_16(attribute_t *att, const uint16_t value){
   att->att_value.type = BT_SIZE16;
@@ -73,10 +73,16 @@ static void register_value_64(attribute_t *att, const uint64_t value){
   att->att_value.value.u64 = value;
 }
 /*---------------------------------------------------------------------------*/
-// static void register_value_128(attribute_t *att, const uint128_t value){
-//   att->att_value.type = BT_SIZE128;
-//   att->att_value.value.u128 = value;
-// }
+static void register_value_128(attribute_t *att, const uint128_t value){
+  att->att_value.type = BT_SIZE128;
+  att->att_value.value.u128 = value;
+}
+/*---------------------------------------------------------------------------*/
+static void register_value_str(attribute_t *att, const char value[20]){
+  att->att_value.type = BT_SIZE_STR;
+  strncpy(att->att_value.value.str, value, BT_SIZE_STR);
+  PRINTF("value : %s | str : %s", value, att->att_value.value.str);
+}
 /*---------------------------------------------------------------------------*/
 static void register_att( attribute_t *att, const uint8_t handle, const uint128_t uuid, const uint8_t readable, const uint8_t writable, const void *get, const void *set){
   att->att_handle = handle;
@@ -87,6 +93,7 @@ static void register_att( attribute_t *att, const uint8_t handle, const uint128_
   att->get_action = get;
   att->set_action = set;
 }
+/*---------------------------------------------------------------------------*/
 static uint8_t no_action(){
   return SUCCESS;
 }
@@ -99,18 +106,23 @@ void register_ble_attribute(uint8_t type){
 
       register_att(&characteristic_generic_access_service, 0x0002, uuid_16_to_128(0x2803), 1, 0,no_action, no_action);
       register_value_64(&characteristic_generic_access_service, 0x020300002A);
+
+      register_att(&device_name, 0x0003, uuid_16_to_128(0x2A00), 1, 0,no_action, no_action);
+      register_value_str(&device_name, "Sensortag"); // hex to string : Sensortag
+
       list_attr[index_attr++]=&primary_generic_access_service;
       list_attr[index_attr++]=&characteristic_generic_access_service;
+      list_attr[index_attr++]=&device_name;
       break;
 
     case TEMPERATURE:
-      register_att(&primary_temp, 0x0003, uuid_16_to_128(0x2800), 1, 0,no_action, no_action);
+      register_att(&primary_temp, 0x0004, uuid_16_to_128(0x2800), 1, 0,no_action, no_action);
       register_value_16(&primary_temp, 0x0200);
 
-      register_att(&temp, 0x0004, uuid_16_to_128(0x0200), 1, 0, actualise_temp, no_action);
+      register_att(&temp, 0x0005, uuid_16_to_128(0x0200), 1, 0, actualise_temp, no_action);
       register_value_16(&temp, 0x00);
 
-      register_att(&temp_ed, 0x0005, uuid_16_to_128(0x0300), 1, 1, no_action, enable_disable);
+      register_att(&temp_ed, 0x0006, uuid_16_to_128(0x0300), 1, 1, no_action, enable_disable);
       register_value_16(&temp_ed, 0x0);
 
       list_attr[index_attr++]=&primary_temp;
@@ -148,6 +160,9 @@ static void register_new_att_value(bt_size_t *att_value, uint8_t *data){
     case BT_SIZE128 :
       att_value->value.u128 = *(uint128_t *)payload;
       break;
+    // case BT_SIZE_STR :
+    //   att_value->value.str = *(char *)payload;
+    //   break;
   }
 }
 /*---------------------------------------------------------------------------*/
@@ -167,7 +182,6 @@ uint8_t get_value(const uint16_t handle, bt_size_t **value_ptr){
   if(!att->get_action || att->get_action(&att->att_value) != SUCCESS)
     return ATT_ECODE_UNLIKELY;
 
-  //PRINTF("uuid : 0x%x\n", uuid_128_to_16(att->att_uuid.value.u128));
   *value_ptr = &att->att_value;
   return SUCCESS;
 }
@@ -220,9 +234,9 @@ static attribute_t *get_group_att_start(const uint16_t starting_handle, const bt
 }
 /*---------------------------------------------------------------------------*/
 static void fill_group_param(attribute_t *att, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups, const bt_size_t *uuid_to_match){
-uint8_t curr_size, type_previous_value;
-uint16_t group_end_handle;
-curr_size = 0;
+  uint8_t curr_size, type_previous_value;
+  uint16_t group_end_handle;
+  curr_size = 0;
 
   while((curr_size + att->att_value.type) < (ATT_MTU - GROUP_RESPONSE_HEADER)){
     /* Look for the end handle of the group */
@@ -257,7 +271,6 @@ curr_size = 0;
   /* length of one group */
   *lenght_group = curr_size/(*num_of_groups);
 }
-
 /*---------------------------------------------------------------------------*/
 uint8_t get_group(const uint16_t starting_handle, const uint16_t ending_handle, const bt_size_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups){
   attribute_t *att_groupe_start;
