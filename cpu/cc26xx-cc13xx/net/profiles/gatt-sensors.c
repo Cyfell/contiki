@@ -31,7 +31,7 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-#define ATTRIBUTE_NUMBER_MAX 6
+#define ATTRIBUTE_NUMBER_MAX 9
 
 
 #define DEBUG 1
@@ -50,8 +50,8 @@
 
 /*---------------------------------------------------------------------------*/
 attribute_t *list_attr[ATTRIBUTE_NUMBER_MAX+1];
-attribute_t primary_generic_access_service, characteristic_generic_access_service, device_name;
-attribute_t primary_temp, temp, temp_ed;
+attribute_t primary_declaration_generic_access_service, characteristic_declaration_device_name, device_name;
+attribute_t primary_declaration_temp, characteristic_declaration_temp_data, temp_data, characteristic_declaration_temp_ed, temp_ed;
 /*---------------------------------------------------------------------------*/
 static void register_value_8(attribute_t *att, const uint8_t value){
   att->att_value.type = BT_SIZE8;
@@ -101,32 +101,40 @@ static uint8_t no_action(){
 void register_ble_attribute(uint8_t type){
   switch(type){
     case GENERIC_ACCESS_SERVICE:
-      register_att(&primary_generic_access_service, 0x0001, uuid_16_to_128(0x2800), 1, 0,no_action, no_action);
-      register_value_16(&primary_generic_access_service, 0x1800);
+      register_att(&primary_declaration_generic_access_service, 0x0001, uuid_16_to_128(0x2800), 1, 0,no_action, no_action);
+      register_value_16(&primary_declaration_generic_access_service, 0x1800);
 
-      register_att(&characteristic_generic_access_service, 0x0002, uuid_16_to_128(0x2803), 1, 0,no_action, no_action);
-      register_value_64(&characteristic_generic_access_service, 0x020300002A);
+      register_att(&characteristic_declaration_device_name, 0x0002, uuid_16_to_128(0x2803), 1, 0,no_action, no_action);
+      register_value_64(&characteristic_declaration_device_name, 0x020300002A);
 
       register_att(&device_name, 0x0003, uuid_16_to_128(0x2A00), 1, 0,no_action, no_action);
       register_value_str(&device_name, "Sensortag"); // hex to string : Sensortag
 
-      list_attr[index_attr++]=&primary_generic_access_service;
-      list_attr[index_attr++]=&characteristic_generic_access_service;
+      list_attr[index_attr++]=&primary_declaration_generic_access_service;
+      list_attr[index_attr++]=&characteristic_declaration_device_name;
       list_attr[index_attr++]=&device_name;
       break;
 
     case TEMPERATURE:
-      register_att(&primary_temp, 0x0004, uuid_16_to_128(0x2800), 1, 0,no_action, no_action);
-      register_value_16(&primary_temp, 0x0200);
+      register_att(&primary_declaration_temp, 0x0004, uuid_16_to_128(0x2800), 1, 0,no_action, no_action);
+      register_value_16(&primary_declaration_temp, 0x0200);
 
-      register_att(&temp, 0x0005, uuid_16_to_128(0x0200), 1, 0, actualise_temp, no_action);
-      register_value_16(&temp, 0x00);
+      register_att(&characteristic_declaration_temp_data, 0x0005, uuid_16_to_128(0x2803), 1, 0,no_action, no_action);
+      register_value_64(&characteristic_declaration_temp_data, 0x02030000AA);
 
-      register_att(&temp_ed, 0x0006, uuid_16_to_128(0x0300), 1, 1, no_action, enable_disable);
+      register_att(&temp_data, 0x0006, uuid_16_to_128(0x0200), 1, 0, actualise_temp, no_action);
+      register_value_16(&temp_data, 0x00);
+
+      register_att(&characteristic_declaration_temp_ed, 0x0007, uuid_16_to_128(0x2803), 1, 0,no_action, no_action);
+      register_value_64(&characteristic_declaration_temp_ed, 0x02030000AA);
+
+      register_att(&temp_ed, 0x0008, uuid_16_to_128(0x0300), 1, 1, no_action, enable_disable);
       register_value_16(&temp_ed, 0x0);
 
-      list_attr[index_attr++]=&primary_temp;
-      list_attr[index_attr++]=&temp;
+      list_attr[index_attr++]=&primary_declaration_temp;
+      list_attr[index_attr++]=&characteristic_declaration_temp_data;
+      list_attr[index_attr++]=&temp_data;
+      list_attr[index_attr++]=&characteristic_declaration_temp_ed;
       list_attr[index_attr++]=&temp_ed;
       list_attr[index_attr++]=NULL;
       break;
