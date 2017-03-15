@@ -88,8 +88,8 @@ static void register_att( attribute_t *att, const uint8_t handle, const uint128_
   att->att_handle = handle;
   att->att_uuid.type = BT_SIZE128;
   att->att_uuid.value.u128 = uuid;
-  att->att_readable = readable;
-  att->att_writable = writable;
+  att->properties.read = readable;
+  att->properties.write = writable;
   att->get_action = get;
   att->set_action = set;
 }
@@ -176,7 +176,7 @@ uint8_t get_value(const uint16_t handle, bt_size_t **value_ptr){
     return ATT_ECODE_ATTR_NOT_FOUND;
 
 
-  if (!att->att_readable)
+  if (!att->properties.read)
     return ATT_ECODE_READ_NOT_PERM;
 
   if(!att->get_action || att->get_action(&att->att_value) != SUCCESS)
@@ -195,8 +195,8 @@ uint8_t set_value(const uint16_t handle, uint8_t *data, uint16_t len){
     return ATT_ECODE_ATTR_NOT_FOUND;
 
 
-  if (!att->att_writable)
-    return ATT_ECODE_READ_NOT_PERM;
+  if (!att->properties.write)
+    return ATT_ECODE_WRITE_NOT_PERM;
 
   register_new_att_value(&att->att_value, data);
 
