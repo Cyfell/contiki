@@ -55,6 +55,8 @@ typedef struct {
   uint16_t sdu_length;
 } att_buffer_t;
 static att_buffer_t tx_buffer;
+
+static uint16_t error_handle;
 /*---------------------------------------------------------------------------*/
 static void send(){
   /* TODO: Add ATT MTU controll */
@@ -82,8 +84,7 @@ static void prepare_error_resp(uint8_t* opcode, uint8_t error){
   /* Operation asked */
   tx_buffer.sdu[1] = opcode[0];
   /* Attribute handle that generate an error */
-  tx_buffer.sdu[2] = 0x00;
-  tx_buffer.sdu[3] = 0x00;
+  memcpy(&tx_buffer.sdu[2], &error_handle, sizeof(error_handle));
   /* Error code */
   tx_buffer.sdu[4] = error;
   /* set sdu length */
@@ -148,8 +149,10 @@ static uint8_t prepare_read(const uint8_t *data){
   bt_size_t *value_ptr;
   error = get_value(handle, &value_ptr);
 
-  if(error != SUCCESS)
+  if(error != SUCCESS){
+    error_handle = handle;
     return error;
+  }
 
     /* Prepare payload */
     /* Response code */
@@ -175,8 +178,10 @@ static uint8_t prepare_write(uint8_t *data, const uint16_t len){
 
   error = set_value(handle, data, len);
 
-  if(error != SUCCESS)
+  if(error != SUCCESS){
+    error_handle = handle;
     return error;
+  }
   /* Prepare payload */
   /* Response code */
   tx_buffer.sdu[0] = ATT_WRITE_RESPONSE;
@@ -217,15 +222,19 @@ static uint8_t prepare_group(uint8_t *data, uint16_t len){
   starting_handle = ending_handle = 0;
 
   error = parse_group_req(data, &starting_handle, &ending_handle, &uuid_to_match, len);
-  if(error != SUCCESS)
+  if(error != SUCCESS){
+    error_handle = starting_handle;
     return error;
+  }
 
   num_of_groups = 0;
   lenght_group = 0;
 
   error = get_group(starting_handle, ending_handle, &uuid_to_match, tab_response, &lenght_group, &num_of_groups);
-  if(error != SUCCESS)
+  if(error != SUCCESS){
+    error_handle = starting_handle;
     return error;
+  }
   /* Prepare payload */
   /* Response code */
   tx_buffer.sdu[0] = ATT_READ_BY_GROUP_TYPE_RESPONSE;
@@ -239,6 +248,8 @@ static uint8_t prepare_group(uint8_t *data, uint16_t len){
 /*---------------------------------------------------------------------------*/
 static void input(void){
   uint8_t control = ATT_ECODE_REQ_NOT_SUPP;
+  /* Clear error  handles */
+  error_handle = 0x0;
 
   uint8_t *data = (uint8_t *)packetbuf_dataptr();
   uint16_t len = packetbuf_datalen();

@@ -31,7 +31,7 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-#define ATTRIBUTE_NUMBER_MAX 9
+#define ATTRIBUTE_NUMBER_MAX 8
 
 
 #define DEBUG 1
