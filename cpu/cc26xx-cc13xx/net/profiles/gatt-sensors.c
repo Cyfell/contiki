@@ -69,7 +69,7 @@ static void register_value_16(attribute_t *att, const uint16_t value){
 // }
 /*---------------------------------------------------------------------------*/
 static void register_value_64(attribute_t *att, const uint64_t value){
-  att->att_value.type = BT_SIZE64;
+  att->att_value.type = BT_CHARACTERISTIC;
   att->att_value.value.u64 = value;
 }
 /*---------------------------------------------------------------------------*/
@@ -78,10 +78,10 @@ static void register_value_128(attribute_t *att, const uint128_t value){
   att->att_value.value.u128 = value;
 }
 /*---------------------------------------------------------------------------*/
-static void register_value_str(attribute_t *att, const char value[20]){
+static void register_value_str(attribute_t *att, const char *value){
   att->att_value.type = BT_SIZE_STR;
   strncpy(att->att_value.value.str, value, BT_SIZE_STR);
-  PRINTF("value : %s | str : %s", value, att->att_value.value.str);
+  //PRINTF("value : %s | str : %s", value, att->att_value.value.str);
 }
 /*---------------------------------------------------------------------------*/
 static void register_att( attribute_t *att, const uint8_t handle, const uint128_t uuid, const uint8_t readable, const uint8_t writable, const void *get, const void *set){
@@ -108,7 +108,7 @@ void register_ble_attribute(uint8_t type){
       register_value_64(&characteristic_declaration_device_name, 0x020300002A);
 
       register_att(&device_name, 0x0003, uuid_16_to_128(0x2A00), 1, 0,no_action, no_action);
-      register_value_str(&device_name, "Sensortag"); // hex to string : Sensortag
+      register_value_str(&device_name, "Sensortag");
 
       list_attr[index_attr++]=&primary_declaration_generic_access_service;
       list_attr[index_attr++]=&characteristic_declaration_device_name;
@@ -120,15 +120,15 @@ void register_ble_attribute(uint8_t type){
       register_value_16(&primary_declaration_temp, 0x0200);
 
       register_att(&characteristic_declaration_temp_data, 0x0005, uuid_16_to_128(0x2803), 1, 0,no_action, no_action);
-      register_value_64(&characteristic_declaration_temp_data, 0x02030000AA);
+      register_value_64(&characteristic_declaration_temp_data, 0x02060001AA);
 
-      register_att(&temp_data, 0x0006, uuid_16_to_128(0x0200), 1, 0, actualise_temp, no_action);
+      register_att(&temp_data, 0x0006, uuid_16_to_128(0x01AA), 1, 0, actualise_temp, no_action);
       register_value_16(&temp_data, 0x00);
 
       register_att(&characteristic_declaration_temp_ed, 0x0007, uuid_16_to_128(0x2803), 1, 0,no_action, no_action);
-      register_value_64(&characteristic_declaration_temp_ed, 0x02030000AA);
+      register_value_64(&characteristic_declaration_temp_ed, 0x02080002AA);
 
-      register_att(&temp_ed, 0x0008, uuid_16_to_128(0x0300), 1, 1, no_action, enable_disable);
+      register_att(&temp_ed, 0x0008, uuid_16_to_128(0x02AA), 1, 1, no_action, enable_disable);
       register_value_16(&temp_ed, 0x0);
 
       list_attr[index_attr++]=&primary_declaration_temp;
@@ -177,7 +177,6 @@ static void register_new_att_value(bt_size_t *att_value, uint8_t *data){
 uint8_t get_value(const uint16_t handle, bt_size_t **value_ptr){
   attribute_t *att;
   PRINTF("GET VALUE\n");
-  PRINTF("handle : %d\n", handle);
   att = get_attribute(handle);
 
   if (!att)
@@ -225,10 +224,10 @@ static uint16_t get_group_end(const uint16_t handle, const bt_size_t *uuid_to_ma
   return list_attr[ATTRIBUTE_NUMBER_MAX-1]->att_handle;
 }
 /*---------------------------------------------------------------------------*/
-static attribute_t *get_group_att_start(const uint16_t starting_handle, const bt_size_t *uuid_to_match){
+static attribute_t *get_attribute_by_uuid(const uint16_t starting_handle, const bt_size_t *uuid_to_match, const uint16_t ending_handle){
   attribute_t *att;
 
-  for(uint16_t i=starting_handle; i<ATTRIBUTE_NUMBER_MAX; i++){
+  for(uint16_t i=starting_handle; i < ATTRIBUTE_NUMBER_MAX && i < ending_handle; i++){
     att = get_attribute(i);
 
     if (!att)
@@ -241,7 +240,7 @@ static attribute_t *get_group_att_start(const uint16_t starting_handle, const bt
   return NULL;
 }
 /*---------------------------------------------------------------------------*/
-static void fill_group_param(attribute_t *att, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups, const bt_size_t *uuid_to_match){
+static void fill_response_tab_group(attribute_t *att, const uint16_t ending_handle, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups, const bt_size_t *uuid_to_match){
   uint8_t curr_size, type_previous_value;
   uint16_t group_end_handle;
   curr_size = 0;
@@ -261,7 +260,7 @@ static void fill_group_param(attribute_t *att, uint8_t *response_table, uint8_t 
     /* Copy value */
     memcpy(response_table+curr_size, &att->att_value.value, att->att_value.type);
     curr_size += att->att_value.type;
-
+    // PRINTF("Handle 8 = 0x%X", list_attr[7]);
     /* count number of groups to send */
     (*num_of_groups)++;
 
@@ -270,7 +269,10 @@ static void fill_group_param(attribute_t *att, uint8_t *response_table, uint8_t 
 
 
     /* Check if next group is not null or contain other value type */
-    if ((att == NULL) || (att->att_value.type != type_previous_value )){
+    if (                 (att == NULL)                                  // verrify if next attribute is null
+                      || (att->att_value.type != type_previous_value)   // verrify if next attribute's value is different type
+                      || (att->att_handle > ending_handle)              // verrify if next attribute exceed ending_handle
+                      || !(att->properties.read)){                      // verrify if next attribute can't be read
       /* length of one group */
       *lenght_group = curr_size/(*num_of_groups);
       break;
@@ -280,7 +282,43 @@ static void fill_group_param(attribute_t *att, uint8_t *response_table, uint8_t 
   *lenght_group = curr_size/(*num_of_groups);
 }
 /*---------------------------------------------------------------------------*/
-uint8_t get_group(const uint16_t starting_handle, const uint16_t ending_handle, const bt_size_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups){
+static void fill_response_tab(attribute_t *att, const uint16_t ending_handle, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups, const bt_size_t *uuid_to_match){
+  uint8_t curr_size, type_previous_value;
+  uint64_t swap;
+  curr_size = 0;
+
+  while((curr_size + att->att_value.type) < (ATT_MTU - GROUP_RESPONSE_HEADER)){
+    /* Copy start handle of current group */
+    memcpy(response_table+curr_size, &att->att_handle, sizeof(att->att_handle));
+    curr_size += sizeof(att->att_handle);
+    /* TODO: Change the swap system */
+    /* Copy value */
+    swap = swap40(att->att_value.value.u64);
+    memcpy(response_table+curr_size, &swap, att->att_value.type);
+    curr_size += att->att_value.type;
+
+    /* count number of groups to send */
+    (*num_of_groups)++;
+
+    type_previous_value = att->att_value.type;
+    att = get_attribute_by_uuid((att->att_handle)+1, uuid_to_match, ending_handle);
+
+
+    /* Check if next group is not null or contain other value type */
+    if (                 (att == NULL)                                  // verrify if next attribute is null
+                      || (att->att_value.type != type_previous_value)   // verrify if next attribute's value is different type
+                      || (att->att_handle > ending_handle)              // verrify if next attribute exceed ending_handle
+                      || !(att->properties.read)){                      // verrify if next attribute can't be read
+      /* length of one group */
+      *lenght_group = curr_size/(*num_of_groups);
+      break;
+    }
+  }
+  /* length of one group */
+  *lenght_group = curr_size/(*num_of_groups);
+}
+/*---------------------------------------------------------------------------*/
+uint8_t fill_group_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const bt_size_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups){
   attribute_t *att_groupe_start;
   PRINTF("GET GROUPE\n");
 
@@ -289,15 +327,28 @@ uint8_t get_group(const uint16_t starting_handle, const uint16_t ending_handle, 
     return ATT_ECODE_UNSUPP_GRP_TYPE;
 
   /* check if attribute is not null */
-  att_groupe_start = get_group_att_start(starting_handle, uuid_to_match);
+  att_groupe_start = get_attribute_by_uuid(starting_handle, uuid_to_match, ending_handle);
   if(!att_groupe_start)
     return ATT_ECODE_ATTR_NOT_FOUND;
 
   /* Fill in table */
-  fill_group_param(att_groupe_start, response_table,lenght_group, num_of_groups, uuid_to_match);
-
+  fill_response_tab_group(att_groupe_start, ending_handle, response_table,lenght_group, num_of_groups, uuid_to_match);
 
   return SUCCESS;
+}
+/*---------------------------------------------------------------------------*/
+uint8_t fill_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const bt_size_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups){
+  attribute_t *att_groupe_start;
+  PRINTF("GET GROUPE\n");
 
+  /* check if attribute is not null */
+  att_groupe_start = get_attribute_by_uuid(starting_handle, uuid_to_match, ending_handle);
+  if(!att_groupe_start)
+    return ATT_ECODE_ATTR_NOT_FOUND;
+
+  /* Fill in table */
+  fill_response_tab(att_groupe_start, ending_handle, response_table,lenght_group, num_of_groups, uuid_to_match);
+
+  return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/

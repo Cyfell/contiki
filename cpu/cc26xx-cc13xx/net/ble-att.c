@@ -190,14 +190,14 @@ static uint8_t prepare_write(uint8_t *data, const uint16_t len){
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-static uint8_t parse_group_req(uint8_t *data, uint16_t *starting_handle, uint16_t *ending_handle, bt_size_t *uuid_to_match, uint16_t len){
+static uint8_t parse_type_req(uint8_t *data, uint16_t *starting_handle, uint16_t *ending_handle, bt_size_t *uuid_to_match, uint16_t len){
   uint16_t tmp_uuid_16;
   /* Copy starting handle */
   memcpy(starting_handle, &data[1], 2);
   /* Copy ending handle */
   memcpy(ending_handle, &data[3], 2);
   /* see spec Bluetooth v5 p2198 */
-  if(starting_handle > ending_handle)
+  if(starting_handle > ending_handle || starting_handle == NULL_HANDLE)
     return ATT_ECODE_INVALID_HANDLE;
   /* for group request if len < 8 a 16bits uuid is sent, 128bits otherwise */
   if(len<8){
@@ -214,14 +214,15 @@ static uint8_t parse_group_req(uint8_t *data, uint16_t *starting_handle, uint16_
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-static uint8_t prepare_group(uint8_t *data, uint16_t len){
+static uint8_t prepare_type(uint8_t *data, uint16_t len){
   PRINTF("READ BY GROUP\n");
   bt_size_t uuid_to_match;
   uint16_t starting_handle, ending_handle;
-  uint8_t error, num_of_groups,lenght_group, tab_response[ATT_MTU - GROUP_RESPONSE_HEADER];
+  uint8_t error, num_of_groups,lenght_group, tab_response[ATT_MTU - GROUP_RESPONSE_HEADER], response_type;
+
   starting_handle = ending_handle = 0;
 
-  error = parse_group_req(data, &starting_handle, &ending_handle, &uuid_to_match, len);
+  error = parse_type_req(data, &starting_handle, &ending_handle, &uuid_to_match, len);
   if(error != SUCCESS){
     error_handle = starting_handle;
     return error;
@@ -230,14 +231,20 @@ static uint8_t prepare_group(uint8_t *data, uint16_t len){
   num_of_groups = 0;
   lenght_group = 0;
 
-  error = get_group(starting_handle, ending_handle, &uuid_to_match, tab_response, &lenght_group, &num_of_groups);
+  if (data[0] == ATT_READ_BY_GROUP_TYPE_REQUEST){
+    response_type = ATT_READ_BY_GROUP_TYPE_RESPONSE;
+    error = fill_group_type_response_values(starting_handle, ending_handle, &uuid_to_match, tab_response, &lenght_group, &num_of_groups);
+  }else{
+    response_type = ATT_READ_BY_TYPE_RESPONSE;
+    error = fill_type_response_values(starting_handle, ending_handle, &uuid_to_match, tab_response, &lenght_group, &num_of_groups);
+  }
   if(error != SUCCESS){
     error_handle = starting_handle;
     return error;
   }
   /* Prepare payload */
   /* Response code */
-  tx_buffer.sdu[0] = ATT_READ_BY_GROUP_TYPE_RESPONSE;
+  tx_buffer.sdu[0] = response_type;
   tx_buffer.sdu[1] =lenght_group;
   memcpy(&tx_buffer.sdu[2], tab_response, num_of_groups*lenght_group);
 
@@ -271,7 +278,10 @@ static void input(void){
       break;
 
     case ATT_READ_BY_GROUP_TYPE_REQUEST: /* see spec v5 p2200 */
-      control = prepare_group(data, len);
+      //FALLTHROUGH
+
+    case ATT_READ_BY_TYPE_REQUEST:
+      control = prepare_type(data, len);
       break;
 
     default :

@@ -46,6 +46,7 @@ uint16_t index_attr;
 void register_ble_attribute(uint8_t type);
 uint8_t get_value(const uint16_t handle, bt_size_t **value_ptr);
 uint8_t set_value(const uint16_t handle, uint8_t *data, uint16_t len);
-uint8_t get_group(const uint16_t starting_handle, const uint16_t ending_handle, const bt_size_t *uuid_to_match,uint8_t *tab_ptr, uint8_t *len, uint8_t *len_tab);
+uint8_t fill_group_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const bt_size_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups);
+uint8_t fill_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const bt_size_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups);
 /*---------------------------------------------------------------------------*/
 #endif //GATT_SENSORS_H_

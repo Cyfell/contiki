@@ -39,12 +39,17 @@ typedef struct {
 	uint8_t data[16];
 } uint128_t;
 
-
+# define swap40(x) \
+     (__extension__(( ( (x) & 0xff00000000ull) >> 32)                  \
+                    | (((x) & 0x00ff000000ull) >> 16)                 \
+                    | (((x) & 0x000000ff00ull) << 16)                  \
+                    | (((x) & 0x00000000ffull) << 32)))
 typedef struct {
 	enum {
 		BT_SIZE8 = 1,
 		BT_SIZE16 = 2,
 		BT_SIZE32 = 4,
+		BT_CHARACTERISTIC = 5,
 		BT_SIZE64 = 8,
 		BT_SIZE128 = 16,
 		BT_SIZE_STR = 20,

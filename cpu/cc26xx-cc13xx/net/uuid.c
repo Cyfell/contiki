@@ -81,8 +81,8 @@ uint128_t uuid_16_to_128(const uint16_t uuid_16){
  memcpy(&result.data[BASE_UUID16_OFFSET], &uuid_16, sizeof(uuid_16));
  // char uuid[40];
  // size_t s = 40;
- //bt_uuid_to_string(&result, uuid, s);
- //printf("uuid : %s\n", uuid);
+ // bt_uuid_to_string(&result, uuid, s);
+ // printf("uuid : %s\n", uuid);
  return result;
 }
 

@@ -98,6 +98,8 @@
 #define GROUP_RESPONSE_MAX_LENGTH         0x14
 #define SUCCESS                           0xFF
 #define PRIMARY_GROUP_TYPE                0x2800
+#define CHARACTERISTIC_DECLARATION        0x2803
+#define NULL_HANDLE                       0x0000
 
 /*---------------------------------------------------------------------------*/
 #endif //BLE_ATT_H_
