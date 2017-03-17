@@ -50,8 +50,6 @@ typedef struct{
       uint8_t read:1;
       uint8_t broadcast:1;
     }properties;
-  	uint8_t att_readable;		/* Read requirement 0 = not readable,  1 = readable*/
-  	uint8_t att_writable;		/* Write requirement 0 = not readable,  1 = readable*/
   	uint16_t att_handle;
 
 
