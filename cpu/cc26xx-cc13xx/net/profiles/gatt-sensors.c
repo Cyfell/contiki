@@ -31,9 +31,6 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-#define ATTRIBUTE_NUMBER_MAX 8
-
-
 #define DEBUG 1
 #if DEBUG
 #include <stdio.h>
@@ -47,102 +44,123 @@
 #include "uuid.h"
 #include <stdlib.h>
 #include <string.h>
+#define UUID_PRIMARY_DECLARATION          {	0x00, 0x00, 0x28, 0x00, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+#define UUID_CHARACTERISTIC_DECLARATION   {	0x00, 0x00, 0x28, 0x03, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+#define UUID_DEVICE_NAME                  {	0x00, 0x00, 0x2A, 0x00, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 
-/*---------------------------------------------------------------------------*/
-attribute_t *list_attr[ATTRIBUTE_NUMBER_MAX+1];
-attribute_t primary_declaration_generic_access_service, characteristic_declaration_device_name, device_name;
-attribute_t primary_declaration_temp, characteristic_declaration_temp_data, temp_data, characteristic_declaration_temp_ed, temp_ed;
-/*---------------------------------------------------------------------------*/
-static void register_value_8(attribute_t *att, const uint8_t value){
-  att->att_value.type = BT_SIZE8;
-  att->att_value.value.u8 = value;
-}
-/*---------------------------------------------------------------------------*/
-static void register_value_16(attribute_t *att, const uint16_t value){
-  att->att_value.type = BT_SIZE16;
-  att->att_value.value.u16 = value;
-}
-/*---------------------------------------------------------------------------*/
-// static void register_value_32(attribute_t *att, const uint32_t value){
-//   att->att_value.type = BT_SIZE32;
-//   att->att_value.value.u32 = value;
-// }
-/*---------------------------------------------------------------------------*/
-static void register_value_64(attribute_t *att, const uint64_t value){
-  att->att_value.type = BT_CHARACTERISTIC;
-  att->att_value.value.u64 = value;
-}
-/*---------------------------------------------------------------------------*/
-static void register_value_128(attribute_t *att, const uint128_t value){
-  att->att_value.type = BT_SIZE128;
-  att->att_value.value.u128 = value;
-}
-/*---------------------------------------------------------------------------*/
-static void register_value_str(attribute_t *att, const char *value){
-  att->att_value.type = BT_SIZE_STR;
-  strncpy(att->att_value.value.str, value, BT_SIZE_STR);
-  //PRINTF("value : %s | str : %s", value, att->att_value.value.str);
-}
-/*---------------------------------------------------------------------------*/
-static void register_att( attribute_t *att, const uint8_t handle, const uint128_t uuid, const uint8_t readable, const uint8_t writable, const void *get, const void *set){
-  att->att_handle = handle;
-  att->att_uuid.type = BT_SIZE128;
-  att->att_uuid.value.u128 = uuid;
-  att->properties.read = readable;
-  att->properties.write = writable;
-  att->get_action = get;
-  att->set_action = set;
-}
-/*---------------------------------------------------------------------------*/
+#define UUID_TEMP_SERVICE                 {	0x00, 0x00, 0xAA, 0x00, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+#define UUID_TEMP_DATA                    {	0x00, 0x00, 0xAA, 0x01, 0x00, 0x00, 0x10, 0x01, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+#define UUID_TEMP_ED                      {	0x00, 0x00, 0xAA, 0x02, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+
 static uint8_t no_action(){
   return SUCCESS;
 }
-/*---------------------------------------------------------------------------*/
-void register_ble_attribute(uint8_t type){
-  switch(type){
-    case GENERIC_ACCESS_SERVICE:
-      register_att(&primary_declaration_generic_access_service, 0x0001, uuid_16_to_128(0x2800), 1, 0,no_action, no_action);
-      register_value_16(&primary_declaration_generic_access_service, 0x1800);
 
-      register_att(&characteristic_declaration_device_name, 0x0002, uuid_16_to_128(0x2803), 1, 0,no_action, no_action);
-      register_value_64(&characteristic_declaration_device_name, 0x020300002A);
-
-      register_att(&device_name, 0x0003, uuid_16_to_128(0x2A00), 1, 0,no_action, no_action);
-      register_value_str(&device_name, "Sensortag");
-
-      list_attr[index_attr++]=&primary_declaration_generic_access_service;
-      list_attr[index_attr++]=&characteristic_declaration_device_name;
-      list_attr[index_attr++]=&device_name;
-      break;
-
-    case TEMPERATURE:
-      register_att(&primary_declaration_temp, 0x0004, uuid_16_to_128(0x2800), 1, 0,no_action, no_action);
-      register_value_16(&primary_declaration_temp, 0x0200);
-
-      register_att(&characteristic_declaration_temp_data, 0x0005, uuid_16_to_128(0x2803), 1, 0,no_action, no_action);
-      register_value_64(&characteristic_declaration_temp_data, 0x02060001AA);
-
-      register_att(&temp_data, 0x0006, uuid_16_to_128(0x01AA), 1, 0, actualise_temp, no_action);
-      register_value_16(&temp_data, 0x00);
-
-      register_att(&characteristic_declaration_temp_ed, 0x0007, uuid_16_to_128(0x2803), 1, 0,no_action, no_action);
-      register_value_64(&characteristic_declaration_temp_ed, 0x02080002AA);
-
-      register_att(&temp_ed, 0x0008, uuid_16_to_128(0x02AA), 1, 1, no_action, enable_disable);
-      register_value_16(&temp_ed, 0x0);
-
-      list_attr[index_attr++]=&primary_declaration_temp;
-      list_attr[index_attr++]=&characteristic_declaration_temp_data;
-      list_attr[index_attr++]=&temp_data;
-      list_attr[index_attr++]=&characteristic_declaration_temp_ed;
-      list_attr[index_attr++]=&temp_ed;
-      list_attr[index_attr++]=NULL;
-      break;
-  }
-}
+attribute_t *list_attr[]=
+{
+  &(attribute_t){ // PRIMARY SERVICE DECLARATION : GENERIC ACCESS SERVICE
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value.value.u16 = 0x1800,
+    .att_value.type = BT_SIZE16,
+    .att_uuid.value.u128.data = UUID_PRIMARY_DECLARATION,
+    .att_uuid.type = BT_SIZE128,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0001,
+  },
+  &(attribute_t){ // CHAR DECLARATION : DEVICE NAME
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value.value.u64 = 0x020300002A,
+    .att_value.type = BT_CHARACTERISTIC,
+    .att_uuid.value.u128.data = UUID_CHARACTERISTIC_DECLARATION,
+    .att_uuid.type = BT_SIZE128,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0002,
+  },
+  &(attribute_t){ // DEVICE NAME
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value.value.str = "Sensortag",
+    .att_value.type = BT_SIZE_STR,
+    .att_uuid.value.u128.data = UUID_DEVICE_NAME,
+    .att_uuid.type = BT_SIZE128,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0003,
+  },
+  &(attribute_t){ // PRIMARY SERVICE DECLARATION : TEMP IR
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value.value.u128.data = UUID_TEMP_SERVICE,
+    .att_value.type = BT_SIZE128,
+    .att_uuid.value.u128.data = UUID_PRIMARY_DECLARATION,
+    .att_uuid.type = BT_SIZE128,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0004,
+  },
+  /* TO FIX : HACK used because previous primary declaration has some variables that change when we dont use them.... */
+  &(attribute_t){
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value.value.u128.data = UUID_TEMP_SERVICE,
+    .att_value.type = BT_SIZE128,
+    .att_uuid.value.u128.data = UUID_PRIMARY_DECLARATION,
+    .att_uuid.type = BT_SIZE128,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0004,
+  },
+  &(attribute_t){ // CHAR DECLARATION : TEMP DATA
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value.value.u64 = 0x02030001AA,
+    .att_value.type = BT_CHARACTERISTIC,
+    .att_uuid.value.u128.data = UUID_CHARACTERISTIC_DECLARATION,
+    .att_uuid.type = BT_SIZE128,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0005,
+  },
+  &(attribute_t){ // TEMP DATA
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value.type = BT_SIZE_STR,
+    .att_uuid.value.u128.data = UUID_TEMP_DATA,
+    .att_uuid.type = BT_SIZE128,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0006,
+  },
+  &(attribute_t){ // CHAR DECLARATION : TEMP ED
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value.value.u64 = 0x02030002AA,
+    .att_value.type = BT_CHARACTERISTIC,
+    .att_uuid.value.u128.data = UUID_CHARACTERISTIC_DECLARATION,
+    .att_uuid.type = BT_SIZE128,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0007,
+  },
+  &(attribute_t){ // TEMP ED
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value.type = BT_SIZE8,
+    .att_uuid.value.u128.data = UUID_TEMP_ED,
+    .att_uuid.type = BT_SIZE128,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle =0x0008,
+  },
+  NULL
+};
 /*---------------------------------------------------------------------------*/
 static attribute_t *get_attribute(const uint16_t handle){
-  for(uint16_t i=0; i<ATTRIBUTE_NUMBER_MAX; i++){
+  for(uint16_t i=0; list_attr[i] != NULL; i++){
     if (list_attr[i]->att_handle == handle){
       return list_attr[i];
     }
@@ -168,9 +186,8 @@ static void register_new_att_value(bt_size_t *att_value, uint8_t *data){
     case BT_SIZE128 :
       att_value->value.u128 = *(uint128_t *)payload;
       break;
-    // case BT_SIZE_STR :
-    //   att_value->value.str = *(char *)payload;
-    //   break;
+    default :
+      break;
   }
 }
 /*---------------------------------------------------------------------------*/
@@ -215,19 +232,22 @@ uint8_t set_value(const uint16_t handle, uint8_t *data, uint16_t len){
 }
 /*---------------------------------------------------------------------------*/
 static uint16_t get_group_end(const uint16_t handle, const bt_size_t *uuid_to_match){
-  for(uint16_t i=handle; i<ATTRIBUTE_NUMBER_MAX; i++){
+  uint16_t i;
+  for(i=handle; list_attr[i] != NULL; i++){
+
     if (uuid_128_compare(list_attr[i]->att_uuid.value.u128, uuid_to_match->value.u128) == 1){
+      PRINTF("coucou");
       return list_attr[i-1]->att_handle;
     }
 
   }
-  return list_attr[ATTRIBUTE_NUMBER_MAX-1]->att_handle;
+  return list_attr[i-1]->att_handle;
 }
 /*---------------------------------------------------------------------------*/
 static attribute_t *get_attribute_by_uuid(const uint16_t starting_handle, const bt_size_t *uuid_to_match, const uint16_t ending_handle){
   attribute_t *att;
 
-  for(uint16_t i=starting_handle; i < ATTRIBUTE_NUMBER_MAX && i < ending_handle; i++){
+  for(uint16_t i=starting_handle; list_attr[i] != NULL && i < ending_handle; i++){
     att = get_attribute(i);
 
     if (!att)

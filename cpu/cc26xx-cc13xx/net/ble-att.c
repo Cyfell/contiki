@@ -295,11 +295,12 @@ static void input(void){
   send();
 }
 /*---------------------------------------------------------------------------*/
-// bt_size_t test;
+//bt_size_t test;
 static void init(void){
-  register_ble_attribute(GENERIC_ACCESS_SERVICE);
-  register_ble_attribute(TEMPERATURE);
 
+  // uuid_128_compare(value.u128);
+  // register_ble_attribute(GENERIC_ACCESS_SERVICE);
+  // register_ble_attribute(TEMPERATURE);
   // uint8_t tab_response[20];
   // uint8_t len_resp=0;
   // uint8_t num_of_groups=0;
