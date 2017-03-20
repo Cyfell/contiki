@@ -31,12 +31,12 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-#ifndef TEMP_H_
-#define TEMP_H_
+#ifndef HUMIDITY_H_
+#define HUMIDITY_H_
 
 #include "net/att-database.h"
 /*---------------------------------------------------------------------------*/
-uint8_t actualise_temp(bt_size_t *value);
-uint8_t enable_disable_temp(bt_size_t *value);
+uint8_t actualise_humidity(bt_size_t *value);
+uint8_t enable_disable_humidity(bt_size_t *value);
 /*---------------------------------------------------------------------------*/
-#endif  // TEMP_H_
+#endif  // HUMIDITY_H_

@@ -58,7 +58,7 @@ uint8_t actualise_temp(bt_size_t *value){
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t enable_disable(bt_size_t *value){
+uint8_t enable_disable_temp(bt_size_t *value){
   switch(value->value.u8){
     case 1:
     PRINTF("ACTIVATION CAPTEUR\n");

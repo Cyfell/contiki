@@ -51,8 +51,12 @@
 #define UUID_CONTIKI_VERSION              {	0x00, 0x00, 0x2A, 0x11, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 
 #define UUID_TEMP_SERVICE                 {	0x00, 0x00, 0xAA, 0x00, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
-#define UUID_TEMP_DATA                    {	0x00, 0x00, 0xAA, 0x01, 0x00, 0x00, 0x10, 0x01, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+#define UUID_TEMP_DATA                    {	0x00, 0x00, 0xAA, 0x01, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 #define UUID_TEMP_ED                      {	0x00, 0x00, 0xAA, 0x02, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+
+#define UUID_HUMIDITY_SERVICE             {	0x00, 0x00, 0xAA, 0x10, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+#define UUID_HUMIDITY_DATA                {	0x00, 0x00, 0xAA, 0x11, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+#define UUID_HUMIDITY_ED                  {	0x00, 0x00, 0xAA, 0x12, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 
 static uint8_t no_action(){
   return SUCCESS;
@@ -151,7 +155,7 @@ attribute_t *list_attr[]=
   &(attribute_t){ // TEMP DATA
     .get_action = actualise_temp,
     .set_action = no_action,
-    .att_value.type = BT_SIZE_STR,
+    .att_value.type = BT_SIZE16,
     .att_uuid.value.u128.data = UUID_TEMP_DATA,
     .att_uuid.type = BT_SIZE128,
     .properties.write = 0,
@@ -171,13 +175,66 @@ attribute_t *list_attr[]=
   },
   &(attribute_t){ // TEMP ED
     .get_action = no_action,
-    .set_action = enable_disable,
+    .set_action = enable_disable_temp,
     .att_value.type = BT_SIZE8,
     .att_uuid.value.u128.data = UUID_TEMP_ED,
     .att_uuid.type = BT_SIZE128,
     .properties.write = 1,
     .properties.read = 1,
     .att_handle =0x000B,
+  },
+  &(attribute_t){ // PRIMARY SERVICE DECLARATION : HUMIDITY
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value.value.u128.data = UUID_HUMIDITY_SERVICE,
+    .att_value.type = BT_SIZE128,
+    .att_uuid.value.u128.data = UUID_PRIMARY_DECLARATION,
+    .att_uuid.type = BT_SIZE128,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x000C,
+  },
+  &(attribute_t){ // CHAR DECLARATION : HUMIDITY DATA
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value.value.u64 = 0x02030011AA,
+    .att_value.type = BT_CHARACTERISTIC,
+    .att_uuid.value.u128.data = UUID_CHARACTERISTIC_DECLARATION,
+    .att_uuid.type = BT_SIZE128,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x000D,
+  },
+  &(attribute_t){ // HUMIDITY DATA
+    .get_action = actualise_humidity,
+    .set_action = no_action,
+    .att_value.type = BT_SIZE32,
+    .att_uuid.value.u128.data = UUID_HUMIDITY_DATA,
+    .att_uuid.type = BT_SIZE128,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x000E,
+  },
+  &(attribute_t){ // CHAR DECLARATION : HUMIDITY ED
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value.value.u64 = 0x020B0012AA,
+    .att_value.type = BT_CHARACTERISTIC,
+    .att_uuid.value.u128.data = UUID_CHARACTERISTIC_DECLARATION,
+    .att_uuid.type = BT_SIZE128,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x000F,
+  },
+  &(attribute_t){ // HUMIDITY ED
+    .get_action = no_action,
+    .set_action = enable_disable_humidity,
+    .att_value.type = BT_SIZE8,
+    .att_uuid.value.u128.data = UUID_HUMIDITY_ED,
+    .att_uuid.type = BT_SIZE128,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle =0x0011,
   },
   NULL
 };

@@ -31,12 +31,56 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-#ifndef TEMP_H_
-#define TEMP_H_
 
-#include "net/att-database.h"
+#define DEBUG 0
+#if DEBUG
+#include <stdio.h>
+#define PRINTF(...) printf(__VA_ARGS__)
+#else
+#define PRINTF(...)
+#endif
+
+#include "../ble-att.h"
+#include "humidity.h"
+#include "board-peripherals.h"
+
 /*---------------------------------------------------------------------------*/
-uint8_t actualise_temp(bt_size_t *value);
-uint8_t enable_disable_temp(bt_size_t *value);
+uint8_t actualise_humidity(bt_size_t *database){
+  uint32_t value;
+  uint16_t hum;
+
+  value = hdc_1000_sensor.value(HDC_1000_SENSOR_TYPE_TEMP);
+  if(value != CC26XX_SENSOR_READING_ERROR) {
+    PRINTF("HDC: Temp=%d.%02d C\n", value / 100, value % 100);
+  } else {
+    PRINTF("HDC: Temp Read Error\n");
+  }
+  // let space for humidity value
+  value = value << 16;
+
+  hum = hdc_1000_sensor.value(HDC_1000_SENSOR_TYPE_HUMIDITY);
+  if(hum != CC26XX_SENSOR_READING_ERROR) {
+    PRINTF("HDC: Humidity=%d.%02d %%RH\n", value / 100, value % 100);
+    value += hum;
+  } else {
+    PRINTF("HDC: Humidity Read Error\n");
+  }
+  database->value.u32 = (uint32_t) value;
+  return SUCCESS;
+}
 /*---------------------------------------------------------------------------*/
-#endif  // TEMP_H_
+uint8_t enable_disable_humidity(bt_size_t *value){
+  switch(value->value.u8){
+    case 1:
+    PRINTF("ACTIVATION CAPTEUR\n");
+    SENSORS_ACTIVATE(hdc_1000_sensor);
+      break;
+    case 0:
+    PRINTF("DESACTIVATION CAPTEUR");
+    SENSORS_DEACTIVATE(hdc_1000_sensor);
+      break;
+    default:
+      return ATT_ECODE_INVALID_PDU;
+  }
+  return SUCCESS;
+}

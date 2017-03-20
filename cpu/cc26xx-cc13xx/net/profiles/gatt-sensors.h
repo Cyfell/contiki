@@ -40,6 +40,7 @@
 #include "net/att-database.h"
 #include "net/ble-att.h"
 #include "net/profiles/temp.h"
+#include "net/profiles/humidity.h"
 /*---------------------------------------------------------------------------*/
 uint8_t get_value(const uint16_t handle, bt_size_t **value_ptr);
 uint8_t set_value(const uint16_t handle, uint8_t *data, uint16_t len);
