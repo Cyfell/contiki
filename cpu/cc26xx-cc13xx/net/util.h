@@ -30,38 +30,16 @@
  * Author: Arthur Courtel <arthurcourtel@gmail.com>
  *
  */
-/*---------------------------------------------------------------------------*/
-#ifndef UUID_H_
-#define UUID_H_
-#include <stdint.h>
-#include "util.h"
-/*---------------------------------------------------------------------------*/
-typedef struct {
-	uint8_t data[16];
-} uint128_t;
+ /*---------------------------------------------------------------------------*/
+ #ifndef UTIL_H_
+ #define UTIL_H_
+ #include <stdint.h>
 
-typedef struct {
-	enum {
-		BT_SIZE8 = 1,
-		BT_SIZE16 = 2,
-		BT_SIZE32 = 4,
-		BT_CHARACTERISTIC = 5,
-		BT_SIZE64 = 8,
-		BT_SIZE128 = 16,
-		BT_SIZE_STR = 20,
-	} type;
-	union {
-		uint8_t		u8;
-		uint16_t  u16;
-		uint32_t  u32;
-		uint64_t  u64;
-		uint128_t u128;
-		char 			str[20];
-	} value;
-} bt_size_t;
-/*---------------------------------------------------------------------------*/
-void aff(uint128_t test);
-uint128_t uuid_16_to_128(uint16_t uuid_16);
-uint16_t uuid_128_to_16(const uint128_t uuid_128);
-uint8_t uuid_128_compare(const uint128_t u1, const uint128_t u2);
-#endif
+ #define swap40(x) \
+      (__extension__(( ( (x) & 0xff00000000ull) >> 32)                  \
+                     | (((x) & 0x00ff000000ull) >> 16)                 \
+                     | (((x) & 0x000000ff00ull) << 16)                  \
+                     | (((x) & 0x00000000ffull) << 32)))
+
+#define swap16(x) (((x) >> 8) | ((x) << 8))
+#endif //UTIL_H_
