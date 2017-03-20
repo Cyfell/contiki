@@ -42,11 +42,13 @@
 #include "net/ble-att.h"
 #include "net/profiles/gatt-sensors.h"
 #include "uuid.h"
+#include "board.h"
 #include <stdlib.h>
 #include <string.h>
 #define UUID_PRIMARY_DECLARATION          {	0x00, 0x00, 0x28, 0x00, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 #define UUID_CHARACTERISTIC_DECLARATION   {	0x00, 0x00, 0x28, 0x03, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
-#define UUID_DEVICE_NAME                  {	0x00, 0x00, 0x2A, 0x00, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+#define UUID_DEVICE_NAME                  {	0x00, 0x00, 0x2A, 0x01, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+#define UUID_CONTIKI_VERSION              {	0x00, 0x00, 0x2A, 0x11, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 
 #define UUID_TEMP_SERVICE                 {	0x00, 0x00, 0xAA, 0x00, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 #define UUID_TEMP_DATA                    {	0x00, 0x00, 0xAA, 0x01, 0x00, 0x00, 0x10, 0x01, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
@@ -72,7 +74,7 @@ attribute_t *list_attr[]=
   &(attribute_t){ // CHAR DECLARATION : DEVICE NAME
     .get_action = no_action,
     .set_action = no_action,
-    .att_value.value.u64 = 0x020300002A,
+    .att_value.value.u64 = 0x020300012A,
     .att_value.type = BT_CHARACTERISTIC,
     .att_uuid.value.u128.data = UUID_CHARACTERISTIC_DECLARATION,
     .att_uuid.type = BT_SIZE128,
@@ -83,13 +85,46 @@ attribute_t *list_attr[]=
   &(attribute_t){ // DEVICE NAME
     .get_action = no_action,
     .set_action = no_action,
-    .att_value.value.str = "Sensortag",
+    .att_value.value.str = BOARD_STRING,
     .att_value.type = BT_SIZE_STR,
     .att_uuid.value.u128.data = UUID_DEVICE_NAME,
     .att_uuid.type = BT_SIZE128,
     .properties.write = 0,
     .properties.read = 1,
     .att_handle =0x0003,
+  },
+  &(attribute_t){ // PRIMARY SERVICE DECLARATION : INFORMATION SERVICE
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value.value.u16 = 0x180A,
+    .att_value.type = BT_SIZE16,
+    .att_uuid.value.u128.data = UUID_PRIMARY_DECLARATION,
+    .att_uuid.type = BT_SIZE128,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0004,
+  },
+  &(attribute_t){ // CHAR DECLARATION : CONTIKI VERSION
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value.value.u64 = 0x020300112A,
+    .att_value.type = BT_CHARACTERISTIC,
+    .att_uuid.value.u128.data = UUID_CHARACTERISTIC_DECLARATION,
+    .att_uuid.type = BT_SIZE128,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0005,
+  },
+  &(attribute_t){ // CONTIKI VERSION
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value.value.str = CONTIKI_VERSION_STRING,
+    .att_value.type = BT_SIZE_STR,
+    .att_uuid.value.u128.data = UUID_CONTIKI_VERSION,
+    .att_uuid.type = BT_SIZE128,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0006,
   },
   &(attribute_t){ // PRIMARY SERVICE DECLARATION : TEMP IR
     .get_action = no_action,
@@ -100,19 +135,7 @@ attribute_t *list_attr[]=
     .att_uuid.type = BT_SIZE128,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0004,
-  },
-  /* TO FIX : HACK used because previous primary declaration has some variables that change when we dont use them.... */
-  &(attribute_t){
-    .get_action = no_action,
-    .set_action = no_action,
-    .att_value.value.u128.data = UUID_TEMP_SERVICE,
-    .att_value.type = BT_SIZE128,
-    .att_uuid.value.u128.data = UUID_PRIMARY_DECLARATION,
-    .att_uuid.type = BT_SIZE128,
-    .properties.write = 0,
-    .properties.read = 1,
-    .att_handle =0x0004,
+    .att_handle =0x0007,
   },
   &(attribute_t){ // CHAR DECLARATION : TEMP DATA
     .get_action = no_action,
@@ -123,7 +146,7 @@ attribute_t *list_attr[]=
     .att_uuid.type = BT_SIZE128,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0005,
+    .att_handle =0x0008,
   },
   &(attribute_t){ // TEMP DATA
     .get_action = actualise_temp,
@@ -133,18 +156,18 @@ attribute_t *list_attr[]=
     .att_uuid.type = BT_SIZE128,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0006,
+    .att_handle =0x0009,
   },
   &(attribute_t){ // CHAR DECLARATION : TEMP ED
     .get_action = no_action,
     .set_action = no_action,
-    .att_value.value.u64 = 0x02030002AA,
+    .att_value.value.u64 = 0x020B0002AA,
     .att_value.type = BT_CHARACTERISTIC,
     .att_uuid.value.u128.data = UUID_CHARACTERISTIC_DECLARATION,
     .att_uuid.type = BT_SIZE128,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0007,
+    .att_handle =0x000A,
   },
   &(attribute_t){ // TEMP ED
     .get_action = no_action,
@@ -154,7 +177,7 @@ attribute_t *list_attr[]=
     .att_uuid.type = BT_SIZE128,
     .properties.write = 1,
     .properties.read = 1,
-    .att_handle =0x0008,
+    .att_handle =0x000B,
   },
   NULL
 };
