@@ -51,7 +51,7 @@ uint8_t actualise_humidity(bt_size_t *database){
 
   value = hdc_1000_sensor.value(HDC_1000_SENSOR_TYPE_TEMP);
   if(value != CC26XX_SENSOR_READING_ERROR) {
-    PRINTF("HDC: Temp=%d.%02d C\n", value / 100, value % 100);
+    PRINTF("HDC: Temp=%d.%02d C\n", ((uint16_t)value)  / 100, ((uint16_t)value)  % 100);
   } else {
     PRINTF("HDC: Temp Read Error\n");
   }
@@ -60,7 +60,7 @@ uint8_t actualise_humidity(bt_size_t *database){
 
   hum = hdc_1000_sensor.value(HDC_1000_SENSOR_TYPE_HUMIDITY);
   if(hum != CC26XX_SENSOR_READING_ERROR) {
-    PRINTF("HDC: Humidity=%d.%02d %%RH\n", value / 100, value % 100);
+    PRINTF("HDC: Humidity=%d.%02d %%RH\n", hum / 100, hum % 100);
     value += hum;
   } else {
     PRINTF("HDC: Humidity Read Error\n");
