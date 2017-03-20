@@ -126,7 +126,7 @@ attribute_t *list_attr[]=
     .att_handle =0x0005,
   },
   &(attribute_t){ // TEMP DATA
-    .get_action = no_action,
+    .get_action = actualise_temp,
     .set_action = no_action,
     .att_value.type = BT_SIZE_STR,
     .att_uuid.value.u128.data = UUID_TEMP_DATA,
@@ -148,7 +148,7 @@ attribute_t *list_attr[]=
   },
   &(attribute_t){ // TEMP ED
     .get_action = no_action,
-    .set_action = no_action,
+    .set_action = enable_disable,
     .att_value.type = BT_SIZE8,
     .att_uuid.value.u128.data = UUID_TEMP_ED,
     .att_uuid.type = BT_SIZE128,
