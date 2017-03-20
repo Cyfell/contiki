@@ -31,21 +31,56 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-#ifndef GATT_SENSORS_H_
-#define GATT_SENSORS_H_
+
+#define DEBUG 1
+#if DEBUG
+#include <stdio.h>
+#define PRINTF(...) printf(__VA_ARGS__)
+#else
+#define PRINTF(...)
+#endif
+
+#include "../ble-att.h"
+#include "barometer.h"
+#include "board-peripherals.h"
+
 /*---------------------------------------------------------------------------*/
-#define TEMPERATURE 1
-#define GENERIC_ACCESS_SERVICE 2
+uint8_t actualise_barometer(bt_size_t *database){
+  uint32_t value;
+  uint16_t press;
+
+  value = bmp_280_sensor.value(BMP_280_SENSOR_TYPE_TEMP);
+  if(value != CC26XX_SENSOR_READING_ERROR) {
+    PRINTF("BAR: Pressure=%d.%02d hPa\n", ((uint16_t)value) / 100, ((uint16_t)value) % 100);
+  } else {
+    PRINTF("BAR: Pressure Read Error\n");
+  }
+  // let space for humidity value
+  value = value << 16;
+
+  press = bmp_280_sensor.value(BMP_280_SENSOR_TYPE_PRESS);
+  if(press != CC26XX_SENSOR_READING_ERROR) {
+    PRINTF("BAR: Temp=%d.%02d C\n", press / 100, press % 100);
+    value += press;
+  } else {
+    PRINTF("BAR: Temperature Read Error\n");
+  }
+  database->value.u32 = (uint32_t) value;
+  return SUCCESS;
+}
 /*---------------------------------------------------------------------------*/
-#include "net/att-database.h"
-#include "net/ble-att.h"
-#include "net/profiles/temp.h"
-#include "net/profiles/humidity.h"
-#include "net/profiles/barometer.h"
-/*---------------------------------------------------------------------------*/
-uint8_t get_value(const uint16_t handle, bt_size_t **value_ptr);
-uint8_t set_value(const uint16_t handle, uint8_t *data, uint16_t len);
-uint8_t fill_group_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const bt_size_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups);
-uint8_t fill_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const bt_size_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups);
-/*---------------------------------------------------------------------------*/
-#endif //GATT_SENSORS_H_
+uint8_t enable_disable_barometer(bt_size_t *value){
+  switch(value->value.u8){
+    case 1:
+    PRINTF("ACTIVATION CAPTEUR\n");
+    SENSORS_ACTIVATE(bmp_280_sensor);
+      break;
+    case 0:
+    PRINTF("DESACTIVATION CAPTEUR");
+    SENSORS_DEACTIVATE(bmp_280_sensor);
+      break;
+    default:
+      return ATT_ECODE_INVALID_PDU;
+  }
+  return SUCCESS;
+}

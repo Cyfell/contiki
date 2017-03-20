@@ -58,6 +58,10 @@
 #define UUID_HUMIDITY_DATA                {	0x00, 0x00, 0xAA, 0x11, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 #define UUID_HUMIDITY_ED                  {	0x00, 0x00, 0xAA, 0x12, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 
+#define UUID_BAROMETER_SERVICE            {	0x00, 0x00, 0xAA, 0x20, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+#define UUID_BAROMETER_DATA               {	0x00, 0x00, 0xAA, 0x21, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+#define UUID_BAROMETER_ED                 {	0x00, 0x00, 0xAA, 0x22, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+
 static uint8_t no_action(){
   return SUCCESS;
 }
@@ -235,6 +239,59 @@ attribute_t *list_attr[]=
     .properties.write = 1,
     .properties.read = 1,
     .att_handle =0x0011,
+  },
+  &(attribute_t){ // PRIMARY SERVICE DECLARATION : HUMIDITY
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value.value.u128.data = UUID_BAROMETER_SERVICE,
+    .att_value.type = BT_SIZE128,
+    .att_uuid.value.u128.data = UUID_PRIMARY_DECLARATION,
+    .att_uuid.type = BT_SIZE128,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0012,
+  },
+  &(attribute_t){ // CHAR DECLARATION : HUMIDITY DATA
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value.value.u64 = 0x02030021AA,
+    .att_value.type = BT_CHARACTERISTIC,
+    .att_uuid.value.u128.data = UUID_CHARACTERISTIC_DECLARATION,
+    .att_uuid.type = BT_SIZE128,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0013,
+  },
+  &(attribute_t){ // HUMIDITY DATA
+    .get_action = actualise_humidity,
+    .set_action = no_action,
+    .att_value.type = BT_SIZE32,
+    .att_uuid.value.u128.data = UUID_BAROMETER_DATA,
+    .att_uuid.type = BT_SIZE128,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0014,
+  },
+  &(attribute_t){ // CHAR DECLARATION : HUMIDITY ED
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value.value.u64 = 0x020B0022AA,
+    .att_value.type = BT_CHARACTERISTIC,
+    .att_uuid.value.u128.data = UUID_CHARACTERISTIC_DECLARATION,
+    .att_uuid.type = BT_SIZE128,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0015,
+  },
+  &(attribute_t){ // HUMIDITY ED
+    .get_action = no_action,
+    .set_action = enable_disable_barometer,
+    .att_value.type = BT_SIZE8,
+    .att_uuid.value.u128.data = UUID_BAROMETER_ED,
+    .att_uuid.type = BT_SIZE128,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle =0x0016,
   },
   NULL
 };

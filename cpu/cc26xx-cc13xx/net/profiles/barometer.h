@@ -31,21 +31,12 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-#ifndef GATT_SENSORS_H_
-#define GATT_SENSORS_H_
-/*---------------------------------------------------------------------------*/
-#define TEMPERATURE 1
-#define GENERIC_ACCESS_SERVICE 2
-/*---------------------------------------------------------------------------*/
+#ifndef BAROMETER_H_
+#define BAROMETER_H_
+
 #include "net/att-database.h"
-#include "net/ble-att.h"
-#include "net/profiles/temp.h"
-#include "net/profiles/humidity.h"
-#include "net/profiles/barometer.h"
 /*---------------------------------------------------------------------------*/
-uint8_t get_value(const uint16_t handle, bt_size_t **value_ptr);
-uint8_t set_value(const uint16_t handle, uint8_t *data, uint16_t len);
-uint8_t fill_group_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const bt_size_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups);
-uint8_t fill_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const bt_size_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups);
+uint8_t actualise_barometer(bt_size_t *value);
+uint8_t enable_disable_barometer(bt_size_t *value);
 /*---------------------------------------------------------------------------*/
-#endif //GATT_SENSORS_H_
+#endif  // BAROMETER_H_
