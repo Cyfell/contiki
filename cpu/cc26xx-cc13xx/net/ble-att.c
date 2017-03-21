@@ -190,7 +190,7 @@ static uint8_t prepare_write(uint8_t *data, const uint16_t len){
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-static uint8_t parse_type_req(uint8_t *data, uint16_t *starting_handle, uint16_t *ending_handle, bt_size_t *uuid_to_match, uint16_t len){
+static uint8_t parse_type_req(uint8_t *data, uint16_t *starting_handle, uint16_t *ending_handle, uint128_t *uuid_to_match, uint16_t len){
   uint16_t tmp_uuid_16;
   /* Copy starting handle */
   memcpy(starting_handle, &data[1], 2);
@@ -203,12 +203,11 @@ static uint8_t parse_type_req(uint8_t *data, uint16_t *starting_handle, uint16_t
   if(len<8){
     /* copy uudi to match */
     memcpy(&tmp_uuid_16, &data[5], BT_SIZE16);
-    uuid_to_match->value.u128 = uuid_16_to_128(tmp_uuid_16);
+    *uuid_to_match = uuid_16_to_128(tmp_uuid_16);
   }else{
     /* copy uudi to match */
-    memcpy(&(uuid_to_match->value.u128), &data[5], BT_SIZE128);
+    memcpy(&(uuid_to_match), &data[5], BT_SIZE128);
   }
-  uuid_to_match->type = BT_SIZE128;
     /* copy uudi to match */
 
   return SUCCESS;
@@ -216,7 +215,7 @@ static uint8_t parse_type_req(uint8_t *data, uint16_t *starting_handle, uint16_t
 /*---------------------------------------------------------------------------*/
 static uint8_t prepare_type(uint8_t *data, uint16_t len){
   PRINTF("READ BY GROUP\n");
-  bt_size_t uuid_to_match;
+  uint128_t uuid_to_match;
   uint16_t starting_handle, ending_handle;
   uint8_t error, num_of_groups,lenght_group, tab_response[ATT_MTU - GROUP_RESPONSE_HEADER], response_type;
 
