@@ -35,10 +35,10 @@
 #define ATT_DATABASE_H_
 #include "uuid.h"
 
-typedef struct{
+typedef const struct{
     uint8_t (*get_action)(bt_size_t* value);
     uint8_t (*set_action)(bt_size_t* value);
-    bt_size_t att_value;
+    bt_size_t *att_value;
     uint128_t att_uuid;
     struct{
       uint8_t extended_properties:1;

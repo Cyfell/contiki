@@ -103,9 +103,9 @@ uint8_t uuid_128_compare(const uint128_t u1, const uint128_t u2){
 	// char uuid[40];
 	// size_t s = 40;
 	// bt_uuid_to_string(&u1, uuid, s);
-	// PRINTF("uuid1 : %s\n", uuid);
+	// PRINTF("uuid data base : %s\n", uuid);
 	// bt_uuid_to_string(&u2, uuid, s);
-	// PRINTF("uuid2 : %s\n", uuid);
+	// PRINTF("uuid cherche : %s\n", uuid);
 	/* /TEST */
 	for (uint8_t i = 0; i < sizeof(uint128_t); i++){
 		//PRINTF("u1 : 0x%X || u2 : 0x%X", u1.data[i], u2.data[i]);

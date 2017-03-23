@@ -46,6 +46,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "lib/memb.h"
+
 #define UUID_PRIMARY_DECLARATION          {	0x00, 0x00, 0x28, 0x00, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 #define UUID_CHARACTERISTIC_DECLARATION   {	0x00, 0x00, 0x28, 0x03, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 #define UUID_DEVICE_NAME                  {	0x00, 0x00, 0x2A, 0x01, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
@@ -66,255 +67,263 @@
 static uint8_t no_action(){
   return SUCCESS;
 }
-MEMB(attributes, attribute_t, 25);
-attribute_t *list_attr[]=
+
+static const attribute_t *list_attr[]=
 {
-//   &(attribute_t){ // PRIMARY SERVICE DECLARATION : GENERIC ACCESS SERVICE
-//     .get_action = no_action,
-//     .set_action = no_action,
-//     .att_value.value.u16 = 0x1800,
-//     .att_value.type = BT_SIZE16,
-//     .att_uuid.value.u128.data = UUID_PRIMARY_DECLARATION,
-//     .att_uuid.type = BT_SIZE128,
-//     .properties.write = 0,
-//     .properties.read = 1,
-//     .att_handle =0x0001,
-//   },
-//   &(attribute_t){ // CHAR DECLARATION : DEVICE NAME
-//     .get_action = no_action,
-//     .set_action = no_action,
-//     .att_value.value.u64 = 0x020300012A,
-//     .att_value.type = BT_CHARACTERISTIC,
-//     .att_uuid.value.u128.data = UUID_CHARACTERISTIC_DECLARATION,
-//     .att_uuid.type = BT_SIZE128,
-//     .properties.write = 0,
-//     .properties.read = 1,
-//     .att_handle =0x0002,
-//   },
-//   &(attribute_t){ // DEVICE NAME
-//     .get_action = no_action,
-//     .set_action = no_action,
-//     .att_value.value.str = BOARD_STRING,
-//     .att_value.type = BT_SIZE_STR,
-//     .att_uuid.value.u128.data = UUID_DEVICE_NAME,
-//     .att_uuid.type = BT_SIZE128,
-//     .properties.write = 0,
-//     .properties.read = 1,
-//     .att_handle =0x0003,
-//   },
-//   &(attribute_t){ // PRIMARY SERVICE DECLARATION : INFORMATION SERVICE
-//     .get_action = no_action,
-//     .set_action = no_action,
-//     .att_value.value.u16 = 0x180A,
-//     .att_value.type = BT_SIZE16,
-//     .att_uuid.value.u128.data = UUID_PRIMARY_DECLARATION,
-//     .att_uuid.type = BT_SIZE128,
-//     .properties.write = 0,
-//     .properties.read = 1,
-//     .att_handle =0x0004,
-//   },
-//   &(attribute_t){ // CHAR DECLARATION : CONTIKI VERSION
-//     .get_action = no_action,
-//     .set_action = no_action,
-//     .att_value.value.u64 = 0x020300112A,
-//     .att_value.type = BT_CHARACTERISTIC,
-//     .att_uuid.value.u128.data = UUID_CHARACTERISTIC_DECLARATION,
-//     .att_uuid.type = BT_SIZE128,
-//     .properties.write = 0,
-//     .properties.read = 1,
-//     .att_handle =0x0005,
-//   },
-//   &(attribute_t){ // CONTIKI VERSION
-//     .get_action = no_action,
-//     .set_action = no_action,
-//     .att_value.value.str = CONTIKI_VERSION_STRING,
-//     .att_value.type = BT_SIZE_STR,
-//     .att_uuid.value.u128.data = UUID_CONTIKI_VERSION,
-//     .att_uuid.type = BT_SIZE128,
-//     .properties.write = 0,
-//     .properties.read = 1,
-//     .att_handle =0x0006,
-//   },
-//   &(attribute_t){ // PRIMARY SERVICE DECLARATION : TEMP IR
-//     .get_action = no_action,
-//     .set_action = no_action,
-//     .att_value.value.u128.data = UUID_TEMP_SERVICE,
-//     .att_value.type = BT_SIZE128,
-//     .att_uuid.value.u128.data = UUID_PRIMARY_DECLARATION,
-//     .att_uuid.type = BT_SIZE128,
-//     .properties.write = 0,
-//     .properties.read = 1,
-//     .att_handle =0x0007,
-//   },
-//   &(attribute_t){ // CHAR DECLARATION : TEMP DATA
-//     .get_action = no_action,
-//     .set_action = no_action,
-//     .att_value.value.u64 = 0x02030001AA,
-//     .att_value.type = BT_CHARACTERISTIC,
-//     .att_uuid.value.u128.data = UUID_CHARACTERISTIC_DECLARATION,
-//     .att_uuid.type = BT_SIZE128,
-//     .properties.write = 0,
-//     .properties.read = 1,
-//     .att_handle =0x0008,
-//   },
-//   &(attribute_t){ // TEMP DATA
-//     .get_action = actualise_temp,
-//     .set_action = no_action,
-//     .att_value.type = BT_SIZE16,
-//     .att_uuid.value.u128.data = UUID_TEMP_DATA,
-//     .att_uuid.type = BT_SIZE128,
-//     .properties.write = 0,
-//     .properties.read = 1,
-//     .att_handle =0x0009,
-//   },
-//   &(attribute_t){ // CHAR DECLARATION : TEMP ED
-//     .get_action = no_action,
-//     .set_action = no_action,
-//     .att_value.value.u64 = 0x020B0002AA,
-//     .att_value.type = BT_CHARACTERISTIC,
-//     .att_uuid.value.u128.data = UUID_CHARACTERISTIC_DECLARATION,
-//     .att_uuid.type = BT_SIZE128,
-//     .properties.write = 0,
-//     .properties.read = 1,
-//     .att_handle =0x000A,
-//   },
-//   &(attribute_t){ // TEMP ED
-//     .get_action = no_action,
-//     .set_action = enable_disable_temp,
-//     .att_value.type = BT_SIZE8,
-//     .att_uuid.value.u128.data = UUID_TEMP_ED,
-//     .att_uuid.type = BT_SIZE128,
-//     .properties.write = 1,
-//     .properties.read = 1,
-//     .att_handle =0x000B,
-//   },
-//   &(attribute_t){ // PRIMARY SERVICE DECLARATION : HUMIDITY
-//     .get_action = no_action,
-//     .set_action = no_action,
-//     .att_value.value.u128.data = UUID_HUMIDITY_SERVICE,
-//     .att_value.type = BT_SIZE128,
-//     .att_uuid.value.u128.data = UUID_PRIMARY_DECLARATION,
-//     .att_uuid.type = BT_SIZE128,
-//     .properties.write = 0,
-//     .properties.read = 1,
-//     .att_handle =0x000C,
-//   },
-//   &(attribute_t){ // CHAR DECLARATION : HUMIDITY DATA
-//     .get_action = no_action,
-//     .set_action = no_action,
-//     .att_value.value.u64 = 0x02030011AA,
-//     .att_value.type = BT_CHARACTERISTIC,
-//     .att_uuid.value.u128.data = UUID_CHARACTERISTIC_DECLARATION,
-//     .att_uuid.type = BT_SIZE128,
-//     .properties.write = 0,
-//     .properties.read = 1,
-//     .att_handle =0x000D,
-//   },
-//   &(attribute_t){ // HUMIDITY DATA
-//     .get_action = actualise_humidity,
-//     .set_action = no_action,
-//     .att_value.type = BT_SIZE32,
-//     .att_uuid.value.u128.data = UUID_HUMIDITY_DATA,
-//     .att_uuid.type = BT_SIZE128,
-//     .properties.write = 0,
-//     .properties.read = 1,
-//     .att_handle =0x000E,
-//   },
-//   &(attribute_t){ // CHAR DECLARATION : HUMIDITY ED
-//     .get_action = no_action,
-//     .set_action = no_action,
-//     .att_value.value.u64 = 0x020B0012AA,
-//     .att_value.type = BT_CHARACTERISTIC,
-//     .att_uuid.value.u128.data = UUID_CHARACTERISTIC_DECLARATION,
-//     .att_uuid.type = BT_SIZE128,
-//     .properties.write = 0,
-//     .properties.read = 1,
-//     .att_handle =0x000F,
-//   },
-//   &(attribute_t){ // HUMIDITY ED
-//     .get_action = no_action,
-//     .set_action = enable_disable_humidity,
-//     .att_value.type = BT_SIZE8,
-//     .att_uuid.value.u128.data = UUID_HUMIDITY_ED,
-//     .att_uuid.type = BT_SIZE128,
-//     .properties.write = 1,
-//     .properties.read = 1,
-//     .att_handle =0x0011,
-//   },
-//   &(attribute_t){ // PRIMARY SERVICE DECLARATION : BAROMETER
-//     .get_action = no_action,
-//     .set_action = no_action,
-//     .att_value.value.u128.data = UUID_BAROMETER_SERVICE,
-//     .att_value.type = BT_SIZE128,
-//     .att_uuid.value.u128.data = UUID_PRIMARY_DECLARATION,
-//     .att_uuid.type = BT_SIZE128,
-//     .properties.write = 0,
-//     .properties.read = 1,
-//     .att_handle =0x0012,
-//   },
-//   &(attribute_t){ // CHAR DECLARATION : BAROMETER DATA
-//     .get_action = no_action,
-//     .set_action = no_action,
-//     .att_value.value.u64 = 0x02030021AA,
-//     .att_value.type = BT_CHARACTERISTIC,
-//     .att_uuid.value.u128.data = UUID_CHARACTERISTIC_DECLARATION,
-//     .att_uuid.type = BT_SIZE128,
-//     .properties.write = 0,
-//     .properties.read = 1,
-//     .att_handle =0x0013,
-//   },
-//   &(attribute_t){ // BAROMETER DATA
-//     .get_action = actualise_humidity,
-//     .set_action = no_action,
-//     .att_value.type = BT_SIZE32,
-//     .att_uuid.value.u128.data = UUID_BAROMETER_DATA,
-//     .att_uuid.type = BT_SIZE128,
-//     .properties.write = 0,
-//     .properties.read = 1,
-//     .att_handle =0x0014,
-//   },
-//   &(attribute_t){ // CHAR DECLARATION : BAROMETER ED
-//     .get_action = no_action,
-//     .set_action = no_action,
-//     .att_value.value.u64 = 0x020B0022AA,
-//     .att_value.type = BT_CHARACTERISTIC,
-//     .att_uuid.value.u128.data = UUID_CHARACTERISTIC_DECLARATION,
-//     .att_uuid.type = BT_SIZE128,
-//     .properties.write = 0,
-//     .properties.read = 1,
-//     .att_handle =0x0015,
-//   },
-//   &(attribute_t){ // BAROMETER ED
-//     .get_action = no_action,
-//     .set_action = enable_disable_barometer,
-//     .att_value.type = BT_SIZE8,
-//     .att_uuid.value.u128.data = UUID_BAROMETER_ED,
-//     .att_uuid.type = BT_SIZE128,
-//     .properties.write = 1,
-//     .properties.read = 1,
-//     .att_handle =0x0016,
-//   },
+  &(attribute_t){ // PRIMARY SERVICE DECLARATION : GENERIC ACCESS SERVICE
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_SIZE16,
+      .value.u16 = 0x1800,
+    },
+    .att_uuid.data = UUID_PRIMARY_DECLARATION,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle =0x0001,
+  },
+  &(attribute_t){ // CHAR DECLARATION : DEVICE NAME
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_CHARACTERISTIC,
+      .value.u64 = 0x020300012A,
+    },
+    .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0002,
+  },
+  &(attribute_t){ // DEVICE NAME
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_SIZE_STR,
+      .value.str = BOARD_STRING,
+    },
+    .att_uuid.data = UUID_DEVICE_NAME,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0003,
+  },
+  &(attribute_t){ // PRIMARY SERVICE DECLARATION : INFORMATION SERVICE
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_SIZE16,
+      .value.u16 = 0x180A,
+    },
+    .att_uuid.data = UUID_PRIMARY_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0004,
+  },
+  &(attribute_t){ // CHAR DECLARATION : CONTIKI VERSION
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_CHARACTERISTIC,
+      .value.u64 = 0x020300112A,
+    },
+    .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0005,
+  },
+  &(attribute_t){ // CONTIKI VERSION
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_SIZE_STR,
+      .value.str = CONTIKI_VERSION_STRING,
+    },
+    .att_uuid.data = UUID_CONTIKI_VERSION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0006,
+  },
+  &(attribute_t){ // PRIMARY SERVICE DECLARATION : TEMP IR
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_SIZE128,
+      .value.u128.data = UUID_TEMP_SERVICE,
+    },
+    .att_uuid.data = UUID_PRIMARY_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0007,
+  },
+  &(attribute_t){ // CHAR DECLARATION : TEMP DATA
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_CHARACTERISTIC,
+      .value.u64 = 0x02030001AA,
+    },
+    .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0008,
+  },
+  &(attribute_t){ // TEMP DATA
+    .get_action = actualise_temp,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_SIZE16,
+      .value.u16 = 0x0,
+    },
+    .att_uuid.data = UUID_TEMP_DATA,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0009,
+  },
+  &(attribute_t){ // CHAR DECLARATION : TEMP ED
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_CHARACTERISTIC,
+      .value.u64 = 0x020B0002AA,
+    },
+    .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x000A,
+  },
+  &(attribute_t){ // TEMP ED
+    .get_action = no_action,
+    .set_action = enable_disable_temp,
+    .att_value=&(bt_size_t){
+      .type = BT_SIZE8,
+      .value.u64 = 0x0,
+    },
+    .att_uuid.data = UUID_TEMP_ED,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle =0x000B,
+  },
+  &(attribute_t){ // PRIMARY SERVICE DECLARATION : HUMIDITY
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_SIZE128,
+      .value.u128.data = UUID_HUMIDITY_SERVICE,
+    },
+    .att_uuid.data = UUID_PRIMARY_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x000C,
+  },
+  &(attribute_t){ // CHAR DECLARATION : HUMIDITY DATA
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_CHARACTERISTIC,
+      .value.u64 = 0x02030011AA,
+    },
+    .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x000D,
+  },
+  &(attribute_t){ // HUMIDITY DATA
+    .get_action = actualise_humidity,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_SIZE32,
+      .value.u32 = 0x0E,
+    },
+    .att_uuid.data = UUID_HUMIDITY_DATA,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x000E,
+  },
+  &(attribute_t){ // CHAR DECLARATION : HUMIDITY ED
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_CHARACTERISTIC,
+      .value.u64 = 0x020B0012AA,
+    },
+    .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x000F,
+  },
+  &(attribute_t){ // HUMIDITY ED
+    .get_action = no_action,
+    .set_action = enable_disable_humidity,
+    .att_value=&(bt_size_t){
+      .type = BT_SIZE8,
+      .value.u8 = 0x0,
+    },
+    .att_uuid.data = UUID_HUMIDITY_ED,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle =0x0011,
+  },
+  &(attribute_t){ // PRIMARY SERVICE DECLARATION : BAROMETER
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_SIZE128,
+      .value.u128.data = UUID_BAROMETER_SERVICE,
+    },
+    .att_uuid.data = UUID_PRIMARY_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0012,
+  },
+  &(attribute_t){ // CHAR DECLARATION : BAROMETER DATA
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_CHARACTERISTIC,
+      .value.u64 = 0x02030021AA,
+    },
+    .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0013,
+  },
+  &(attribute_t){ // BAROMETER DATA
+    .get_action = actualise_humidity,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_SIZE32,
+      .value.u32 = 0x0,
+    },
+    .att_uuid.data = UUID_BAROMETER_DATA,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0014,
+  },
+  &(attribute_t){ // CHAR DECLARATION : BAROMETER ED
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_CHARACTERISTIC,
+      .value.u64 = 0x020B0022AA,
+    },
+    .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0015,
+  },
+  &(attribute_t){ // BAROMETER ED
+    .get_action = no_action,
+    .set_action = enable_disable_barometer,
+    .att_value=&(bt_size_t){
+      .type = BT_SIZE8,
+      .value.u8 = 0x0,
+    },
+    .att_uuid.data = UUID_BAROMETER_ED,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle =0x0016,
+  },
   NULL
 };
-
-attribute_t* create_new_attr(){
-  attribute_t *new;
-  new = memb_alloc(&attributes);
-  if(new == NULL)
-    return NULL;
-
-  return new;
-}
-void register_database(){
-  attribute_t *p_generic_access_service;
-  p_generic_access_service = create_new_attr();
-
-  // if (p_generic_access_service == NULL)
-  //   return NULL;
-
-  //p_generic_access_service->
-}
-
 
 /*---------------------------------------------------------------------------*/
 static attribute_t *get_attribute(const uint16_t handle){
@@ -361,10 +370,10 @@ uint8_t get_value(const uint16_t handle, bt_size_t **value_ptr){
   if (!att->properties.read)
     return ATT_ECODE_READ_NOT_PERM;
 
-  if(!att->get_action || att->get_action(&att->att_value) != SUCCESS)
+  if(!att->get_action || att->get_action(att->att_value) != SUCCESS)
     return ATT_ECODE_UNLIKELY;
 
-  *value_ptr = &att->att_value;
+  *value_ptr = att->att_value;
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
@@ -380,9 +389,9 @@ uint8_t set_value(const uint16_t handle, uint8_t *data, uint16_t len){
   if (!att->properties.write)
     return ATT_ECODE_WRITE_NOT_PERM;
 
-  register_new_att_value(&att->att_value, data);
+  register_new_att_value(att->att_value, data);
 
-  if(!att->set_action || att->set_action(&att->att_value) != SUCCESS)
+  if(!att->set_action || att->set_action(att->att_value) != SUCCESS)
     return ATT_ECODE_UNLIKELY;
 
 
@@ -422,7 +431,7 @@ static void fill_response_tab_group(attribute_t *att, const uint16_t ending_hand
   uint16_t group_end_handle;
   curr_size = 0;
 
-  while((curr_size + att->att_value.type) < (ATT_MTU - GROUP_RESPONSE_HEADER)){
+  while((curr_size + att->att_value->type) < (ATT_MTU - GROUP_RESPONSE_HEADER)){
     /* Look for the end handle of the group */
     group_end_handle = get_group_end(att->att_handle, uuid_to_match);
 
@@ -435,19 +444,19 @@ static void fill_response_tab_group(attribute_t *att, const uint16_t ending_hand
     curr_size += sizeof(group_end_handle);
 
     /* Copy value */
-    memcpy(response_table+curr_size, &att->att_value.value, att->att_value.type);
-    curr_size += att->att_value.type;
+    memcpy(response_table+curr_size, &att->att_value->value, att->att_value->type);
+    curr_size += att->att_value->type;
     // PRINTF("Handle 8 = 0x%X", list_attr[7]);
     /* count number of groups to send */
     (*num_of_groups)++;
 
-    type_previous_value = att->att_value.type;
+    type_previous_value = att->att_value->type;
     att = get_attribute(group_end_handle+1);
 
 
     /* Check if next group is not null or contain other value type */
     if (                 (att == NULL)                                  // verrify if next attribute is null
-                      || (att->att_value.type != type_previous_value)   // verrify if next attribute's value is different type
+                      || (att->att_value->type != type_previous_value)   // verrify if next attribute's value is different type
                       || (att->att_handle > ending_handle)              // verrify if next attribute exceed ending_handle
                       || !(att->properties.read)){                      // verrify if next attribute can't be read
       /* length of one group */
@@ -464,26 +473,26 @@ static void fill_response_tab(attribute_t *att, const uint16_t ending_handle, ui
   uint64_t swap;
   curr_size = 0;
 
-  while((curr_size + att->att_value.type) < (ATT_MTU - GROUP_RESPONSE_HEADER)){
+  while((curr_size + att->att_value->type) < (ATT_MTU - GROUP_RESPONSE_HEADER)){
     /* Copy start handle of current group */
     memcpy(response_table+curr_size, &att->att_handle, sizeof(att->att_handle));
     curr_size += sizeof(att->att_handle);
     /* TODO: Change the swap system */
     /* Copy value */
-    swap = swap40(att->att_value.value.u64);
-    memcpy(response_table+curr_size, &swap, att->att_value.type);
-    curr_size += att->att_value.type;
+    swap = swap40(att->att_value->value.u64);
+    memcpy(response_table+curr_size, &swap, att->att_value->type);
+    curr_size += att->att_value->type;
 
     /* count number of groups to send */
     (*num_of_groups)++;
 
-    type_previous_value = att->att_value.type;
+    type_previous_value = att->att_value->type;
     att = get_attribute_by_uuid((att->att_handle)+1, uuid_to_match, ending_handle);
 
 
     /* Check if next group is not null or contain other value type */
     if (                 (att == NULL)                                  // verrify if next attribute is null
-                      || (att->att_value.type != type_previous_value)   // verrify if next attribute's value is different type
+                      || (att->att_value->type != type_previous_value)   // verrify if next attribute's value is different type
                       || (att->att_handle > ending_handle)              // verrify if next attribute exceed ending_handle
                       || !(att->properties.read)){                      // verrify if next attribute can't be read
       /* length of one group */
