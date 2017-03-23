@@ -287,7 +287,7 @@ static const attribute_t *list_attr[]=
     .att_handle =0x0013,
   },
   &(attribute_t){ // BAROMETER DATA
-    .get_action = actualise_humidity,
+    .get_action = actualise_barometer,
     .set_action = no_action,
     .att_value=&(bt_size_t){
       .type = BT_SIZE32,
