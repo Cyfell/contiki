@@ -50,9 +50,9 @@ uint8_t actualise_luxometer(bt_size_t *database){
 
   value = opt_3001_sensor.value(0);
   if(value != CC26XX_SENSOR_READING_ERROR) {
-    printf("OPT: Light=%d.%02d lux\n", value / 100, value % 100);
+    PRINTF("OPT: Light=%d.%02d lux\n", value / 100, value % 100);
   } else {
-    printf("OPT: Light Read Error\n");
+    PRINTF("OPT: Light Read Error\n");
   }
   database->value.u16 = (uint16_t) value;
   return SUCCESS;
