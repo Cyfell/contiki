@@ -31,22 +31,45 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-#ifndef GATT_SENSORS_H_
-#define GATT_SENSORS_H_
+
+#define DEBUG 0
+#if DEBUG
+#include <stdio.h>
+#define PRINTF(...) printf(__VA_ARGS__)
+#else
+#define PRINTF(...)
+#endif
+
+#include "../ble-att.h"
+#include "temp.h"
+#include "board-peripherals.h"
+
 /*---------------------------------------------------------------------------*/
-#define TEMPERATURE 1
-#define GENERIC_ACCESS_SERVICE 2
+uint8_t actualise_luxometer(bt_size_t *database){
+  int value;
+
+  value = opt_3001_sensor.value(0);
+  if(value != CC26XX_SENSOR_READING_ERROR) {
+    printf("OPT: Light=%d.%02d lux\n", value / 100, value % 100);
+  } else {
+    printf("OPT: Light Read Error\n");
+  }
+  database->value.u16 = (uint16_t) value;
+  return SUCCESS;
+}
 /*---------------------------------------------------------------------------*/
-#include "net/att-database.h"
-#include "net/ble-att.h"
-#include "net/profiles/temp.h"
-#include "net/profiles/humidity.h"
-#include "net/profiles/barometer.h"
-#include "net/profiles/luxometer.h"
-/*---------------------------------------------------------------------------*/
-uint8_t get_value(const uint16_t handle, bt_size_t **value_ptr);
-uint8_t set_value(const uint16_t handle, uint8_t *data, uint16_t len);
-uint8_t fill_group_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const uint128_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups);
-uint8_t fill_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const uint128_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups);
-/*---------------------------------------------------------------------------*/
-#endif //GATT_SENSORS_H_
+uint8_t enable_disable_luxometer(bt_size_t *value){
+  switch(value->value.u8){
+    case 1:
+    PRINTF("ACTIVATION CAPTEUR\n");
+    SENSORS_ACTIVATE(opt_3001_sensor);
+      break;
+    case 0:
+    PRINTF("DESACTIVATION CAPTEUR");
+    SENSORS_DEACTIVATE(opt_3001_sensor);
+      break;
+    default:
+      return ATT_ECODE_INVALID_PDU;
+  }
+  return SUCCESS;
+}

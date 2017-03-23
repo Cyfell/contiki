@@ -64,6 +64,10 @@
 #define UUID_BAROMETER_DATA               {	0x00, 0x00, 0xAA, 0x21, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 #define UUID_BAROMETER_ED                 {	0x00, 0x00, 0xAA, 0x22, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 
+#define UUID_LUXOMETER_SERVICE            {	0x00, 0x00, 0xAA, 0x30, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+#define UUID_LUXOMETER_DATA               {	0x00, 0x00, 0xAA, 0x31, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+#define UUID_LUXOMETER_ED                 {	0x00, 0x00, 0xAA, 0x32, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+
 static uint8_t no_action(){
   return SUCCESS;
 }
@@ -321,6 +325,66 @@ static const attribute_t *list_attr[]=
     .properties.write = 1,
     .properties.read = 1,
     .att_handle =0x0016,
+  },
+  &(attribute_t){ // PRIMARY SERVICE DECLARATION : LUXOMETER
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_SIZE128,
+      .value.u128.data = UUID_LUXOMETER_SERVICE,
+    },
+    .att_uuid.data = UUID_PRIMARY_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0017,
+  },
+  &(attribute_t){ // CHAR DECLARATION : BAROMETER DATA
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_CHARACTERISTIC,
+      .value.u64 = 0x02030031AA,
+    },
+    .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0018,
+  },
+  &(attribute_t){ // LUXOMETER DATA
+    .get_action = actualise_luxometer,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_SIZE16,
+      .value.u16 = 0x0,
+    },
+    .att_uuid.data = UUID_LUXOMETER_DATA,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0019,
+  },
+  &(attribute_t){ // CHAR DECLARATION : LUXOMETER ED
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_CHARACTERISTIC,
+      .value.u64 = 0x020B0032AA,
+    },
+    .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x001A,
+  },
+  &(attribute_t){ // LUXOMETER ED
+    .get_action = no_action,
+    .set_action = enable_disable_luxometer,
+    .att_value=&(bt_size_t){
+      .type = BT_SIZE8,
+      .value.u8 = 0x0,
+    },
+    .att_uuid.data = UUID_LUXOMETER_ED,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle =0x001B,
   },
   NULL
 };
