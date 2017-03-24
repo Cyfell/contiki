@@ -31,24 +31,40 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-#ifndef GATT_SENSORS_H_
-#define GATT_SENSORS_H_
+
+#define DEBUG 0
+#if DEBUG
+#include <stdio.h>
+#define PRINTF(...) printf(__VA_ARGS__)
+#else
+#define PRINTF(...)
+#endif
+
+#define MASK_LED_RED    0x01
+#define MASK_LED_GREEN  0x02
+#define ALL_LEDS        0x03
+
+#include "../ble-att.h"
+#include "led.h"
+#include "board-peripherals.h"
+#include "leds.h"
+
 /*---------------------------------------------------------------------------*/
-#define TEMPERATURE 1
-#define GENERIC_ACCESS_SERVICE 2
-/*---------------------------------------------------------------------------*/
-#include "net/att-database.h"
-#include "net/ble-att.h"
-#include "net/profiles/temp.h"
-#include "net/profiles/humidity.h"
-#include "net/profiles/barometer.h"
-#include "net/profiles/luxometer.h"
-#include "net/profiles/mpu.h"
-#include "net/profiles/led.h"
-/*---------------------------------------------------------------------------*/
-uint8_t get_value(const uint16_t handle, bt_size_t **value_ptr);
-uint8_t set_value(const uint16_t handle, uint8_t *data, uint16_t len);
-uint8_t fill_group_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const uint128_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups);
-uint8_t fill_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const uint128_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups);
-/*---------------------------------------------------------------------------*/
-#endif //GATT_SENSORS_H_
+uint8_t actualise_led(bt_size_t *data){
+  uint8_t command = data->value.u8;
+  if(command > ALL_LEDS)
+    return ATT_ECODE_UNLIKELY;
+
+  if(command & MASK_LED_RED){
+    leds_on(LEDS_RED);
+  }else{
+    leds_off(LEDS_RED);
+  }
+  if(command & MASK_LED_GREEN){
+    leds_on(LEDS_GREEN);
+  }else{
+    leds_off(LEDS_GREEN);
+  }
+
+  return SUCCESS;
+}

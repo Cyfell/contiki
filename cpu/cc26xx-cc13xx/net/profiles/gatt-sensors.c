@@ -72,6 +72,10 @@
 #define UUID_MPU_DATA                     {	0x00, 0x00, 0xAA, 0x41, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 #define UUID_MPU_ED                       {	0x00, 0x00, 0xAA, 0x42, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 
+#define UUID_LED_SERVICE                  {	0x00, 0x00, 0xAA, 0x50, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+#define UUID_LED_DATA                     {	0x00, 0x00, 0xAA, 0x51, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+#define UUID_LED_ED                       {	0x00, 0x00, 0xAA, 0x52, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+
 static uint8_t no_action(){
   return SUCCESS;
 }
@@ -448,6 +452,41 @@ static const attribute_t *list_attr[]=
     .properties.write = 1,
     .properties.read = 1,
     .att_handle =0x0020,
+  },
+  &(attribute_t){ // PRIMARY SERVICE DECLARATION : LED
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_SIZE128,
+      .value.u128.data = UUID_LED_SERVICE,
+    },
+    .att_uuid.data = UUID_PRIMARY_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0021,
+  },
+  &(attribute_t){ // CHAR DECLARATION : LED DATA
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_CHARACTERISTIC,
+      .value.u64 = 0x02030051AA,
+    },
+    .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0022,
+  },
+  &(attribute_t){ // LED DATA
+    .get_action = no_action,
+    .set_action = actualise_led,
+    .att_value=&(bt_size_t){
+      .type = BT_SIZE8,
+    },
+    .att_uuid.data = UUID_MPU_DATA,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle =0x0023,
   },
   NULL
 };
