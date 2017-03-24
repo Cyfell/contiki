@@ -41,7 +41,7 @@
 #endif
 
 #include "../ble-att.h"
-#include "temp.h"
+#include "luxometer.h"
 #include "board-peripherals.h"
 
 /*---------------------------------------------------------------------------*/

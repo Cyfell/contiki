@@ -41,7 +41,7 @@
 #endif
 
 #include "../ble-att.h"
-#include "humidity.h"
+#include "mpu.h"
 #include "board-peripherals.h"
 
 /*---------------------------------------------------------------------------*/
