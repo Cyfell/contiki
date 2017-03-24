@@ -68,6 +68,10 @@
 #define UUID_LUXOMETER_DATA               {	0x00, 0x00, 0xAA, 0x31, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 #define UUID_LUXOMETER_ED                 {	0x00, 0x00, 0xAA, 0x32, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 
+#define UUID_MPU_SERVICE                  {	0x00, 0x00, 0xAA, 0x40, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+#define UUID_MPU_DATA                     {	0x00, 0x00, 0xAA, 0x41, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+#define UUID_MPU_ED                       {	0x00, 0x00, 0xAA, 0x42, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+
 static uint8_t no_action(){
   return SUCCESS;
 }
@@ -338,7 +342,7 @@ static const attribute_t *list_attr[]=
     .properties.read = 1,
     .att_handle =0x0017,
   },
-  &(attribute_t){ // CHAR DECLARATION : BAROMETER DATA
+  &(attribute_t){ // CHAR DECLARATION : LUXOMETER DATA
     .get_action = no_action,
     .set_action = no_action,
     .att_value=&(bt_size_t){
@@ -385,6 +389,65 @@ static const attribute_t *list_attr[]=
     .properties.write = 1,
     .properties.read = 1,
     .att_handle =0x001B,
+  },
+  &(attribute_t){ // PRIMARY SERVICE DECLARATION : MPU
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_SIZE128,
+      .value.u128.data = UUID_MPU_SERVICE,
+    },
+    .att_uuid.data = UUID_PRIMARY_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x001C,
+  },
+  &(attribute_t){ // CHAR DECLARATION : MPU DATA
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_CHARACTERISTIC,
+      .value.u64 = 0x02030041AA,
+    },
+    .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x001D,
+  },
+  &(attribute_t){ // MPU DATA
+    .get_action = actualise_mpu,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_SIZEMPU,
+    },
+    .att_uuid.data = UUID_MPU_DATA,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x001E,
+  },
+  &(attribute_t){ // CHAR DECLARATION : MPU ED
+    .get_action = no_action,
+    .set_action = no_action,
+    .att_value=&(bt_size_t){
+      .type = BT_CHARACTERISTIC,
+      .value.u64 = 0x020B0042AA,
+    },
+    .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x001F,
+  },
+  &(attribute_t){ // MPU ED
+    .get_action = no_action,
+    .set_action = enable_disable_mpu,
+    .att_value=&(bt_size_t){
+      .type = BT_SIZE8,
+      .value.u8 = 0x0,
+    },
+    .att_uuid.data = UUID_MPU_ED,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle =0x0020,
   },
   NULL
 };

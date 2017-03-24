@@ -43,6 +43,7 @@
 #include "net/profiles/humidity.h"
 #include "net/profiles/barometer.h"
 #include "net/profiles/luxometer.h"
+#include "net/profiles/mpu.h"
 /*---------------------------------------------------------------------------*/
 uint8_t get_value(const uint16_t handle, bt_size_t **value_ptr);
 uint8_t set_value(const uint16_t handle, uint8_t *data, uint16_t len);
