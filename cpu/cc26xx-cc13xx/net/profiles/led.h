@@ -37,5 +37,6 @@
 #include "net/att-database.h"
 /*---------------------------------------------------------------------------*/
 uint8_t actualise_led(uint8_t *data);
+uint8_t get_status_leds(bt_size_t *database);
 /*---------------------------------------------------------------------------*/
 #endif  // LED_H_

@@ -99,3 +99,10 @@ uint8_t enable_disable_mpu(uint8_t *data){
   }
   return SUCCESS;
 }
+/*---------------------------------------------------------------------------*/
+uint8_t get_status_mpu(bt_size_t *database){
+  database->type = BT_SIZE8;
+  database->value.u8 = (uint8_t) mpu_9250_sensor.status(SENSORS_ACTIVE);
+  PRINTF("status mpu sensor : 0x%X\n", mpu_9250_sensor.status(SENSORS_ACTIVE));
+  return SUCCESS;
+}

@@ -86,3 +86,10 @@ uint8_t enable_disable_humidity(uint8_t *data){
   }
   return SUCCESS;
 }
+
+uint8_t get_status_humidity(bt_size_t *database){
+  database->type = BT_SIZE8;
+  database->value.u8 = (uint8_t) hdc_1000_sensor.status(SENSORS_ACTIVE);
+  PRINTF("status humidity barometer : 0x%X\n", hdc_1000_sensor.status(SENSORS_ACTIVE));
+  return SUCCESS;
+}

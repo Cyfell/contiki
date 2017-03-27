@@ -68,3 +68,10 @@ uint8_t actualise_led(uint8_t *data){
 
   return SUCCESS;
 }
+/*---------------------------------------------------------------------------*/
+uint8_t get_status_leds(bt_size_t *database){
+  database->type = BT_SIZE8;
+  database->value.u8 = (uint8_t) leds_get();
+    PRINTF("status get leds : 0x%X\n", leds_get());
+  return SUCCESS;
+}

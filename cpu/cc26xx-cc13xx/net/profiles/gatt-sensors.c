@@ -185,7 +185,7 @@ static const attribute_t *list_attr[]=
     .att_handle =0x000A,
   },
   &(attribute_t){ // TEMP ED
-    .get_action = NULL,
+    .get_action = get_status_temp,
     .set_action = enable_disable_temp,
     .att_value.type = BT_SIZE8,
     .att_value.value.u64 = 0x0,
@@ -235,7 +235,7 @@ static const attribute_t *list_attr[]=
     .att_handle =0x000F,
   },
   &(attribute_t){ // HUMIDITY ED
-    .get_action = NULL,
+    .get_action = get_status_humidity,
     .set_action = enable_disable_humidity,
     .att_value.type = BT_SIZE8,
     .att_value.value.u8 = 0x0,
@@ -285,7 +285,7 @@ static const attribute_t *list_attr[]=
     .att_handle =0x0015,
   },
   &(attribute_t){ // BAROMETER ED
-    .get_action = NULL,
+    .get_action = get_status_barometer,
     .set_action = enable_disable_barometer,
     .att_value.type = BT_SIZE8,
     .att_value.value.u8 = 0x0,
@@ -335,7 +335,7 @@ static const attribute_t *list_attr[]=
     .att_handle =0x001A,
   },
   &(attribute_t){ // LUXOMETER ED
-    .get_action = NULL,
+    .get_action = get_status_luxometer,
     .set_action = enable_disable_luxometer,
     .att_value.type = BT_SIZE8,
     .att_value.value.u8 = 0x0,
@@ -384,7 +384,7 @@ static const attribute_t *list_attr[]=
     .att_handle =0x001F,
   },
   &(attribute_t){ // MPU ED
-    .get_action = NULL,
+    .get_action = get_status_mpu,
     .set_action = enable_disable_mpu,
     .att_value.type = BT_SIZE8,
     .att_value.value.u8 = 0x0,
@@ -414,7 +414,7 @@ static const attribute_t *list_attr[]=
     .att_handle =0x0022,
   },
   &(attribute_t){ // LED DATA
-    .get_action = NULL,
+    .get_action = get_status_leds,
     .set_action = actualise_led,
     .att_value.type = BT_SIZE8,
     .att_uuid.data = UUID_MPU_DATA,

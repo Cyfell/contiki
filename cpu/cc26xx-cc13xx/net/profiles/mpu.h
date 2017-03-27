@@ -38,5 +38,6 @@
 /*---------------------------------------------------------------------------*/
 uint8_t actualise_mpu(bt_size_t *value);
 uint8_t enable_disable_mpu(uint8_t *data);
+uint8_t get_status_mpu(bt_size_t *database);
 /*---------------------------------------------------------------------------*/
 #endif  // MPU_H_

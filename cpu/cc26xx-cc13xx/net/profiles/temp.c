@@ -74,3 +74,10 @@ uint8_t enable_disable_temp(uint8_t * data){
   }
   return SUCCESS;
 }
+/*---------------------------------------------------------------------------*/
+uint8_t get_status_temp(bt_size_t *database){
+  database->type = BT_SIZE8;
+  database->value.u8 = (uint8_t) tmp_007_sensor.status(SENSORS_ACTIVE);
+  PRINTF("status temp sensor : 0x%X\n", tmp_007_sensor.status(SENSORS_ACTIVE));
+  return SUCCESS;
+}

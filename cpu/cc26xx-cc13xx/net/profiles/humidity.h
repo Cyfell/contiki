@@ -38,5 +38,6 @@
 /*---------------------------------------------------------------------------*/
 uint8_t actualise_humidity(bt_size_t *value);
 uint8_t enable_disable_humidity(uint8_t *data);
+uint8_t get_status_humidity(bt_size_t *database);
 /*---------------------------------------------------------------------------*/
 #endif  // HUMIDITY_H_

@@ -74,3 +74,10 @@ uint8_t enable_disable_luxometer(uint8_t *data){
   }
   return SUCCESS;
 }
+/*---------------------------------------------------------------------------*/
+uint8_t get_status_luxometer(bt_size_t *database){
+  database->type = BT_SIZE8;
+  database->value.u8 = (uint8_t) opt_3001_sensor.status(SENSORS_ACTIVE);
+  PRINTF("status humidity luxometer : 0x%X\n", opt_3001_sensor.status(SENSORS_ACTIVE));
+  return SUCCESS;
+}

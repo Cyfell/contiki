@@ -85,3 +85,10 @@ uint8_t enable_disable_barometer(uint8_t *data){
   }
   return SUCCESS;
 }
+/*---------------------------------------------------------------------------*/
+uint8_t get_status_barometer(bt_size_t *database){
+  database->type = BT_SIZE8;
+  database->value.u8 = (uint8_t) bmp_280_sensor.status(SENSORS_ACTIVE);
+    PRINTF("status temp barometer : 0x%X\n", bmp_280_sensor.status(SENSORS_ACTIVE));
+  return SUCCESS;
+}
