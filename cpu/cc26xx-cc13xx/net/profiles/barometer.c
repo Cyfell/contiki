@@ -32,7 +32,7 @@
  */
 /*---------------------------------------------------------------------------*/
 
-#define DEBUG 1
+#define DEBUG 0
 #if DEBUG
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
@@ -65,12 +65,13 @@ uint8_t actualise_barometer(bt_size_t *database){
   } else {
     PRINTF("BAR: Temperature Read Error\n");
   }
+  database->type = BT_SIZE32;
   database->value.u32 = (uint32_t) value;
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t enable_disable_barometer(bt_size_t *value){
-  switch(value->value.u8){
+uint8_t enable_disable_barometer(uint8_t *data){
+  switch(data[READ_RESPONSE_DATA_OFFSET]){
     case 1:
     PRINTF("ACTIVATION CAPTEUR\n");
     SENSORS_ACTIVATE(bmp_280_sensor);

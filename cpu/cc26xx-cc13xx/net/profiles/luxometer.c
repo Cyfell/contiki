@@ -54,12 +54,13 @@ uint8_t actualise_luxometer(bt_size_t *database){
   } else {
     PRINTF("OPT: Light Read Error\n");
   }
+  database->type = BT_SIZE16;
   database->value.u16 = (uint16_t) value;
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t enable_disable_luxometer(bt_size_t *value){
-  switch(value->value.u8){
+uint8_t enable_disable_luxometer(uint8_t *data){
+  switch(data[READ_RESPONSE_DATA_OFFSET]){
     case 1:
     PRINTF("ACTIVATION CAPTEUR\n");
     SENSORS_ACTIVATE(opt_3001_sensor);

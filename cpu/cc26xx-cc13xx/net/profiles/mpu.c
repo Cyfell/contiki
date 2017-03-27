@@ -57,35 +57,35 @@ uint8_t actualise_mpu(bt_size_t *database){
   database->value.u128.data[iterator++] = (value & 0xff00) >>8;
 
   value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_GYRO_Y);
-    PRINTF("value : 0x%X\n", value);
-    database->value.u128.data[iterator++] = value & 0x00ff;
-    database->value.u128.data[iterator++] = (value & 0xff00) >>8;
+  PRINTF("value : 0x%X\n", value);
+  database->value.u128.data[iterator++] = value & 0x00ff;
+  database->value.u128.data[iterator++] = (value & 0xff00) >>8;
 
   value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_GYRO_Z);
-    PRINTF("value : 0x%X\n", value);
-    database->value.u128.data[iterator++] = value & 0x00ff;
-    database->value.u128.data[iterator++] = (value & 0xff00) >>8;
+  PRINTF("value : 0x%X\n", value);
+  database->value.u128.data[iterator++] = value & 0x00ff;
+  database->value.u128.data[iterator++] = (value & 0xff00) >>8;
 
   value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_X);
-    PRINTF("value : 0x%X\n", value);
-    database->value.u128.data[iterator++] = value & 0x00ff;
-    database->value.u128.data[iterator++] = (value & 0xff00) >>8;
+  PRINTF("value : 0x%X\n", value);
+  database->value.u128.data[iterator++] = value & 0x00ff;
+  database->value.u128.data[iterator++] = (value & 0xff00) >>8;
 
   value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_Y);
-    PRINTF("value : 0x%X\n", value);
-    database->value.u128.data[iterator++] = value & 0x00ff;
-    database->value.u128.data[iterator++] = (value & 0xff00) >>8;
+  PRINTF("value : 0x%X\n", value);
+  database->value.u128.data[iterator++] = value & 0x00ff;
+  database->value.u128.data[iterator++] = (value & 0xff00) >>8;
 
   value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_Z);
     PRINTF("value : 0x%X\n", value);
-    database->value.u128.data[iterator++] = value & 0x00ff;
-    database->value.u128.data[iterator++] = (value & 0xff00) >>8;
-
+  database->value.u128.data[iterator++] = value & 0x00ff;
+  database->value.u128.data[iterator++] = (value & 0xff00) >>8;
+  database->type = BT_SIZEMPU;
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t enable_disable_mpu(bt_size_t *value){
-  switch(value->value.u8){
+uint8_t enable_disable_mpu(uint8_t *data){
+  switch(data[READ_RESPONSE_DATA_OFFSET]){
     case 1:
     PRINTF("ACTIVATION CAPTEUR\n");
     SENSORS_ACTIVATE(mpu_9250_sensor);

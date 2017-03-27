@@ -37,6 +37,6 @@
 #include "net/att-database.h"
 /*---------------------------------------------------------------------------*/
 uint8_t actualise_luxometer(bt_size_t *value);
-uint8_t enable_disable_luxometer(bt_size_t *value);
+uint8_t enable_disable_luxometer(uint8_t *data);
 /*---------------------------------------------------------------------------*/
 #endif  // LUXOMETER_H_

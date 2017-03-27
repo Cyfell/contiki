@@ -37,6 +37,6 @@
 #include "net/att-database.h"
 /*---------------------------------------------------------------------------*/
 uint8_t actualise_mpu(bt_size_t *value);
-uint8_t enable_disable_mpu(bt_size_t *value);
+uint8_t enable_disable_mpu(uint8_t *data);
 /*---------------------------------------------------------------------------*/
 #endif  // MPU_H_

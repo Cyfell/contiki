@@ -50,8 +50,8 @@
 #include "leds.h"
 
 /*---------------------------------------------------------------------------*/
-uint8_t actualise_led(bt_size_t *data){
-  uint8_t command = data->value.u8;
+uint8_t actualise_led(uint8_t *data){
+  uint8_t command = data[READ_RESPONSE_DATA_OFFSET];
   if(command > ALL_LEDS)
     return ATT_ECODE_UNLIKELY;
 
