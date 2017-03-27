@@ -37,6 +37,6 @@
 #include "net/att-database.h"
 /*---------------------------------------------------------------------------*/
 uint8_t actualise_humidity(bt_size_t *value);
-uint8_t enable_disable_humidity(bt_size_t *value);
+uint8_t enable_disable_humidity(uint8_t *data);
 /*---------------------------------------------------------------------------*/
 #endif  // HUMIDITY_H_

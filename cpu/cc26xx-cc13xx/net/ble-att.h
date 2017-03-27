@@ -93,13 +93,13 @@
 #define ATT_MTU_RESPONSE_LEN              0x03
 #define ATT_ERROR_RESPONSE_LEN            0x05
 
-#define ATT_MTU                           0x17
+#define ATT_MTU                           0x1E
 #define GROUP_RESPONSE_HEADER             0x02
 #define GROUP_RESPONSE_MAX_LENGTH         0x14
 #define SUCCESS                           0xFF
 #define PRIMARY_GROUP_TYPE                0x2800
 #define CHARACTERISTIC_DECLARATION        0x2803
 #define NULL_HANDLE                       0x0000
-
+#define READ_RESPONSE_DATA_OFFSET         0x03
 /*---------------------------------------------------------------------------*/
 #endif //BLE_ATT_H_

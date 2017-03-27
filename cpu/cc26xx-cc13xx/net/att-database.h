@@ -37,8 +37,8 @@
 
 typedef const struct attribute_s{
     uint8_t (*get_action)(bt_size_t* value);
-    uint8_t (*set_action)(bt_size_t* value);
-    bt_size_t *att_value;
+    uint8_t (*set_action)(uint8_t* data);
+    bt_size_t att_value;
     uint128_t att_uuid;
     struct{
       uint8_t extended_properties:1;

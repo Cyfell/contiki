@@ -65,12 +65,14 @@ uint8_t actualise_humidity(bt_size_t *database){
   } else {
     PRINTF("HDC: Humidity Read Error\n");
   }
+  database->type = BT_SIZE32;
   database->value.u32 = (uint32_t) value;
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t enable_disable_humidity(bt_size_t *value){
-  switch(value->value.u8){
+uint8_t enable_disable_humidity(uint8_t *data){
+
+  switch(data[READ_RESPONSE_DATA_OFFSET]){
     case 1:
     PRINTF("ACTIVATION CAPTEUR\n");
     SENSORS_ACTIVATE(hdc_1000_sensor);

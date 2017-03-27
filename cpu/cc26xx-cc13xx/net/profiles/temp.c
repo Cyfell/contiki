@@ -32,7 +32,7 @@
  */
 /*---------------------------------------------------------------------------*/
 
-#define DEBUG 1
+#define DEBUG 0
 #if DEBUG
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
@@ -50,16 +50,17 @@ uint8_t actualise_temp(bt_size_t *value){
   temp = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_ALL);
 
   if(temp == CC26XX_SENSOR_READING_ERROR)
-    return 0;
+    return 0; //ERROR
 
   temp = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_AMBIENT);
   PRINTF("TEMP : %02X\n", temp);
+  value->type = BT_SIZE16;
   value->value.u16 = (uint16_t) temp;
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t enable_disable_temp(bt_size_t *value){
-  switch(value->value.u8){
+uint8_t enable_disable_temp(uint8_t * data){
+  switch(data[3]){
     case 1:
     PRINTF("ACTIVATION CAPTEUR\n");
     SENSORS_ACTIVATE(tmp_007_sensor);
@@ -69,7 +70,7 @@ uint8_t enable_disable_temp(bt_size_t *value){
     SENSORS_DEACTIVATE(tmp_007_sensor);
       break;
     default:
-      return ATT_ECODE_INVALID_PDU;
+      return 0; //ERROR
   }
   return SUCCESS;
 }
