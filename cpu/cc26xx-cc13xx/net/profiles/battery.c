@@ -31,22 +31,66 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-#ifndef GATT_SENSORS_H_
-#define GATT_SENSORS_H_
+
+#define DEBUG 0
+#if DEBUG
+#include <stdio.h>
+#define PRINTF(...) printf(__VA_ARGS__)
+#else
+#define PRINTF(...)
+#endif
+
+#include "../ble-att.h"
+#include "battery.h"
+#include "board-peripherals.h"
+#include "batmon-sensor.h"
+
 /*---------------------------------------------------------------------------*/
-#include "net/att-database.h"
-#include "net/ble-att.h"
-#include "net/profiles/temp.h"
-#include "net/profiles/humidity.h"
-#include "net/profiles/barometer.h"
-#include "net/profiles/luxometer.h"
-#include "net/profiles/mpu.h"
-#include "net/profiles/led.h"
-#include "net/profiles/battery.h"
+uint8_t get_battery_info(bt_size_t *database){
+  int value;
+  uint16_t tmp;
+
+  value = batmon_sensor.value(BATMON_SENSOR_TYPE_TEMP);
+  PRINTF("value : 0x%X\n", value);
+  if(value != 0) {
+    PRINTF("Bat: Temp=%d C\n", value);
+  } else {
+    PRINTF("BAT: Temp Read Error\n");
+  }
+  // let space for Voltage value
+  value = value << 16;
+
+  tmp = batmon_sensor.value(BATMON_SENSOR_TYPE_VOLT);
+  if(tmp != 0) {
+      PRINTF("Bat: Volt=%d mV\n", (tmp * 125) >> 5);
+    value += ((tmp * 125) >> 5);
+  } else {
+    PRINTF("BAT: Voltage Read Error\n");
+  }
+  database->type = BT_SIZE32;
+  database->value.u32 = (uint32_t) value;
+  return SUCCESS;
+}
 /*---------------------------------------------------------------------------*/
-uint8_t get_value(const uint16_t handle, bt_size_t **value_ptr);
-uint8_t set_value(const uint16_t handle, uint8_t *data, uint16_t len);
-uint8_t fill_group_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const uint128_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups);
-uint8_t fill_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const uint128_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups);
+uint8_t enable_disable_battery(uint8_t * data){
+  switch(data[3]){
+    case 1:
+    PRINTF("ACTIVATION CAPTEUR\n");
+    SENSORS_ACTIVATE(batmon_sensor);
+      break;
+    case 0:
+    PRINTF("DESACTIVATION CAPTEUR");
+    SENSORS_DEACTIVATE(batmon_sensor);
+      break;
+    default:
+      return 0; //ERROR
+  }
+  return SUCCESS;
+}
 /*---------------------------------------------------------------------------*/
-#endif //GATT_SENSORS_H_
+uint8_t get_status_battery(bt_size_t *database){
+  database->type = BT_SIZE8;
+  database->value.u8 = (uint8_t) batmon_sensor.status(SENSORS_ACTIVE);
+  PRINTF("status temp sensor : 0x%X\n", batmon_sensor.status(SENSORS_ACTIVE));
+  return SUCCESS;
+}

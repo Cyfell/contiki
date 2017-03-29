@@ -76,7 +76,9 @@
 #define UUID_LED_DATA                     {	0x00, 0x00, 0xAA, 0x51, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 #define UUID_LED_ED                       {	0x00, 0x00, 0xAA, 0x52, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 
-
+#define UUID_BATTERY_SERVICE              {	0x00, 0x00, 0xAA, 0x60, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+#define UUID_BATTERY_DATA                 {	0x00, 0x00, 0xAA, 0x61, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+#define UUID_BATTERY_ED                   {	0x00, 0x00, 0xAA, 0x62, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 
 #define WRITE_REQUEST_HEADER 3
 // only accept 1 byte in write request
@@ -421,6 +423,54 @@ static const attribute_t *list_attr[]=
     .properties.write = 1,
     .properties.read = 1,
     .att_handle =0x0023,
+  },
+  &(attribute_t){ // PRIMARY SERVICE DECLARATION : BATTERY
+    .get_action = NULL,
+    .set_action = NULL,
+    .att_value.type = BT_SIZE128,
+    .att_value.value.u128.data = UUID_BATTERY_SERVICE,
+    .att_uuid.data = UUID_PRIMARY_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0024,
+  },
+  &(attribute_t){ // CHAR DECLARATION : BATTERY DATA
+    .get_action = NULL,
+    .set_action = NULL,
+    .att_value.type = BT_CHARACTERISTIC,
+    .att_value.value.u64 = 0x02030061AA,
+    .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0025,
+  },
+  &(attribute_t){ // BATTERY DATA
+    .get_action = get_battery_info,
+    .set_action = NULL,
+    .att_value.type = BT_SIZE32,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0026,
+  },
+  &(attribute_t){ // CHAR DECLARATION : BATTERY ED
+    .get_action = NULL,
+    .set_action = NULL,
+    .att_value.type = BT_CHARACTERISTIC,
+    .att_value.value.u64 = 0x020B0062AA,
+    .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle =0x0027,
+  },
+  &(attribute_t){ // BATTERY ED
+    .get_action = get_status_battery,
+    .set_action = enable_disable_battery,
+    .att_value.type = BT_SIZE8,
+    .att_value.value.u8 = 0x0,
+    .att_uuid.data = UUID_BATTERY_ED,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle =0x0028,
   },
   NULL
 };
