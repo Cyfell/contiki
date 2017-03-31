@@ -46,17 +46,17 @@
 
 /*---------------------------------------------------------------------------*/
 uint8_t actualise_barometer(bt_size_t *database){
-  uint32_t value;
+  uint64_t value;
   uint16_t tmp;
 
   value = bmp_280_sensor.value(BMP_280_SENSOR_TYPE_PRESS);
   if(value != CC26XX_SENSOR_READING_ERROR) {
-    PRINTF("BAR: Pressure=%d.%02d hPa\n", ((uint16_t)value) / 100, ((uint16_t)value) % 100);
+    PRINTF("BAR: Pressure=%d.%02d hPa\n", (value) / 100, (value) % 100);
   } else {
     PRINTF("BAR: Pressure Read Error\n");
   }
   // let space for temp value
-  value = value << 16;
+  value = value << 32;
 
   tmp = bmp_280_sensor.value(BMP_280_SENSOR_TYPE_TEMP);
   if(tmp != CC26XX_SENSOR_READING_ERROR) {
@@ -65,8 +65,8 @@ uint8_t actualise_barometer(bt_size_t *database){
   } else {
     PRINTF("BAR: Temperature Read Error\n");
   }
-  database->type = BT_SIZE32;
-  database->value.u32 = (uint32_t) value;
+  database->type = BT_SIZE64;
+  database->value.u64 =  value;
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
