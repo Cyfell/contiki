@@ -46,16 +46,22 @@
 
 /*---------------------------------------------------------------------------*/
 uint8_t actualise_temp(bt_size_t *value){
-  int temp;
+  int temp, tobj;
   temp = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_ALL);
 
   if(temp == CC26XX_SENSOR_READING_ERROR)
     return 0; //ERROR
 
   temp = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_AMBIENT);
-  PRINTF("TEMP : %02X\n", temp);
-  value->type = BT_SIZE16;
-  value->value.u16 = (uint16_t) temp;
+  PRINTF("TEMP Ambiant: %02X\n", temp);
+
+  temp = temp << 16;
+
+  tobj = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_OBJECT);
+  PRINTF("TEMP Ambiant: %02X\n", temp);
+  temp += tobj;
+  value->type = BT_SIZE32;
+  value->value.u32 = temp;
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
