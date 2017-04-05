@@ -73,7 +73,7 @@ static uint128_t bluetooth_base_uuid = {
 			0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 };
 
-uint128_t uuid_16_to_128(uint16_t uuid_16){
+inline uint128_t uuid_16_to_128(uint16_t uuid_16){
  uint128_t result;
  /* Set base uuid */
  result = bluetooth_base_uuid;
@@ -89,7 +89,7 @@ uint128_t uuid_16_to_128(uint16_t uuid_16){
  return result;
 }
 
-uint16_t uuid_128_to_16(const uint128_t uuid_128){
+inline uint16_t uuid_128_to_16(const uint128_t uuid_128){
  uint16_t result;
 
 memcpy(&result, &uuid_128.data[BASE_UUID16_OFFSET], sizeof(result));
@@ -98,7 +98,7 @@ result = swap16(result);
  // printf("uuid : %x\n", result);
  return result;
 }
-uint8_t uuid_128_compare(const uint128_t u1, const uint128_t u2){
+inline uint8_t uuid_128_compare(const uint128_t u1, const uint128_t u2){
 	/* TEST*/
 	// char uuid[40];
 	// size_t s = 40;
