@@ -80,6 +80,12 @@
 #define UUID_BATTERY_DATA                 {	0x00, 0x00, 0xAA, 0x61, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 #define UUID_BATTERY_ED                   {	0x00, 0x00, 0xAA, 0x62, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 
+static attribute_t *get_attribute_by_uuid(const uint16_t starting_handle, const uint128_t *uuid_to_match, const uint16_t ending_handle);
+static attribute_t *get_attribute(const uint16_t handle);
+
+#define GET_NEXT_START_GROUP(x) get_attribute(x+1)
+#define GET_NEXT_BY_UUID(x, y, z) get_attribute_by_uuid(x+1, y, z)
+
 static const attribute_t *list_attr[]=
 {
   &(attribute_t){ // PRIMARY SERVICE DECLARATION : GENERIC ACCESS SERVICE
@@ -572,7 +578,7 @@ static void fill_response_tab_group(attribute_t *att, const uint16_t ending_hand
     g_tx_buffer->sdu_length += att->att_value.type;
 
     type_previous_value = att->att_value.type;
-    att = get_attribute(group_end_handle+1);
+    att = GET_NEXT_START_GROUP(group_end_handle);
 
 
     /* Check if next group is not null or contain other value type */
@@ -600,7 +606,7 @@ static void fill_response_tab(attribute_t *att, const uint16_t ending_handle, co
     g_tx_buffer->sdu_length += att->att_value.type;
 
     type_previous_value = att->att_value.type;
-    att = get_attribute_by_uuid((att->att_handle)+1, uuid_to_match, ending_handle);
+    att = GET_NEXT_BY_UUID(att->att_handle, uuid_to_match, ending_handle);
 
 
     /* Check if next group is not null or contain other value type */
