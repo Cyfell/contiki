@@ -562,7 +562,7 @@ static void fill_response_tab_group(attribute_t *att, const uint16_t ending_hand
   uint16_t group_end_handle;
   curr_size = 0;
 
-  while((curr_size + att->att_value.type) < (ATT_MTU - GROUP_RESPONSE_HEADER)){
+  while((curr_size + att->att_value.type) < (serveur_mtu - GROUP_RESPONSE_HEADER)){
     /* Look for the end handle of the group */
     group_end_handle = get_group_end(att->att_handle, uuid_to_match);
 
@@ -603,7 +603,7 @@ static void fill_response_tab(attribute_t *att, const uint16_t ending_handle,  c
   uint8_t curr_size, type_previous_value;
   curr_size = 0;
 
-  while((curr_size + att->att_value.type) < (ATT_MTU - GROUP_RESPONSE_HEADER)){
+  while((curr_size + att->att_value.type) < (serveur_mtu - GROUP_RESPONSE_HEADER)){
     /* Copy start handle of current group */
     memcpy(response_table + curr_size, &att->att_handle, sizeof(att->att_handle));
     curr_size += sizeof(att->att_handle);

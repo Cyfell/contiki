@@ -50,7 +50,7 @@
 /* L2CAP fragmentation buffers and utilities                                 */
 typedef struct {
   /* ATT Service Data Unit (SDU) */
-  uint8_t sdu[ATT_MTU];
+  uint8_t sdu[ATT_DEFAULT_SERVER_MTU];
   /* length of the ATT SDU */
   uint16_t sdu_length;
 } att_buffer_t;
@@ -68,11 +68,12 @@ static void send(){
 }
 /*---------------------------------------------------------------------------*/
 static uint8_t prepare_mtu_resp(){
+  uint16_t swap;
   /* Response code */
   g_tx_buffer.sdu[0] = ATT_MTU_RESPONSE;
   /* Server Rx MTU */
-  g_tx_buffer.sdu[1] = ATT_MTU;
-  g_tx_buffer.sdu[2] = 0x00;
+  //swap = swap16(serveur_mtu);
+  memcpy(&g_tx_buffer.sdu[1], &serveur_mtu, 2);
   /* set sdu length */
   g_tx_buffer.sdu_length = 3;
   return SUCCESS;
@@ -88,7 +89,15 @@ static uint8_t prepare_mtu_resp(){
 
 */
 static uint8_t mtu_handle(uint8_t *data){
-
+  uint16_t client_mtu;
+  /* Copy mtu */
+  memcpy(&client_mtu, &data[1], 2);
+  // Use minimal mtu between client MTU and Server MTU
+  if (client_mtu < ATT_DEFAULT_SERVER_MTU){
+    serveur_mtu = client_mtu;
+  } else {
+    serveur_mtu = ATT_DEFAULT_SERVER_MTU;
+  }
   prepare_mtu_resp();
   return SUCCESS;
 }
@@ -203,7 +212,7 @@ static uint8_t prepare_read(const uint8_t *data){
  +-------------------------+
  Opcode : 1 octet
  handle : 2 octets
- Value : 0 to ATT_MTU - 3
+ Value : 0 to serveur_mtu - 3
 */
 static uint8_t prepare_write(uint8_t *data, const uint16_t len){
   uint16_t handle;
@@ -262,7 +271,7 @@ static uint8_t prepare_type(const uint8_t *data, const uint16_t len){
   PRINTF("READ BY TYPE\n");
   uint128_t uuid_to_match;
   uint16_t starting_handle, ending_handle;
-  uint8_t error, num_of_groups,lenght_group, tab_response[ATT_MTU - GROUP_RESPONSE_HEADER], response_type;
+  uint8_t error, num_of_groups,lenght_group, tab_response[serveur_mtu - GROUP_RESPONSE_HEADER], response_type;
 
   starting_handle = 0;
   ending_handle = 0;
