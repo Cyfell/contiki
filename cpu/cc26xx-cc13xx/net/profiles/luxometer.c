@@ -49,9 +49,9 @@ uint8_t actualise_luxometer(bt_size_t *database){
   int value;
 
   value = opt_3001_sensor.value(0);
-  if(value != CC26XX_SENSOR_READING_ERROR) {
+  if (value != CC26XX_SENSOR_READING_ERROR) {
     PRINTF("OPT: Light=%d.%02d lux\n", value / 100, value % 100);
-  } else {
+  } else{
     PRINTF("OPT: Light Read Error\n");
   }
   database->type = BT_SIZE16;
@@ -62,12 +62,12 @@ uint8_t actualise_luxometer(bt_size_t *database){
 uint8_t enable_disable_luxometer(uint8_t *data){
   switch(data[READ_RESPONSE_DATA_OFFSET]){
     case 1:
-    PRINTF("ACTIVATION CAPTEUR\n");
-    SENSORS_ACTIVATE(opt_3001_sensor);
+      PRINTF("ACTIVATION CAPTEUR\n");
+      SENSORS_ACTIVATE(opt_3001_sensor);
       break;
     case 0:
-    PRINTF("DESACTIVATION CAPTEUR");
-    SENSORS_DEACTIVATE(opt_3001_sensor);
+      PRINTF("DESACTIVATION CAPTEUR");
+      SENSORS_DEACTIVATE(opt_3001_sensor);
       break;
     default:
       return ATT_ECODE_INVALID_PDU;

@@ -52,17 +52,17 @@
 /*---------------------------------------------------------------------------*/
 uint8_t actualise_led(uint8_t *data){
   uint8_t command = data[READ_RESPONSE_DATA_OFFSET];
-  if(command > ALL_LEDS)
+  if (command > ALL_LEDS)
     return ATT_ECODE_UNLIKELY;
 
-  if(command & MASK_LED_RED){
+  if (command & MASK_LED_RED){
     leds_on(LEDS_RED);
   }else{
     leds_off(LEDS_RED);
   }
-  if(command & MASK_LED_GREEN){
+  if (command & MASK_LED_GREEN){
     leds_on(LEDS_GREEN);
-  }else{
+  } else{
     leds_off(LEDS_GREEN);
   }
 
@@ -72,6 +72,6 @@ uint8_t actualise_led(uint8_t *data){
 uint8_t get_status_leds(bt_size_t *database){
   database->type = BT_SIZE8;
   database->value.u8 = (uint8_t) leds_get();
-    PRINTF("status get leds : 0x%X\n", leds_get());
+  PRINTF("status get leds : 0x%X\n", leds_get());
   return SUCCESS;
 }

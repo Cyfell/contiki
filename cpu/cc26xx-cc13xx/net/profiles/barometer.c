@@ -50,19 +50,19 @@ uint8_t actualise_barometer(bt_size_t *database){
   uint16_t tmp;
 
   value = bmp_280_sensor.value(BMP_280_SENSOR_TYPE_PRESS);
-  if(value != CC26XX_SENSOR_READING_ERROR) {
+  if (value != CC26XX_SENSOR_READING_ERROR) {
     PRINTF("BAR: Pressure=%d.%02d hPa\n", (value) / 100, (value) % 100);
-  } else {
+  } else{
     PRINTF("BAR: Pressure Read Error\n");
   }
   // let space for temp value
   value = value << 32;
 
   tmp = bmp_280_sensor.value(BMP_280_SENSOR_TYPE_TEMP);
-  if(tmp != CC26XX_SENSOR_READING_ERROR) {
+  if (tmp != CC26XX_SENSOR_READING_ERROR) {
     PRINTF("BAR: Temp=%d.%02d C\n", tmp / 100, tmp % 100);
     value += tmp;
-  } else {
+  } else{
     PRINTF("BAR: Temperature Read Error\n");
   }
   database->type = BT_SIZE64;
@@ -73,12 +73,12 @@ uint8_t actualise_barometer(bt_size_t *database){
 uint8_t enable_disable_barometer(uint8_t *data){
   switch(data[READ_RESPONSE_DATA_OFFSET]){
     case 1:
-    PRINTF("ACTIVATION CAPTEUR\n");
-    SENSORS_ACTIVATE(bmp_280_sensor);
+      PRINTF("ACTIVATION CAPTEUR\n");
+      SENSORS_ACTIVATE(bmp_280_sensor);
       break;
     case 0:
-    PRINTF("DESACTIVATION CAPTEUR");
-    SENSORS_DEACTIVATE(bmp_280_sensor);
+      PRINTF("DESACTIVATION CAPTEUR");
+      SENSORS_DEACTIVATE(bmp_280_sensor);
       break;
     default:
       return ATT_ECODE_INVALID_PDU;
@@ -89,6 +89,6 @@ uint8_t enable_disable_barometer(uint8_t *data){
 uint8_t get_status_barometer(bt_size_t *database){
   database->type = BT_SIZE8;
   database->value.u8 = (uint8_t) bmp_280_sensor.status(SENSORS_ACTIVE);
-    PRINTF("status temp barometer : 0x%X\n", bmp_280_sensor.status(SENSORS_ACTIVE));
+  PRINTF("status temp barometer : 0x%X\n", bmp_280_sensor.status(SENSORS_ACTIVE));
   return SUCCESS;
 }

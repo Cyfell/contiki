@@ -54,41 +54,56 @@ typedef struct {
   /* length of the ATT SDU */
   uint16_t sdu_length;
 } att_buffer_t;
-static att_buffer_t tx_buffer;
+static att_buffer_t g_tx_buffer;
 
-static uint16_t error_handle;
+static uint16_t g_error_handle;
 /*---------------------------------------------------------------------------*/
 static void send(){
-  /* TODO: Add ATT MTU controll */
+  /* TODO: Add ATT MTU control */
 
-  memcpy(packetbuf_dataptr(), tx_buffer.sdu, tx_buffer.sdu_length);
-  packetbuf_set_datalen(tx_buffer.sdu_length);
+  memcpy(packetbuf_dataptr(), g_tx_buffer.sdu, g_tx_buffer.sdu_length);
+  packetbuf_set_datalen(g_tx_buffer.sdu_length);
 
   NETSTACK_MAC.send(NULL, NULL);
 }
 /*---------------------------------------------------------------------------*/
 static uint8_t prepare_mtu_resp(){
   /* Response code */
-  tx_buffer.sdu[0]= ATT_MTU_RESPONSE;
+  g_tx_buffer.sdu[0] = ATT_MTU_RESPONSE;
   /* Server Rx MTU */
-  tx_buffer.sdu[1]=ATT_MTU;
-  tx_buffer.sdu[2]=0x00;
+  g_tx_buffer.sdu[1] = ATT_MTU;
+  g_tx_buffer.sdu[2] = 0x00;
   /* set sdu length */
-  tx_buffer.sdu_length = 3;
+  g_tx_buffer.sdu_length = 3;
+  return SUCCESS;
+}
+/*---------------------------------------------------------------------------*/
+/*
+ MTU request packet
+ +------------------------+
+ | Opcode | Client Rx MTU |
+ +------------------------+
+ Opcode : 1 octet
+ Client RX MTU : 2 octets
+
+*/
+static uint8_t mtu_handle(uint8_t *data){
+
+  prepare_mtu_resp();
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
 static void prepare_error_resp(uint8_t* opcode, uint8_t error){
   /* Response code */
-  tx_buffer.sdu[0] = ATT_ERROR_RESPONSE;
+  g_tx_buffer.sdu[0] = ATT_ERROR_RESPONSE;
   /* Operation asked */
-  tx_buffer.sdu[1] = opcode[0];
+  g_tx_buffer.sdu[1] = opcode[0];
   /* Attribute handle that generate an error */
-  memcpy(&tx_buffer.sdu[2], &error_handle, sizeof(error_handle));
+  memcpy(&g_tx_buffer.sdu[2], &g_error_handle, sizeof(g_error_handle));
   /* Error code */
-  tx_buffer.sdu[4] = error;
+  g_tx_buffer.sdu[4] = error;
   /* set sdu length */
-  tx_buffer.sdu_length = 5;
+  g_tx_buffer.sdu_length = 5;
 }
 /*---------------------------------------------------------------------------*/
 /* NOT TESTED */
@@ -139,6 +154,16 @@ const char *error(uint8_t status){
 	}
 }
 /*---------------------------------------------------------------------------*/
+/*
+ Read request packet
+ +-----------------------------------------------------------+
+ | Opcode | Starting Handle | Ending Handle | Attribute Type |
+ +-----------------------------------------------------------+
+ Opcode : 1 octet
+ Starting handle : 2 octets
+ Ending handle : 2 octets
+ Attribute type : 2 or 16 octets
+*/
 /* prepare read response */
 static uint8_t prepare_read(const uint8_t *data){
   uint16_t handle;
@@ -149,27 +174,36 @@ static uint8_t prepare_read(const uint8_t *data){
   bt_size_t *value_ptr;
   error = get_value(handle, &value_ptr);
 
-  if(error != SUCCESS){
-    error_handle = handle;
+  if (error != SUCCESS){
+    g_error_handle = handle;
     return error;
   }
 
     /* Prepare payload */
     /* Response code */
-  tx_buffer.sdu[0] = ATT_READ_RESPONSE;
+  g_tx_buffer.sdu[0] = ATT_READ_RESPONSE;
   /* copy value in sdu */
   if (value_ptr->type == BT_SIZE_STR){ //specific treatment if value is a string
-    memcpy(&tx_buffer.sdu[1], &value_ptr->value, strlen(value_ptr->value.str));
-    tx_buffer.sdu_length =  strlen(value_ptr->value.str)+1;
-  }else{
-    memcpy(&tx_buffer.sdu[1], &value_ptr->value, value_ptr->type);
-    tx_buffer.sdu_length = value_ptr->type+1;
+    memcpy(&g_tx_buffer.sdu[1], &value_ptr->value, strlen(value_ptr->value.str));
+    g_tx_buffer.sdu_length =  strlen(value_ptr->value.str)+1;
+  } else{
+    memcpy(&g_tx_buffer.sdu[1], &value_ptr->value, value_ptr->type);
+    g_tx_buffer.sdu_length = value_ptr->type+1;
   }
 
 
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
+/*
+ Write request packet
+ +-------------------------+
+ | Opcode | Handle | Value |
+ +-------------------------+
+ Opcode : 1 octet
+ handle : 2 octets
+ Value : 0 to ATT_MTU - 3
+*/
 static uint8_t prepare_write(uint8_t *data, const uint16_t len){
   uint16_t handle;
   uint8_t error;
@@ -178,14 +212,14 @@ static uint8_t prepare_write(uint8_t *data, const uint16_t len){
 
   error = set_value(handle, data, len);
 
-  if(error != SUCCESS){
-    error_handle = handle;
+  if (error != SUCCESS){
+    g_error_handle = handle;
     return error;
   }
   /* Prepare payload */
   /* Response code */
-  tx_buffer.sdu[0] = ATT_WRITE_RESPONSE;
-  tx_buffer.sdu_length =1;
+  g_tx_buffer.sdu[0] = ATT_WRITE_RESPONSE;
+  g_tx_buffer.sdu_length = 1;
 
   return SUCCESS;
 }
@@ -197,14 +231,14 @@ static uint8_t parse_type_req(uint8_t *data, uint16_t *starting_handle, uint16_t
   /* Copy ending handle */
   memcpy(ending_handle, &data[3], 2);
   /* see spec Bluetooth v5 p2198 */
-  if(starting_handle > ending_handle || starting_handle == NULL_HANDLE)
+  if (starting_handle > ending_handle || starting_handle == NULL_HANDLE)
     return ATT_ECODE_INVALID_HANDLE;
   /* for group request if len < 8 a 16bits uuid is sent, 128bits otherwise */
-  if(len<8){
+  if (len < 8){
     /* copy uudi to match */
     memcpy(&tmp_uuid_16, &data[5], BT_SIZE16);
     *uuid_to_match = uuid_16_to_128(tmp_uuid_16);
-  }else{
+  } else{
     /* copy uudi to match */
     memcpy(&(uuid_to_match), &data[5], BT_SIZE128);
   }
@@ -213,8 +247,18 @@ static uint8_t parse_type_req(uint8_t *data, uint16_t *starting_handle, uint16_t
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
+/*
+ Read by Type request packet && Read by group Type request packet
+ +-----------------------------------------------------------+
+ | Opcode | Starting Handle | Ending Handle | Attribute Type |
+ +-----------------------------------------------------------+
+ Opcode : 1 octet
+ Starting handle : 2 octets
+ Ending handle : 2 octets
+ Attribute type : 2 or 16 octets
+*/
 static uint8_t prepare_type(uint8_t *data, uint16_t len){
-  PRINTF("READ BY GROUP\n");
+  PRINTF("READ BY TYPE\n");
   uint128_t uuid_to_match;
   uint16_t starting_handle, ending_handle;
   uint8_t error, num_of_groups,lenght_group, tab_response[ATT_MTU - GROUP_RESPONSE_HEADER], response_type;
@@ -222,8 +266,8 @@ static uint8_t prepare_type(uint8_t *data, uint16_t len){
   starting_handle = ending_handle = 0;
 
   error = parse_type_req(data, &starting_handle, &ending_handle, &uuid_to_match, len);
-  if(error != SUCCESS){
-    error_handle = starting_handle;
+  if (error != SUCCESS){
+    g_error_handle = starting_handle;
     return error;
   }
 
@@ -233,21 +277,21 @@ static uint8_t prepare_type(uint8_t *data, uint16_t len){
   if (data[0] == ATT_READ_BY_GROUP_TYPE_REQUEST){
     response_type = ATT_READ_BY_GROUP_TYPE_RESPONSE;
     error = fill_group_type_response_values(starting_handle, ending_handle, &uuid_to_match, tab_response, &lenght_group, &num_of_groups);
-  }else{
+  } else{
     response_type = ATT_READ_BY_TYPE_RESPONSE;
     error = fill_type_response_values(starting_handle, ending_handle, &uuid_to_match, tab_response, &lenght_group, &num_of_groups);
   }
-  if(error != SUCCESS){
-    error_handle = starting_handle;
+  if (error != SUCCESS){
+    g_error_handle = starting_handle;
     return error;
   }
   /* Prepare payload */
   /* Response code */
-  tx_buffer.sdu[0] = response_type;
-  tx_buffer.sdu[1] =lenght_group;
-  memcpy(&tx_buffer.sdu[2], tab_response, num_of_groups*lenght_group);
+  g_tx_buffer.sdu[0] = response_type;
+  g_tx_buffer.sdu[1] =lenght_group;
+  memcpy(&g_tx_buffer.sdu[2], tab_response, num_of_groups*lenght_group);
 
-  tx_buffer.sdu_length = (num_of_groups*lenght_group)+2;
+  g_tx_buffer.sdu_length = (num_of_groups*lenght_group)+2;
 
   return SUCCESS;
 }
@@ -255,7 +299,7 @@ static uint8_t prepare_type(uint8_t *data, uint16_t len){
 static void input(void){
   uint8_t control = ATT_ECODE_REQ_NOT_SUPP;
   /* Clear error  handles */
-  error_handle = 0x0;
+  g_error_handle = 0x0;
 
   uint8_t *data = (uint8_t *)packetbuf_dataptr();
   uint16_t len = packetbuf_datalen();
@@ -265,7 +309,7 @@ static void input(void){
       break;
 
     case ATT_MTU_REQUEST:
-      control = prepare_mtu_resp();
+      control = mtu_handle(data);
       break;
 
     case ATT_READ_REQUEST :
@@ -287,37 +331,20 @@ static void input(void){
       control = ATT_ECODE_REQ_NOT_SUPP;
       break;
   }
-  if(control != SUCCESS)
+  if (control != SUCCESS)
   {
     prepare_error_resp(data, control);
   }
   send();
 }
 /*---------------------------------------------------------------------------*/
-//bt_size_t test;
+
 static void init(void){
-
-  // uuid_128_compare(value.u128);
-  // register_ble_attribute(GENERIC_ACCESS_SERVICE);
-  // register_ble_attribute(TEMPERATURE);
-  // uint8_t tab_response[20];
-  // uint8_t len_resp=0;
-  // uint8_t num_of_groups=0;
-  // test.value.u16 = 0x2800;
-  // test.type = BT_SIZE16;
-  // uint8_t error = get_group(0x0001, 0xffff, &test, tab_response, &len_resp, &num_of_groups);
-  //
-  // for(int i=0; i<20; i++){
-  //   PRINTF("i=%d, tab=0x%.X\n",i, tab_response[i]);
-  // }
-
-
-  // PRINTF("error : 0x%02X value : 0x%04llX\n", error, ptr->value.u64);
-
+ // Not used for now
 }
 /*---------------------------------------------------------------------------*/
 const struct network_driver gatt_driver ={
-  "gatt_driver",
+  .name = "gatt_driver",
   .init = init,
   .input = input,
 };

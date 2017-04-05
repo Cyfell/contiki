@@ -50,19 +50,19 @@ uint8_t actualise_humidity(bt_size_t *database){
   uint16_t hum;
 
   value = hdc_1000_sensor.value(HDC_1000_SENSOR_TYPE_TEMP);
-  if(value != CC26XX_SENSOR_READING_ERROR) {
+  if (value != CC26XX_SENSOR_READING_ERROR) {
     PRINTF("HDC: Temp=%d.%02d C\n", ((uint16_t)value)  / 100, ((uint16_t)value)  % 100);
-  } else {
+  } else{
     PRINTF("HDC: Temp Read Error\n");
   }
   // let space for humidity value
   value = value << 16;
 
   hum = hdc_1000_sensor.value(HDC_1000_SENSOR_TYPE_HUMIDITY);
-  if(hum != CC26XX_SENSOR_READING_ERROR) {
+  if (hum != CC26XX_SENSOR_READING_ERROR) {
     PRINTF("HDC: Humidity=%d.%02d %%RH\n", hum / 100, hum % 100);
     value += hum;
-  } else {
+  } else{
     PRINTF("HDC: Humidity Read Error\n");
   }
   database->type = BT_SIZE32;
@@ -74,12 +74,12 @@ uint8_t enable_disable_humidity(uint8_t *data){
 
   switch(data[READ_RESPONSE_DATA_OFFSET]){
     case 1:
-    PRINTF("ACTIVATION CAPTEUR\n");
-    SENSORS_ACTIVATE(hdc_1000_sensor);
+      PRINTF("ACTIVATION CAPTEUR\n");
+      SENSORS_ACTIVATE(hdc_1000_sensor);
       break;
     case 0:
-    PRINTF("DESACTIVATION CAPTEUR");
-    SENSORS_DEACTIVATE(hdc_1000_sensor);
+      PRINTF("DESACTIVATION CAPTEUR");
+      SENSORS_DEACTIVATE(hdc_1000_sensor);
       break;
     default:
       return ATT_ECODE_INVALID_PDU;

@@ -52,19 +52,19 @@ uint8_t get_battery_info(bt_size_t *database){
 
   value = batmon_sensor.value(BATMON_SENSOR_TYPE_TEMP);
   PRINTF("value : 0x%X\n", value);
-  if(value != 0) {
+  if (value != 0) {
     PRINTF("Bat: Temp=%d C\n", value);
-  } else {
+  } else{
     PRINTF("BAT: Temp Read Error\n");
   }
   // let space for Voltage value
   value = value << 16;
 
   tmp = batmon_sensor.value(BATMON_SENSOR_TYPE_VOLT);
-  if(tmp != 0) {
+  if (tmp != 0) {
       PRINTF("Bat: Volt=%d mV\n", (tmp * 125) >> 5);
     value += ((tmp * 125) >> 5);
-  } else {
+  } else{
     PRINTF("BAT: Voltage Read Error\n");
   }
   database->type = BT_SIZE32;
@@ -75,12 +75,12 @@ uint8_t get_battery_info(bt_size_t *database){
 uint8_t enable_disable_battery(uint8_t * data){
   switch(data[3]){
     case 1:
-    PRINTF("ACTIVATION CAPTEUR\n");
-    SENSORS_ACTIVATE(batmon_sensor);
+      PRINTF("ACTIVATION CAPTEUR\n");
+      SENSORS_ACTIVATE(batmon_sensor);
       break;
     case 0:
-    PRINTF("DESACTIVATION CAPTEUR");
-    SENSORS_DEACTIVATE(batmon_sensor);
+      PRINTF("DESACTIVATION CAPTEUR");
+      SENSORS_DEACTIVATE(batmon_sensor);
       break;
     default:
       return 0; //ERROR

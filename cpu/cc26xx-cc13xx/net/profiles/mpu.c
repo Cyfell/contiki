@@ -80,6 +80,7 @@ uint8_t actualise_mpu(bt_size_t *database){
   PRINTF("value : 0x%X\n", value);
   database->value.u128.data[iterator++] = value & 0x00ff;
   database->value.u128.data[iterator++] = (value & 0xff00) >>8;
+
   database->type = BT_SIZEMPU;
   return SUCCESS;
 }
@@ -87,12 +88,12 @@ uint8_t actualise_mpu(bt_size_t *database){
 uint8_t enable_disable_mpu(uint8_t *data){
   switch(data[READ_RESPONSE_DATA_OFFSET]){
     case 1:
-    PRINTF("ACTIVATION CAPTEUR\n");
-    mpu_9250_sensor.configure(SENSORS_ACTIVE, MPU_9250_SENSOR_TYPE_ALL);
+      PRINTF("ACTIVATION CAPTEUR\n");
+      mpu_9250_sensor.configure(SENSORS_ACTIVE, MPU_9250_SENSOR_TYPE_ALL);
       break;
     case 0:
-    PRINTF("DESACTIVATION CAPTEUR");
-    SENSORS_DEACTIVATE(mpu_9250_sensor);
+      PRINTF("DESACTIVATION CAPTEUR");
+      SENSORS_DEACTIVATE(mpu_9250_sensor);
       break;
     default:
       return ATT_ECODE_INVALID_PDU;

@@ -100,7 +100,7 @@ static const attribute_t *list_attr[]=
     .get_action = NULL,
     .set_action = NULL,
     .att_value.type = BT_CHARACTERISTIC,
-    .att_value.value.u64 = 0x020300012A,
+    .att_value.value.u64 = swap40(0x020300012A),
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
@@ -477,7 +477,7 @@ static const attribute_t *list_attr[]=
 
 /*---------------------------------------------------------------------------*/
 static attribute_t *get_attribute(const uint16_t handle){
-  for(uint16_t i=0; list_attr[i] != NULL; i++){
+  for (uint16_t i=0; list_attr[i] != NULL; i++){
     if (list_attr[i]->att_handle == handle){
       return list_attr[i];
     }
@@ -497,12 +497,12 @@ uint8_t get_value(const uint16_t handle, bt_size_t ** const value_ptr){
   if (!att->properties.read)
     return ATT_ECODE_READ_NOT_PERM;
 
-  if(att->get_action == NULL){
+  if (att->get_action == NULL){
     *value_ptr = &att->att_value;
     return SUCCESS;
   }
 
-  if(att->get_action(*value_ptr) != SUCCESS)
+  if (att->get_action(*value_ptr) != SUCCESS)
     return ATT_ECODE_UNLIKELY;
 
   return SUCCESS;
@@ -531,7 +531,7 @@ uint8_t set_value(const uint16_t handle, uint8_t *data, uint16_t len){
 /*---------------------------------------------------------------------------*/
 static uint16_t get_group_end(const uint16_t handle, const uint128_t *uuid_to_match){
   uint16_t i;
-  for(i=handle; list_attr[i] != NULL; i++){
+  for (i=handle; list_attr[i] != NULL; i++){
 
     if (uuid_128_compare(list_attr[i]->att_uuid, *uuid_to_match) == 1){
       return list_attr[i-1]->att_handle;
@@ -544,7 +544,7 @@ static uint16_t get_group_end(const uint16_t handle, const uint128_t *uuid_to_ma
 static attribute_t *get_attribute_by_uuid(const uint16_t starting_handle, const uint128_t *uuid_to_match, const uint16_t ending_handle){
   attribute_t *att;
 
-  for(uint16_t i=starting_handle; list_attr[i] != NULL && i < ending_handle; i++){
+  for (uint16_t i=starting_handle; list_attr[i] != NULL && i < ending_handle; i++){
     att = get_attribute(i);
 
     if (!att)
@@ -567,7 +567,7 @@ static void fill_response_tab_group(attribute_t *att, const uint16_t ending_hand
     group_end_handle = get_group_end(att->att_handle, uuid_to_match);
 
     /* Copy start handle of current group */
-    memcpy(response_table+curr_size, &att->att_handle, sizeof(att->att_handle));
+    memcpy(response_table + curr_size, &att->att_handle, sizeof(att->att_handle));
     curr_size += sizeof(att->att_handle);
 
     /* Copy end handle of current group */
@@ -606,7 +606,7 @@ static void fill_response_tab(attribute_t *att, const uint16_t ending_handle, ui
 
   while((curr_size + att->att_value.type) < (ATT_MTU - GROUP_RESPONSE_HEADER)){
     /* Copy start handle of current group */
-    memcpy(response_table+curr_size, &att->att_handle, sizeof(att->att_handle));
+    memcpy(response_table + curr_size, &att->att_handle, sizeof(att->att_handle));
     curr_size += sizeof(att->att_handle);
     /* TODO: Change the swap system */
     /* Copy value */
@@ -627,12 +627,12 @@ static void fill_response_tab(attribute_t *att, const uint16_t ending_handle, ui
                       || (att->att_handle > ending_handle)              // verrify if next attribute exceed ending_handle
                       || !(att->properties.read)){                      // verrify if next attribute can't be read
       /* length of one group */
-      *lenght_group = curr_size/(*num_of_groups);
+      *lenght_group = curr_size / (*num_of_groups);
       break;
     }
   }
   /* length of one group */
-  *lenght_group = curr_size/(*num_of_groups);
+  *lenght_group = curr_size / (*num_of_groups);
 }
 /*---------------------------------------------------------------------------*/
 uint8_t fill_group_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const uint128_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups){
@@ -640,12 +640,12 @@ uint8_t fill_group_type_response_values(const uint16_t starting_handle, const ui
   PRINTF("GET GROUPE\n");
 
   /* Change this to support other group type */
-  if(uuid_128_compare(*uuid_to_match, uuid_16_to_128(PRIMARY_GROUP_TYPE)) == 0)
+  if (uuid_128_compare(*uuid_to_match, uuid_16_to_128(PRIMARY_GROUP_TYPE)) == 0)
     return ATT_ECODE_UNSUPP_GRP_TYPE;
 
   /* check if attribute is not null */
   att_groupe_start = get_attribute_by_uuid(starting_handle, uuid_to_match, ending_handle);
-  if(!att_groupe_start)
+  if (!att_groupe_start)
     return ATT_ECODE_ATTR_NOT_FOUND;
 
   /* Fill in table */
@@ -660,7 +660,7 @@ uint8_t fill_type_response_values(const uint16_t starting_handle, const uint16_t
 
   /* check if attribute is not null */
   att_groupe_start = get_attribute_by_uuid(starting_handle, uuid_to_match, ending_handle);
-  if(!att_groupe_start)
+  if (!att_groupe_start)
     return ATT_ECODE_ATTR_NOT_FOUND;
 
   /* Fill in table */
