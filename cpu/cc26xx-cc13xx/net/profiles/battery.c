@@ -72,7 +72,7 @@ uint8_t get_battery_info(bt_size_t *database){
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t enable_disable_battery(uint8_t * data){
+uint8_t enable_disable_battery(const uint8_t * data){
   switch(data[3]){
     case 1:
       PRINTF("ACTIVATION CAPTEUR\n");

@@ -37,7 +37,7 @@
 #include "net/att-database.h"
 /*---------------------------------------------------------------------------*/
 uint8_t get_battery_info(bt_size_t *database);
-uint8_t enable_disable_battery(uint8_t * data);
+uint8_t enable_disable_battery(const uint8_t * data);
 uint8_t get_status_battery(bt_size_t *database);
 /*---------------------------------------------------------------------------*/
 #endif  // BATTERY_H_

@@ -508,7 +508,7 @@ uint8_t get_value(const uint16_t handle, bt_size_t ** const value_ptr){
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t set_value(const uint16_t handle, uint8_t *data, uint16_t len){
+uint8_t set_value(const uint16_t handle, const uint8_t *data, const uint16_t len){
   attribute_t *att;
   PRINTF("SET VALUE\n");
   att = get_attribute(handle);
@@ -557,7 +557,7 @@ static attribute_t *get_attribute_by_uuid(const uint16_t starting_handle, const 
   return NULL;
 }
 /*---------------------------------------------------------------------------*/
-static void fill_response_tab_group(attribute_t *att, const uint16_t ending_handle, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups, const uint128_t *uuid_to_match){
+static void fill_response_tab_group(attribute_t *att, const uint16_t ending_handle,  const uint128_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups){
   uint8_t curr_size, type_previous_value;
   uint16_t group_end_handle;
   curr_size = 0;
@@ -599,9 +599,8 @@ static void fill_response_tab_group(attribute_t *att, const uint16_t ending_hand
   *lenght_group = curr_size/(*num_of_groups);
 }
 /*---------------------------------------------------------------------------*/
-static void fill_response_tab(attribute_t *att, const uint16_t ending_handle, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups, const uint128_t *uuid_to_match){
+static void fill_response_tab(attribute_t *att, const uint16_t ending_handle,  const uint128_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups){
   uint8_t curr_size, type_previous_value;
-  uint64_t swap;
   curr_size = 0;
 
   while((curr_size + att->att_value.type) < (ATT_MTU - GROUP_RESPONSE_HEADER)){
@@ -635,7 +634,7 @@ static void fill_response_tab(attribute_t *att, const uint16_t ending_handle, ui
 /*---------------------------------------------------------------------------*/
 uint8_t fill_group_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const uint128_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups){
   attribute_t *att_groupe_start;
-  PRINTF("GET GROUPE\n");
+  PRINTF("GET GROUP\n");
 
   /* Change this to support other group type */
   if (uuid_128_compare(*uuid_to_match, uuid_16_to_128(PRIMARY_GROUP_TYPE)) == 0)
@@ -647,14 +646,14 @@ uint8_t fill_group_type_response_values(const uint16_t starting_handle, const ui
     return ATT_ECODE_ATTR_NOT_FOUND;
 
   /* Fill in table */
-  fill_response_tab_group(att_groupe_start, ending_handle, response_table,lenght_group, num_of_groups, uuid_to_match);
+  fill_response_tab_group(att_groupe_start, ending_handle, uuid_to_match, response_table, lenght_group, num_of_groups);
 
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
 uint8_t fill_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const uint128_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups){
   attribute_t *att_groupe_start;
-  PRINTF("GET GROUPE\n");
+  PRINTF("GET GROUP\n");
 
   /* check if attribute is not null */
   att_groupe_start = get_attribute_by_uuid(starting_handle, uuid_to_match, ending_handle);
@@ -662,7 +661,7 @@ uint8_t fill_type_response_values(const uint16_t starting_handle, const uint16_t
     return ATT_ECODE_ATTR_NOT_FOUND;
 
   /* Fill in table */
-  fill_response_tab(att_groupe_start, ending_handle, response_table,lenght_group, num_of_groups, uuid_to_match);
+  fill_response_tab(att_groupe_start, ending_handle, uuid_to_match, response_table, lenght_group, num_of_groups);
 
   return SUCCESS;
 }

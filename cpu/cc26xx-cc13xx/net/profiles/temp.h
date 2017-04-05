@@ -37,7 +37,7 @@
 #include "net/att-database.h"
 /*---------------------------------------------------------------------------*/
 uint8_t actualise_temp(bt_size_t *value);
-uint8_t enable_disable_temp(uint8_t *data);
+uint8_t enable_disable_temp(const uint8_t *data);
 uint8_t get_status_temp(bt_size_t *database);
 /*---------------------------------------------------------------------------*/
 #endif  // TEMP_H_

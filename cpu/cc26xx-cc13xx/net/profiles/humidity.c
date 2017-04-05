@@ -70,7 +70,7 @@ uint8_t actualise_humidity(bt_size_t *database){
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t enable_disable_humidity(uint8_t *data){
+uint8_t enable_disable_humidity(const uint8_t *data){
 
   switch(data[READ_RESPONSE_DATA_OFFSET]){
     case 1:

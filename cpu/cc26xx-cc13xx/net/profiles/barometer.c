@@ -70,7 +70,7 @@ uint8_t actualise_barometer(bt_size_t *database){
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t enable_disable_barometer(uint8_t *data){
+uint8_t enable_disable_barometer(const uint8_t *data){
   switch(data[READ_RESPONSE_DATA_OFFSET]){
     case 1:
       PRINTF("ACTIVATION CAPTEUR\n");
