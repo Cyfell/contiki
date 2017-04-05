@@ -47,15 +47,7 @@
 #endif
 
 /*---------------------------------------------------------------------------*/
-/* L2CAP fragmentation buffers and utilities                                 */
-typedef struct {
-  /* ATT Service Data Unit (SDU) */
-  uint8_t sdu[ATT_DEFAULT_SERVER_MTU];
-  /* length of the ATT SDU */
-  uint16_t sdu_length;
-} att_buffer_t;
 static att_buffer_t g_tx_buffer;
-
 static uint16_t g_error_handle;
 /*---------------------------------------------------------------------------*/
 static void send(){
@@ -274,10 +266,7 @@ static uint8_t prepare_type(const uint8_t *data, const uint16_t len){
   PRINTF("READ BY TYPE\n");
   uint128_t uuid_to_match;
   uint16_t starting_handle, ending_handle;
-  uint8_t error, num_of_groups,lenght_group, tab_response[serveur_mtu - GROUP_RESPONSE_HEADER], response_type;
-
-  starting_handle = 0;
-  ending_handle = 0;
+  uint8_t error;
 
   error = parse_type_req(data, len, &starting_handle, &ending_handle, &uuid_to_match);
   if (error != SUCCESS){
@@ -285,30 +274,23 @@ static uint8_t prepare_type(const uint8_t *data, const uint16_t len){
     return error;
   }
 
-  num_of_groups = 0;
-  lenght_group = 0;
+  /* Prepare payload */
+  /* Response code */
+  g_tx_buffer.sdu_length = 1;
 
   if (data[0] == ATT_READ_BY_GROUP_TYPE_REQUEST){
-    response_type = ATT_READ_BY_GROUP_TYPE_RESPONSE;
-    error = fill_group_type_response_values(starting_handle, ending_handle, &uuid_to_match, tab_response, &lenght_group, &num_of_groups);
+    g_tx_buffer.sdu[0] = ATT_READ_BY_GROUP_TYPE_RESPONSE;
+    g_tx_buffer.sdu_length = 1;
+    error = fill_group_type_response_values(starting_handle, ending_handle, &uuid_to_match, &g_tx_buffer);
   } else{
-    response_type = ATT_READ_BY_TYPE_RESPONSE;
-    error = fill_type_response_values(starting_handle, ending_handle, &uuid_to_match, tab_response, &lenght_group, &num_of_groups);
+    g_tx_buffer.sdu[0] = ATT_READ_BY_TYPE_RESPONSE;
+    g_tx_buffer.sdu_length = 1;
+    error = fill_type_response_values(starting_handle, ending_handle, &uuid_to_match, &g_tx_buffer);
   }
   if (error != SUCCESS){
     g_error_handle = starting_handle;
     return error;
   }
-  /* Prepare payload */
-  /* Response code */
-  g_tx_buffer.sdu[0] = response_type;
-  g_tx_buffer.sdu[1] =lenght_group;
-
-  g_tx_buffer.sdu_length = 2;
-
-  memcpy(&g_tx_buffer.sdu[2], tab_response, num_of_groups * lenght_group);
-
-  g_tx_buffer.sdu_length += (num_of_groups * lenght_group);
 
   return SUCCESS;
 }
@@ -357,7 +339,7 @@ static void input(void){
 /*---------------------------------------------------------------------------*/
 
 static void init(void){
- // Not used for now
+  serveur_mtu = ATT_DEFAULT_SERVER_MTU;
 }
 /*---------------------------------------------------------------------------*/
 const struct network_driver gatt_driver ={

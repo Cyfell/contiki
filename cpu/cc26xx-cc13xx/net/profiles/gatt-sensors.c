@@ -548,29 +548,28 @@ static attribute_t *get_attribute_by_uuid(const uint16_t starting_handle, const 
   return NULL;
 }
 /*---------------------------------------------------------------------------*/
-static void fill_response_tab_group(attribute_t *att, const uint16_t ending_handle,  const uint128_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups){
-  uint8_t curr_size, type_previous_value;
+static void fill_response_tab_group(attribute_t *att, const uint16_t ending_handle, const uint128_t *uuid_to_match, att_buffer_t *g_tx_buffer){
+  uint8_t type_previous_value;
   uint16_t group_end_handle;
-  curr_size = 0;
 
-  while((curr_size + att->att_value.type) < (serveur_mtu - GROUP_RESPONSE_HEADER)){
+  g_tx_buffer->sdu[1] = sizeof(att->att_handle)*2 + att->att_value.type;
+  g_tx_buffer->sdu_length += 1;
+
+  while((g_tx_buffer->sdu_length + att->att_value.type) < serveur_mtu){
     /* Look for the end handle of the group */
     group_end_handle = get_group_end(att->att_handle, uuid_to_match);
 
     /* Copy start handle of current group */
-    memcpy(response_table + curr_size, &att->att_handle, sizeof(att->att_handle));
-    curr_size += sizeof(att->att_handle);
+    memcpy(&g_tx_buffer->sdu[g_tx_buffer->sdu_length], &att->att_handle, sizeof(att->att_handle));
+    g_tx_buffer->sdu_length += sizeof(att->att_handle);
 
     /* Copy end handle of current group */
-    memcpy(response_table+curr_size, &group_end_handle, sizeof(group_end_handle));
-    curr_size += sizeof(group_end_handle);
+    memcpy(&g_tx_buffer->sdu[g_tx_buffer->sdu_length], &group_end_handle, sizeof(group_end_handle));
+    g_tx_buffer->sdu_length += sizeof(group_end_handle);
 
     /* Copy value */
-    memcpy(response_table+curr_size, &att->att_value.value, att->att_value.type);
-    curr_size += att->att_value.type;
-    // PRINTF("Handle 8 = 0x%X", list_attr[7]);
-    /* count number of groups to send */
-    (*num_of_groups)++;
+    memcpy(&g_tx_buffer->sdu[g_tx_buffer->sdu_length], &att->att_value.value, att->att_value.type);
+    g_tx_buffer->sdu_length += att->att_value.type;
 
     type_previous_value = att->att_value.type;
     att = get_attribute(group_end_handle+1);
@@ -581,29 +580,24 @@ static void fill_response_tab_group(attribute_t *att, const uint16_t ending_hand
                       || (att->att_value.type != type_previous_value)   // verrify if next attribute's value is different type
                       || (att->att_handle > ending_handle)              // verrify if next attribute exceed ending_handle
                       || !(att->properties.read)){                      // verrify if next attribute can't be read
-      /* length of one group */
-      *lenght_group = curr_size/(*num_of_groups);
       break;
     }
   }
-  /* length of one group */
-  *lenght_group = curr_size/(*num_of_groups);
 }
 /*---------------------------------------------------------------------------*/
-static void fill_response_tab(attribute_t *att, const uint16_t ending_handle,  const uint128_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups){
-  uint8_t curr_size, type_previous_value;
-  curr_size = 0;
+static void fill_response_tab(attribute_t *att, const uint16_t ending_handle, const uint128_t *uuid_to_match, att_buffer_t *g_tx_buffer){
+  uint8_t type_previous_value;
 
-  while((curr_size + att->att_value.type) < (serveur_mtu - GROUP_RESPONSE_HEADER)){
+  g_tx_buffer->sdu[1] = sizeof(att->att_handle) + att->att_value.type;
+  g_tx_buffer->sdu_length += 1;
+
+  while((g_tx_buffer->sdu_length + att->att_value.type) < serveur_mtu){
     /* Copy start handle of current group */
-    memcpy(response_table + curr_size, &att->att_handle, sizeof(att->att_handle));
-    curr_size += sizeof(att->att_handle);
+    memcpy(&g_tx_buffer->sdu[g_tx_buffer->sdu_length], &att->att_handle, sizeof(att->att_handle));
+    g_tx_buffer->sdu_length += sizeof(att->att_handle);
     /* Copy value */
-    memcpy(response_table+curr_size, &att->att_value.value.u64, att->att_value.type);
-    curr_size += att->att_value.type;
-
-    /* count number of groups to send */
-    (*num_of_groups)++;
+    memcpy(&g_tx_buffer->sdu[g_tx_buffer->sdu_length], &att->att_value.value.u64, att->att_value.type);
+    g_tx_buffer->sdu_length += att->att_value.type;
 
     type_previous_value = att->att_value.type;
     att = get_attribute_by_uuid((att->att_handle)+1, uuid_to_match, ending_handle);
@@ -614,16 +608,12 @@ static void fill_response_tab(attribute_t *att, const uint16_t ending_handle,  c
                       || (att->att_value.type != type_previous_value)   // verrify if next attribute's value is different type
                       || (att->att_handle > ending_handle)              // verrify if next attribute exceed ending_handle
                       || !(att->properties.read)){                      // verrify if next attribute can't be read
-      /* length of one group */
-      *lenght_group = curr_size / (*num_of_groups);
       break;
     }
   }
-  /* length of one group */
-  *lenght_group = curr_size / (*num_of_groups);
 }
 /*---------------------------------------------------------------------------*/
-uint8_t fill_group_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const uint128_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups){
+uint8_t fill_group_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const uint128_t *uuid_to_match, att_buffer_t *g_tx_buffer){
   attribute_t *att_groupe_start;
   PRINTF("GET GROUP\n");
 
@@ -637,12 +627,12 @@ uint8_t fill_group_type_response_values(const uint16_t starting_handle, const ui
     return ATT_ECODE_ATTR_NOT_FOUND;
 
   /* Fill in table */
-  fill_response_tab_group(att_groupe_start, ending_handle, uuid_to_match, response_table, lenght_group, num_of_groups);
+  fill_response_tab_group(att_groupe_start, ending_handle, uuid_to_match, g_tx_buffer);
 
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t fill_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const uint128_t *uuid_to_match, uint8_t *response_table, uint8_t *lenght_group, uint8_t *num_of_groups){
+uint8_t fill_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const uint128_t *uuid_to_match, att_buffer_t *g_tx_buffer){
   attribute_t *att_groupe_start;
   PRINTF("GET GROUP\n");
 
@@ -652,7 +642,7 @@ uint8_t fill_type_response_values(const uint16_t starting_handle, const uint16_t
     return ATT_ECODE_ATTR_NOT_FOUND;
 
   /* Fill in table */
-  fill_response_tab(att_groupe_start, ending_handle, uuid_to_match, response_table, lenght_group, num_of_groups);
+  fill_response_tab(att_groupe_start, ending_handle, uuid_to_match, g_tx_buffer);
 
   return SUCCESS;
 }

@@ -104,4 +104,12 @@
 #define WRITE_REQUEST_OFFSET_VALUE        0x03
 /*---------------------------------------------------------------------------*/
 uint16_t serveur_mtu;
+
+typedef struct {
+  /* ATT Service Data Unit (SDU) */
+  uint8_t sdu[ATT_DEFAULT_SERVER_MTU];
+  /* length of the ATT SDU */
+  uint16_t sdu_length;
+} att_buffer_t;
+
 #endif //BLE_ATT_H_
