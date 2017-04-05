@@ -80,10 +80,6 @@
 #define UUID_BATTERY_DATA                 {	0x00, 0x00, 0xAA, 0x61, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 #define UUID_BATTERY_ED                   {	0x00, 0x00, 0xAA, 0x62, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 
-#define WRITE_REQUEST_HEADER 3
-// only accept 1 byte in write request
-#define WRITE_REQUEST_LEN_MAX 4
-
 static const attribute_t *list_attr[]=
 {
   &(attribute_t){ // PRIMARY SERVICE DECLARATION : GENERIC ACCESS SERVICE
@@ -485,7 +481,7 @@ static attribute_t *get_attribute(const uint16_t handle){
   return NULL;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t get_value(const uint16_t handle, bt_size_t ** const value_ptr){
+uint8_t get_value(const uint16_t handle, bt_size_t * value_ptr){
   attribute_t *att;
   PRINTF("GET VALUE\n");
   att = get_attribute(handle);
@@ -493,22 +489,18 @@ uint8_t get_value(const uint16_t handle, bt_size_t ** const value_ptr){
   if (!att)
     return ATT_ECODE_ATTR_NOT_FOUND;
 
-
   if (!att->properties.read)
     return ATT_ECODE_READ_NOT_PERM;
 
   if (att->get_action == NULL){
-    *value_ptr = &att->att_value;
+    value_ptr = &att->att_value;
     return SUCCESS;
   }
 
-  if (att->get_action(*value_ptr) != SUCCESS)
-    return ATT_ECODE_UNLIKELY;
-
-  return SUCCESS;
+  return att->get_action(value_ptr);
 }
 /*---------------------------------------------------------------------------*/
-uint8_t set_value(const uint16_t handle, const uint8_t *data, const uint16_t len){
+uint8_t set_value(const uint16_t handle, const bt_size_t *new_value){
   attribute_t *att;
   PRINTF("SET VALUE\n");
   att = get_attribute(handle);
@@ -516,17 +508,16 @@ uint8_t set_value(const uint16_t handle, const uint8_t *data, const uint16_t len
   if (!att)
     return ATT_ECODE_ATTR_NOT_FOUND;
 
-
   if (!att->properties.write)
     return ATT_ECODE_WRITE_NOT_PERM;
 
-  if (len < WRITE_REQUEST_HEADER && len > WRITE_REQUEST_LEN_MAX)
-    return ATT_ECODE_INVAL_ATTR_VALUE_LEN;
-
-  if(!att->set_action || att->set_action(data) != SUCCESS)
+  if(att->set_action == NULL)
     return ATT_ECODE_UNLIKELY;
 
-  return SUCCESS;
+  if(new_value->type != att->att_value.type)
+    return ATT_ECODE_INVAL_ATTR_VALUE_LEN;
+
+  return att->set_action(new_value);
 }
 /*---------------------------------------------------------------------------*/
 static uint16_t get_group_end(const uint16_t handle, const uint128_t *uuid_to_match){

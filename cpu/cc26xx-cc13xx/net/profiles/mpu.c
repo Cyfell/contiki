@@ -85,8 +85,8 @@ uint8_t actualise_mpu(bt_size_t *database){
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t enable_disable_mpu(const uint8_t *data){
-  switch(data[READ_RESPONSE_DATA_OFFSET]){
+uint8_t enable_disable_mpu(const bt_size_t *new_value){
+  switch(new_value->value.u8){
     case 1:
       PRINTF("ACTIVATION CAPTEUR\n");
       mpu_9250_sensor.configure(SENSORS_ACTIVE, MPU_9250_SENSOR_TYPE_ALL);
@@ -95,8 +95,6 @@ uint8_t enable_disable_mpu(const uint8_t *data){
       PRINTF("DESACTIVATION CAPTEUR");
       SENSORS_DEACTIVATE(mpu_9250_sensor);
       break;
-    default:
-      return ATT_ECODE_INVALID_PDU;
   }
   return SUCCESS;
 }

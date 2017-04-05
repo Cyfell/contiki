@@ -65,8 +65,8 @@ uint8_t actualise_temp(bt_size_t *value){
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t enable_disable_temp(const uint8_t * data){
-  switch(data[3]){
+uint8_t enable_disable_temp(const bt_size_t * new_value){
+  switch(new_value->value.u8){
     case 1:
       PRINTF("ACTIVATION CAPTEUR\n");
       SENSORS_ACTIVATE(tmp_007_sensor);
@@ -75,8 +75,6 @@ uint8_t enable_disable_temp(const uint8_t * data){
       PRINTF("DESACTIVATION CAPTEUR");
       SENSORS_DEACTIVATE(tmp_007_sensor);
       break;
-    default:
-      return 0; //ERROR
   }
   return SUCCESS;
 }

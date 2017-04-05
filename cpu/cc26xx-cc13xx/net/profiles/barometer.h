@@ -37,7 +37,7 @@
 #include "net/att-database.h"
 /*---------------------------------------------------------------------------*/
 uint8_t actualise_barometer(bt_size_t *value);
-uint8_t enable_disable_barometer(const uint8_t *data);
+uint8_t enable_disable_barometer(const bt_size_t *new_value);
 uint8_t get_status_barometer(bt_size_t *database);
 /*---------------------------------------------------------------------------*/
 #endif  // BAROMETER_H_

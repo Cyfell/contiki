@@ -49,7 +49,7 @@ typedef struct {
 		BT_SIZE64 = 8,
 		BT_SIZEMPU = 12,
 		BT_SIZE128 = 16,
-		BT_SIZE_STR = 20,
+		BT_SIZE_STR = 30,
 	} type;
 	union {
 		uint8_t		u8;

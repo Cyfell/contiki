@@ -42,7 +42,6 @@
 
 #define MASK_LED_RED    0x01
 #define MASK_LED_GREEN  0x02
-#define ALL_LEDS        0x03
 
 #include "../ble-att.h"
 #include "led.h"
@@ -50,17 +49,13 @@
 #include "leds.h"
 
 /*---------------------------------------------------------------------------*/
-uint8_t actualise_led(const uint8_t *data){
-  uint8_t command = data[READ_RESPONSE_DATA_OFFSET];
-  if (command > ALL_LEDS)
-    return ATT_ECODE_UNLIKELY;
-
-  if (command & MASK_LED_RED){
+uint8_t actualise_led(const bt_size_t *new_value){
+  if (new_value->value.u8 & MASK_LED_RED){
     leds_on(LEDS_RED);
   }else{
     leds_off(LEDS_RED);
   }
-  if (command & MASK_LED_GREEN){
+  if (new_value->value.u8 & MASK_LED_GREEN){
     leds_on(LEDS_GREEN);
   } else{
     leds_off(LEDS_GREEN);

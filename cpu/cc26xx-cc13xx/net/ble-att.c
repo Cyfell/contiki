@@ -68,11 +68,9 @@ static void send(){
 }
 /*---------------------------------------------------------------------------*/
 static uint8_t prepare_mtu_resp(){
-  uint16_t swap;
   /* Response code */
   g_tx_buffer.sdu[0] = ATT_MTU_RESPONSE;
   /* Server Rx MTU */
-  //swap = swap16(serveur_mtu);
   memcpy(&g_tx_buffer.sdu[1], &serveur_mtu, 2);
   /* set sdu length */
   g_tx_buffer.sdu_length = 3;
@@ -180,8 +178,8 @@ static uint8_t prepare_read(const uint8_t *data){
   /* Copy handle to read */
   memcpy(&handle, &data[1], 2);
 
-  bt_size_t *value_ptr;
-  error = get_value(handle, &value_ptr);
+  bt_size_t value_to_find;
+  error = get_value(handle, &value_to_find);
 
   if (error != SUCCESS){
     g_error_handle = handle;
@@ -193,12 +191,12 @@ static uint8_t prepare_read(const uint8_t *data){
   g_tx_buffer.sdu[0] = ATT_READ_RESPONSE;
   g_tx_buffer.sdu_length = 1;
   /* copy value in sdu */
-  if (value_ptr->type == BT_SIZE_STR){ //specific treatment if value is a string
-    memcpy(&g_tx_buffer.sdu[1], &value_ptr->value, strlen(value_ptr->value.str));
-    g_tx_buffer.sdu_length += strlen(value_ptr->value.str);
+  if (value_to_find.type == BT_SIZE_STR){ //specific treatment if value is a string
+    memcpy(&g_tx_buffer.sdu[1], &value_to_find.value, strlen(value_to_find.value.str));
+    g_tx_buffer.sdu_length += strlen(value_to_find.value.str);
   } else{
-    memcpy(&g_tx_buffer.sdu[1], &value_ptr->value, value_ptr->type);
-    g_tx_buffer.sdu_length += value_ptr->type;
+    memcpy(&g_tx_buffer.sdu[1], &value_to_find.value, value_to_find.type);
+    g_tx_buffer.sdu_length += value_to_find.type;
   }
 
 
@@ -217,10 +215,15 @@ static uint8_t prepare_read(const uint8_t *data){
 static uint8_t prepare_write(uint8_t *data, const uint16_t len){
   uint16_t handle;
   uint8_t error;
+  bt_size_t new_value;
   /* Copy handle to write */
   memcpy(&handle, &data[1], 2);
 
-  error = set_value(handle, data, len);
+  /* Copy new value */
+  memcpy(&new_value.value, &data[3], len - WRITE_REQUEST_OFFSET_VALUE);
+  new_value.type = len - 3;
+
+  error = set_value(handle, &new_value);
 
   if (error != SUCCESS){
     g_error_handle = handle;

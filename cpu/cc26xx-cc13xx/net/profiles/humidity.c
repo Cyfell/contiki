@@ -70,9 +70,8 @@ uint8_t actualise_humidity(bt_size_t *database){
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t enable_disable_humidity(const uint8_t *data){
-
-  switch(data[READ_RESPONSE_DATA_OFFSET]){
+uint8_t enable_disable_humidity(const bt_size_t *new_value){
+  switch(new_value->value.u8){
     case 1:
       PRINTF("ACTIVATION CAPTEUR\n");
       SENSORS_ACTIVATE(hdc_1000_sensor);
@@ -81,8 +80,6 @@ uint8_t enable_disable_humidity(const uint8_t *data){
       PRINTF("DESACTIVATION CAPTEUR");
       SENSORS_DEACTIVATE(hdc_1000_sensor);
       break;
-    default:
-      return ATT_ECODE_INVALID_PDU;
   }
   return SUCCESS;
 }

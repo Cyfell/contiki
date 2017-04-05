@@ -72,8 +72,8 @@ uint8_t get_battery_info(bt_size_t *database){
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t enable_disable_battery(const uint8_t * data){
-  switch(data[3]){
+uint8_t enable_disable_battery(const bt_size_t * new_value){
+  switch(new_value->value.u8){
     case 1:
       PRINTF("ACTIVATION CAPTEUR\n");
       SENSORS_ACTIVATE(batmon_sensor);
@@ -82,8 +82,6 @@ uint8_t enable_disable_battery(const uint8_t * data){
       PRINTF("DESACTIVATION CAPTEUR");
       SENSORS_DEACTIVATE(batmon_sensor);
       break;
-    default:
-      return 0; //ERROR
   }
   return SUCCESS;
 }

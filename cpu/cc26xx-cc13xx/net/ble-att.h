@@ -101,6 +101,7 @@
 #define CHARACTERISTIC_DECLARATION        0x2803
 #define NULL_HANDLE                       0x0000
 #define READ_RESPONSE_DATA_OFFSET         0x03
+#define WRITE_REQUEST_OFFSET_VALUE        0x03
 /*---------------------------------------------------------------------------*/
 uint16_t serveur_mtu;
 #endif //BLE_ATT_H_

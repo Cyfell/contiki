@@ -70,8 +70,8 @@ uint8_t actualise_barometer(bt_size_t *database){
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t enable_disable_barometer(const uint8_t *data){
-  switch(data[READ_RESPONSE_DATA_OFFSET]){
+uint8_t enable_disable_barometer(const bt_size_t *new_value){
+  switch(new_value->value.u8){
     case 1:
       PRINTF("ACTIVATION CAPTEUR\n");
       SENSORS_ACTIVATE(bmp_280_sensor);
@@ -80,8 +80,6 @@ uint8_t enable_disable_barometer(const uint8_t *data){
       PRINTF("DESACTIVATION CAPTEUR");
       SENSORS_DEACTIVATE(bmp_280_sensor);
       break;
-    default:
-      return ATT_ECODE_INVALID_PDU;
   }
   return SUCCESS;
 }
