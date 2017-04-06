@@ -85,6 +85,7 @@ static attribute_t *get_attribute(const uint16_t handle);
 
 #define GET_NEXT_START_GROUP(x) get_attribute(x+1)
 #define GET_NEXT_BY_UUID(x, y, z) get_attribute_by_uuid(x+1, y, z)
+#define UUID_PRIMARY_16 uuid_16_to_128(PRIMARY_GROUP_TYPE)
 
 static const attribute_t *list_attr[]=
 {
@@ -624,7 +625,7 @@ uint8_t fill_group_type_response_values(const uint16_t starting_handle, const ui
   PRINTF("GET GROUP\n");
 
   /* Change this to support other group type */
-  if (uuid_128_compare(*uuid_to_match, uuid_16_to_128(PRIMARY_GROUP_TYPE)) == 0)
+  if (uuid_128_compare(*uuid_to_match, UUID_PRIMARY_16) == 0)
     return ATT_ECODE_UNSUPP_GRP_TYPE;
 
   /* check if attribute is not null */
