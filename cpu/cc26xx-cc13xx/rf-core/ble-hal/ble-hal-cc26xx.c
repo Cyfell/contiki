@@ -54,7 +54,7 @@
 #include <string.h>
 
 /*---------------------------------------------------------------------------*/
-#define DEBUG 0
+#define DEBUG 1
 #if DEBUG
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
@@ -454,12 +454,12 @@ connection_update(unsigned int connection_handle,
 }
 /*---------------------------------------------------------------------------*/
 static ble_result_t
-disconnect(unsigned int connection_handle,
-           unsigned short reason)
+disconnect(unsigned short reason)
 {
-  state = BLE_CONTROLLER_STATE_STANDBY;
-
-  return BLE_RESULT_NOT_SUPPORTED;
+  state = BLE_CONTROLLER_STATE_ADVERTISING;
+  adv_event_next = rf_core_read_current_rf_ticks() + adv_param.interval;
+  rf_core_start_timer_comp(adv_event_next);
+  return BLE_RESULT_OK;
 }
 /*---------------------------------------------------------------------------*/
 static tx_buf_t *
@@ -819,6 +819,9 @@ process_ll_ctrl_msg(uint8_t *data)
     resp_data[4] = (BLE_SUB_VERSION_NR >> 8) & 0xFF;
     resp_data[5] = BLE_SUB_VERSION_NR & 0xFF;
     resp_len = 6;
+  } else if(op_code == BLE_LL_TERMINATE_IND) {
+    PRINTF("Terminate Connexion\n");
+    disconnect(data[1]);
   } else {
     PRINTF("parse_ll_ctrl_msg() opcode: 0x%02X received\n", op_code);
   }
