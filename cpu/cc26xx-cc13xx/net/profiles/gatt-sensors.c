@@ -558,6 +558,7 @@ static attribute_t *get_attribute_by_uuid(const uint16_t starting_handle, const 
 static void fill_response_tab_group(attribute_t *att, const uint16_t ending_handle, const uint128_t *uuid_to_match, att_buffer_t *g_tx_buffer){
   uint8_t type_previous_value;
   uint16_t group_end_handle;
+  uint128_t tmp;
 
   g_tx_buffer->sdu[1] = sizeof(att->att_handle)*2 + att->att_value.type;
   g_tx_buffer->sdu_length += 1;
@@ -574,8 +575,15 @@ static void fill_response_tab_group(attribute_t *att, const uint16_t ending_hand
     memcpy(&g_tx_buffer->sdu[g_tx_buffer->sdu_length], &group_end_handle, sizeof(group_end_handle));
     g_tx_buffer->sdu_length += sizeof(group_end_handle);
 
+    if(att->att_value.type == BT_SIZE128){
+      PRINTF("UUID 128 !\n");
+      tmp = swap128(&att->att_value.value.u128);
+    }else{
+      PRINTF("Other UUID !\n");
+      tmp = att->att_value.value.u128;
+    }
     /* Copy value */
-    memcpy(&g_tx_buffer->sdu[g_tx_buffer->sdu_length], &att->att_value.value, att->att_value.type);
+    memcpy(&g_tx_buffer->sdu[g_tx_buffer->sdu_length], &tmp, att->att_value.type);
     g_tx_buffer->sdu_length += att->att_value.type;
 
     type_previous_value = att->att_value.type;
@@ -595,6 +603,7 @@ static void fill_response_tab_group(attribute_t *att, const uint16_t ending_hand
 static void fill_response_tab(attribute_t *att, const uint16_t ending_handle, const uint128_t *uuid_to_match, att_buffer_t *g_tx_buffer){
   uint8_t type_previous_value;
 
+
   g_tx_buffer->sdu[1] = sizeof(att->att_handle) + att->att_value.type;
   g_tx_buffer->sdu_length += 1;
 
@@ -602,8 +611,9 @@ static void fill_response_tab(attribute_t *att, const uint16_t ending_handle, co
     /* Copy start handle of current group */
     memcpy(&g_tx_buffer->sdu[g_tx_buffer->sdu_length], &att->att_handle, sizeof(att->att_handle));
     g_tx_buffer->sdu_length += sizeof(att->att_handle);
+
     /* Copy value */
-    memcpy(&g_tx_buffer->sdu[g_tx_buffer->sdu_length], &att->att_value.value.u64, att->att_value.type);
+    memcpy(&g_tx_buffer->sdu[g_tx_buffer->sdu_length], &att->att_value.value, att->att_value.type);
     g_tx_buffer->sdu_length += att->att_value.type;
 
     type_previous_value = att->att_value.type;

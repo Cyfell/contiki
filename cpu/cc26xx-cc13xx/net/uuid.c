@@ -114,3 +114,11 @@ inline uint8_t uuid_128_compare(const uint128_t u1, const uint128_t u2){
 	}
 	return 1;
 }
+
+inline uint128_t swap128(const uint128_t *input){
+	uint128_t output;
+	for(uint8_t i = 0; i < sizeof(uint128_t); i++){
+		output.data[i] = input->data[sizeof(uint128_t)-i-1];
+	}
+	return output;
+}

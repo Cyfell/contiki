@@ -64,4 +64,5 @@ typedef struct {
 uint128_t uuid_16_to_128(uint16_t uuid_16);
 uint16_t uuid_128_to_16(const uint128_t uuid_128);
 uint8_t uuid_128_compare(const uint128_t u1, const uint128_t u2);
+uint128_t swap128(const uint128_t *input);
 #endif

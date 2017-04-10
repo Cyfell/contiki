@@ -51,7 +51,9 @@ static att_buffer_t g_tx_buffer;
 static uint16_t g_error_handle;
 /*---------------------------------------------------------------------------*/
 static void send(){
-  /* TODO: Add ATT MTU control */
+  // Send truncked message
+  if (g_tx_buffer.sdu_length > serveur_mtu)
+    g_tx_buffer.sdu_length = serveur_mtu;
 
   memcpy(packetbuf_dataptr(), g_tx_buffer.sdu, g_tx_buffer.sdu_length);
   packetbuf_set_datalen(g_tx_buffer.sdu_length);
