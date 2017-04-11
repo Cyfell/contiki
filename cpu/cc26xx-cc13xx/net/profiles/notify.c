@@ -79,7 +79,6 @@ uint8_t status_notify(){
 /*---------------------------------------------------------------------------*/
 uint8_t enable_notification(){
   PRINTF("ENABLE NOTIFY\n");
-  set_action
   int empty_case;
   if((empty_case = tab_get_empty_case()) > NUM_NOTIF_MAX)
     return ATT_ECODE_UNLIKELY;
