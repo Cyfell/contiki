@@ -43,6 +43,7 @@
 #include "../ble-att.h"
 #include "temp.h"
 #include "board-peripherals.h"
+#include "notify.h"
 
 /*---------------------------------------------------------------------------*/
 uint8_t actualise_temp(bt_size_t *value){
@@ -58,7 +59,7 @@ uint8_t actualise_temp(bt_size_t *value){
   temp = temp << 16;
 
   tobj = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_OBJECT);
-  PRINTF("TEMP Ambiant: %02X\n", temp);
+  PRINTF("TEMP Ambiant: %02X\n", tobj);
   temp += tobj;
   value->type = BT_SIZE32;
   value->value.u32 = temp;
@@ -85,3 +86,32 @@ uint8_t get_status_temp(bt_size_t *database){
   PRINTF("status temp sensor : 0x%X\n", tmp_007_sensor.status(SENSORS_ACTIVE));
   return SUCCESS;
 }
+/*---------------------------------------------------------------------------*/
+uint8_t get_status_notify(bt_size_t *status_value){
+  status_value->type = BT_SIZE8;
+  status_value->value.u8 = status_notify();
+  return SUCCESS;
+}
+/*---------------------------------------------------------------------------*/
+uint8_t set_notify(const bt_size_t *new_value){
+uint8_t error;
+error = SUCCESS;
+  switch(new_value->value.u8){
+    case 1:
+    PRINTF("ACTIVATION CAPTEUR\n");
+    error = enable_notification();
+      break;
+    case 0:
+    PRINTF("DESACTIVATION CAPTEUR");
+    error = disable_notification();
+      break;
+    default:
+      return ATT_ECODE_UNLIKELY; //ERROR
+  }
+  
+  if (error != SUCCESS)
+    return error;
+
+  return SUCCESS;
+}
+/*---------------------------------------------------------------------------*/

@@ -31,7 +31,7 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-#define DEBUG 1
+#define DEBUG 0
 #if DEBUG
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
@@ -49,6 +49,8 @@
 
 #define UUID_PRIMARY_DECLARATION          {	0x00, 0x00, 0x28, 0x00, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 #define UUID_CHARACTERISTIC_DECLARATION   {	0x00, 0x00, 0x28, 0x03, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+#define UUID_CLIENT_CHARACTERISTIC_CONFIGURATION   {	0x00, 0x00, 0x29, 0x02, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+
 #define UUID_DEVICE_NAME                  {	0x00, 0x00, 0x2A, 0x01, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 #define UUID_CONTIKI_VERSION              {	0x00, 0x00, 0x2A, 0x11, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 
@@ -80,12 +82,12 @@
 #define UUID_BATTERY_DATA                 {	0x00, 0x00, 0xAA, 0x61, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 #define UUID_BATTERY_ED                   {	0x00, 0x00, 0xAA, 0x62, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 
-static attribute_t *get_attribute_by_uuid(const uint16_t starting_handle, const uint128_t *uuid_to_match, const uint16_t ending_handle);
-static attribute_t *get_attribute(const uint16_t handle);
-
 #define GET_NEXT_START_GROUP(x) get_attribute(x+1)
 #define GET_NEXT_BY_UUID(x, y, z) get_attribute_by_uuid(x+1, y, z)
 #define UUID_PRIMARY_16 uuid_16_to_128(PRIMARY_GROUP_TYPE)
+
+static attribute_t *get_attribute_by_uuid(const uint16_t starting_handle, const uint128_t *uuid_to_match, const uint16_t ending_handle);
+static attribute_t *get_attribute(const uint16_t handle);
 
 static const attribute_t *list_attr[]=
 {
@@ -97,7 +99,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_PRIMARY_DECLARATION,
     .properties.write = 1,
     .properties.read = 1,
-    .att_handle =0x0001,
+    .att_handle =__COUNTER__+1,
   },
   &(attribute_t){ // CHAR DECLARATION : DEVICE NAME
     .get_action = NULL,
@@ -107,7 +109,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0002,
+    .att_handle =__COUNTER__+1,
   },
   &(attribute_t){ // DEVICE NAME
     .get_action = NULL,
@@ -117,7 +119,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_DEVICE_NAME,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0003,
+    .att_handle =__COUNTER__+1,
   },
   &(attribute_t){ // PRIMARY SERVICE DECLARATION : INFORMATION SERVICE
     .get_action = NULL,
@@ -127,7 +129,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_PRIMARY_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0004,
+    .att_handle =__COUNTER__+1,
   },
   &(attribute_t){ // CHAR DECLARATION : CONTIKI VERSION
     .get_action = NULL,
@@ -137,7 +139,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0005,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // CONTIKI VERSION
     .get_action = NULL,
@@ -147,7 +149,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_CONTIKI_VERSION,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0006,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // PRIMARY SERVICE DECLARATION : TEMP IR
     .get_action = NULL,
@@ -157,7 +159,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_PRIMARY_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0007,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // CHAR DECLARATION : TEMP DATA
     .get_action = NULL,
@@ -167,7 +169,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0008,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // TEMP DATA
     .get_action = actualise_temp,
@@ -177,7 +179,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_TEMP_DATA,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0009,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // CHAR DECLARATION : TEMP ED
     .get_action = NULL,
@@ -187,7 +189,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x000A,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // TEMP ED
     .get_action = get_status_temp,
@@ -197,7 +199,17 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_TEMP_ED,
     .properties.write = 1,
     .properties.read = 1,
-    .att_handle =0x000B,
+    .att_handle = __COUNTER__+1,
+  },
+  &(attribute_t){ // TEMP NOTIFY
+    .get_action = get_status_notify,
+    .set_action = set_notify,
+    .att_value.type = BT_SIZE16,
+    .att_value.value.u16 = 0x0009,
+    .att_uuid.data = UUID_CLIENT_CHARACTERISTIC_CONFIGURATION,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // PRIMARY SERVICE DECLARATION : HUMIDITY
     .get_action = NULL,
@@ -207,7 +219,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_PRIMARY_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x000C,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // CHAR DECLARATION : HUMIDITY DATA
     .get_action = NULL,
@@ -217,7 +229,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x000D,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // HUMIDITY DATA
     .get_action = actualise_humidity,
@@ -227,7 +239,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_HUMIDITY_DATA,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x000E,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // CHAR DECLARATION : HUMIDITY ED
     .get_action = NULL,
@@ -237,7 +249,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x000F,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // HUMIDITY ED
     .get_action = get_status_humidity,
@@ -247,7 +259,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_HUMIDITY_ED,
     .properties.write = 1,
     .properties.read = 1,
-    .att_handle =0x0010,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // PRIMARY SERVICE DECLARATION : BAROMETER
     .get_action = NULL,
@@ -257,7 +269,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_PRIMARY_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0011,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // CHAR DECLARATION : BAROMETER DATA
     .get_action = NULL,
@@ -267,7 +279,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0012,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // BAROMETER DATA
     .get_action = actualise_barometer,
@@ -277,7 +289,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_BAROMETER_DATA,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0013,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // CHAR DECLARATION : BAROMETER ED
     .get_action = NULL,
@@ -287,7 +299,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0014,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // BAROMETER ED
     .get_action = get_status_barometer,
@@ -297,7 +309,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_BAROMETER_ED,
     .properties.write = 1,
     .properties.read = 1,
-    .att_handle =0x0015,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // PRIMARY SERVICE DECLARATION : LUXOMETER
     .get_action = NULL,
@@ -307,7 +319,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_PRIMARY_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0016,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // CHAR DECLARATION : LUXOMETER DATA
     .get_action = NULL,
@@ -317,7 +329,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0017,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // LUXOMETER DATA
     .get_action = actualise_luxometer,
@@ -327,7 +339,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_LUXOMETER_DATA,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0018,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // CHAR DECLARATION : LUXOMETER ED
     .get_action = NULL,
@@ -337,7 +349,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0019,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // LUXOMETER ED
     .get_action = get_status_luxometer,
@@ -347,7 +359,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_LUXOMETER_ED,
     .properties.write = 1,
     .properties.read = 1,
-    .att_handle =0x001A,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // PRIMARY SERVICE DECLARATION : MPU
     .get_action = NULL,
@@ -357,7 +369,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_PRIMARY_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x001B,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // CHAR DECLARATION : MPU DATA
     .get_action = NULL,
@@ -367,7 +379,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x001C,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // MPU DATA
     .get_action = actualise_mpu,
@@ -376,7 +388,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_MPU_DATA,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x001D,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // CHAR DECLARATION : MPU ED
     .get_action = NULL,
@@ -386,7 +398,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x001E,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // MPU ED
     .get_action = get_status_mpu,
@@ -396,7 +408,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_MPU_ED,
     .properties.write = 1,
     .properties.read = 1,
-    .att_handle =0x001F,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // PRIMARY SERVICE DECLARATION : LED
     .get_action = NULL,
@@ -406,7 +418,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_PRIMARY_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0020,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // CHAR DECLARATION : LED DATA
     .get_action = NULL,
@@ -416,7 +428,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0021,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // LED DATA
     .get_action = get_status_leds,
@@ -425,7 +437,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_MPU_DATA,
     .properties.write = 1,
     .properties.read = 1,
-    .att_handle =0x0022,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // PRIMARY SERVICE DECLARATION : BATTERY
     .get_action = NULL,
@@ -435,7 +447,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_PRIMARY_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0023,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // CHAR DECLARATION : BATTERY DATA
     .get_action = NULL,
@@ -445,7 +457,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0024,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // BATTERY DATA
     .get_action = get_battery_info,
@@ -453,7 +465,7 @@ static const attribute_t *list_attr[]=
     .att_value.type = BT_SIZE32,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0025,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // CHAR DECLARATION : BATTERY ED
     .get_action = NULL,
@@ -463,7 +475,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
-    .att_handle =0x0026,
+    .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // BATTERY ED
     .get_action = get_status_battery,
@@ -473,7 +485,7 @@ static const attribute_t *list_attr[]=
     .att_uuid.data = UUID_BATTERY_ED,
     .properties.write = 1,
     .properties.read = 1,
-    .att_handle =0x0027,
+    .att_handle = __COUNTER__+1,
   },
   NULL
 };
@@ -524,6 +536,7 @@ uint8_t set_value(const uint16_t handle, const bt_size_t *new_value){
   if(new_value->type != att->att_value.type)
     return ATT_ECODE_INVAL_ATTR_VALUE_LEN;
 
+  g_current_att = att;
   return att->set_action(new_value);
 }
 /*---------------------------------------------------------------------------*/

@@ -30,16 +30,15 @@
  * Author: Arthur Courtel <arthurcourtel@gmail.com>
  *
  */
-/*---------------------------------------------------------------------------*/
-#ifndef TEMP_H_
-#define TEMP_H_
+#ifndef NOTIFY_H_
+#define NOTIFY_H_
 
-#include "net/att-database.h"
-/*---------------------------------------------------------------------------*/
-uint8_t actualise_temp(bt_size_t *value);
-uint8_t enable_disable_temp(const bt_size_t *new_value);
-uint8_t get_status_temp(bt_size_t *database);
-uint8_t set_notify(const bt_size_t *new_value);
-uint8_t get_status_notify(bt_size_t *database);
-/*---------------------------------------------------------------------------*/
-#endif  // TEMP_H_
+#include "board-peripherals.h"
+#include "sensors.h"
+#include "gatt-sensors.h"
+PROCESS_NAME(sensors_notify_process);
+uint8_t status_notify();
+uint8_t enable_notification();
+uint8_t disable_notification();
+
+#endif // NOTIFY_H_

@@ -36,6 +36,7 @@
 #include "net/netstack.h"
 #include "net/packetbuf.h"
 #include "net/profiles/gatt-sensors.h"
+#include "notify.h"
 
 
 #define DEBUG 1
@@ -214,7 +215,7 @@ static uint8_t prepare_write(uint8_t *data, const uint16_t len){
   memcpy(&handle, &data[1], 2);
 
   /* Copy new value */
-  memcpy(&new_value.value, &data[3], len - WRITE_REQUEST_OFFSET_VALUE);
+  memcpy(&new_value.value, &data[3], len - OP_DATA_OFFSET);
   new_value.type = len - 3;
 
   error = set_value(handle, &new_value);
@@ -342,6 +343,7 @@ static void input(void){
 
 static void init(void){
   serveur_mtu = ATT_DEFAULT_SERVER_MTU;
+  process_start(&sensors_notify_process, NULL);
 }
 /*---------------------------------------------------------------------------*/
 const struct network_driver gatt_driver ={
