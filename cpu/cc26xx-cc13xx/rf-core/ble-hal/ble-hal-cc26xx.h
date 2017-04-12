@@ -36,7 +36,9 @@
 #define BLE_HAL_CC26XX_H_
 
 #include "ble-hal.h"
+#include "sys/process.h"
 
+extern process_event_t ll_disconnect_event;
 extern const struct ble_hal_driver ble_hal;
 
 #endif /* BLE_HAL_CC26XX_H_ */

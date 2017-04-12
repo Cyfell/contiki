@@ -36,6 +36,8 @@
 #include "net/netstack.h"
 #include "net/packetbuf.h"
 #include "temp.h"
+#include "ble-hal-cc26xx.h"
+#include "pt-sem.h"
 
 #define DEBUG 1
 #if DEBUG
@@ -48,10 +50,18 @@
 static att_buffer_t g_tx_buffer_notify;
 #define NUM_NOTIF_MAX 5
 #define ATT_CID       4
-
+/* process for sending sensor notifications */
 PROCESS(sensors_notify_process, "Sensors");
+/* process for disabling sensor notification */
+PROCESS(on_disconnect_process, "Disconnect Notify");
+
 
 static uint16_t list_sensor_notifications[NUM_NOTIF_MAX];
+/*---------------------------------------------------------------------------*/
+static void reset_tab(){
+  for (int i = 0; i < NUM_NOTIF_MAX; i++)
+    list_sensor_notifications[i] = 0;
+}
 /*---------------------------------------------------------------------------*/
 static uint8_t tab_get_empty_case(){
   for (int i = 0; i < NUM_NOTIF_MAX; i++){
@@ -70,7 +80,7 @@ static uint8_t find_sensor_notified(uint16_t sensor){
 }
 /*---------------------------------------------------------------------------*/
 uint8_t status_notify(){
-  if (find_sensor_notified(g_current_att->att_value.value.u16) == 0){
+  if (find_sensor_notified(g_current_att->att_value.value.u16) > NUM_NOTIF_MAX){
     return 0;
   } else{
     return 1;
@@ -92,7 +102,7 @@ uint8_t disable_notification(){
   int i;
   i = find_sensor_notified(g_current_att->att_value.value.u16);
 
-  if (i == -1)
+  if (i > NUM_NOTIF_MAX)
     return ATT_ECODE_UNLIKELY;
 
   list_sensor_notifications[i] = 0;
@@ -130,21 +140,23 @@ static void send(){
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(sensors_notify_process, ev, data)
 {
-  static struct etimer notify_timer ;
+  static struct etimer notify_timer;
   bt_size_t sensor_value;
   uint16_t handle_to_notify;
   uint8_t error;
+
   PROCESS_BEGIN();
+
   etimer_set(&notify_timer, CLOCK_SECOND);
 
   while(1){
     PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&notify_timer));
     etimer_reset(&notify_timer);
+
     for (int i = 0; i < NUM_NOTIF_MAX; i++){
       if(list_sensor_notifications[i] != 0){
         PRINTF("SEND NOTIFY\n");
         handle_to_notify = list_sensor_notifications[i];
-        PRINTF("handle : %X\n", handle_to_notify);
 
         error = get_value(handle_to_notify, &sensor_value);
         if (error != SUCCESS){
@@ -156,5 +168,19 @@ PROCESS_THREAD(sensors_notify_process, ev, data)
       }
     }
   }
+  PROCESS_END();
+}
+// Disable notifications when disconnection event show up
+PROCESS_THREAD(on_disconnect_process, ev, data){
+
+    PROCESS_BEGIN();
+
+      while(1){
+        PROCESS_YIELD();
+
+        if (ev == ll_disconnect_event){
+          reset_tab();
+        }
+      }
   PROCESS_END();
 }

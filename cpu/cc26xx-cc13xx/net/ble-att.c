@@ -344,6 +344,7 @@ static void input(void){
 static void init(void){
   serveur_mtu = ATT_DEFAULT_SERVER_MTU;
   process_start(&sensors_notify_process, NULL);
+  process_start(&on_disconnect_process, NULL);
 }
 /*---------------------------------------------------------------------------*/
 const struct network_driver gatt_driver ={

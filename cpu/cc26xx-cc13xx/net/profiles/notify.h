@@ -37,6 +37,7 @@
 #include "sensors.h"
 #include "gatt-sensors.h"
 PROCESS_NAME(sensors_notify_process);
+PROCESS_NAME(on_disconnect_process);
 uint8_t status_notify();
 uint8_t enable_notification();
 uint8_t disable_notification();

@@ -36,8 +36,6 @@
 #include "rf-core/ble-hal/rf-ble-cmd.h"
 #include "lpm.h"
 
-#include "sys/process.h"
-
 #include "dev/oscillators.h"
 
 #include "ble-addr.h"
@@ -159,6 +157,8 @@ typedef struct {
 /* connection event data */
 static ble_conn_event_t conn_event;
 static rf_ticks_t first_conn_event_anchor;
+/* event that notify upper layer of disconnection */
+process_event_t ll_disconnect_event;
 /*---------------------------------------------------------------------------*/
 /* RX data queue (all received packets are stored in the same queue)         */
 #define BLE_RX_BUF_DATA_LEN 60
@@ -459,6 +459,7 @@ disconnect(unsigned short reason)
   state = BLE_CONTROLLER_STATE_ADVERTISING;
   adv_event_next = rf_core_read_current_rf_ticks() + adv_param.interval;
   rf_core_start_timer_comp(adv_event_next);
+  process_post(PROCESS_BROADCAST, ll_disconnect_event, NULL);
   return BLE_RESULT_OK;
 }
 /*---------------------------------------------------------------------------*/
