@@ -31,7 +31,6 @@
  *
  */
 #include "notify.h"
-#include "gatt-sensors.h"
 #include "etimer.h"
 #include "net/netstack.h"
 #include "net/packetbuf.h"
@@ -161,6 +160,7 @@ PROCESS_THREAD(sensors_notify_process, ev, data)
         error = get_value(handle_to_notify, &sensor_value);
         if (error != SUCCESS){
           prepare_error_resp(handle_to_notify, error);
+          list_sensor_notifications[i] = 0;
         }else{
           prepare_notification(handle_to_notify, &sensor_value);
         }
@@ -179,6 +179,7 @@ PROCESS_THREAD(on_disconnect_process, ev, data){
         PROCESS_YIELD();
 
         if (ev == ll_disconnect_event){
+          PRINTF("Disconnection\n\n");
           reset_tab();
         }
       }
