@@ -51,7 +51,7 @@ uint8_t actualise_temp(bt_size_t *value){
   temp = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_ALL);
 
   if (temp == CC26XX_SENSOR_READING_ERROR)
-    return 0; //ERROR
+    return ATT_ECODE_SENSOR_READINGS; //ERROR
 
   temp = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_AMBIENT);
   PRINTF("TEMP Ambiant: %02X\n", temp);
@@ -76,6 +76,8 @@ uint8_t enable_disable_temp(const bt_size_t * new_value){
       PRINTF("DESACTIVATION CAPTEUR");
       SENSORS_DEACTIVATE(tmp_007_sensor);
       break;
+    default :
+      return ATT_ECODE_BAD_NUMBER;
   }
   return SUCCESS;
 }
@@ -108,7 +110,7 @@ error = SUCCESS;
     default:
       return ATT_ECODE_UNLIKELY; //ERROR
   }
-  
+
   if (error != SUCCESS)
     return error;
 

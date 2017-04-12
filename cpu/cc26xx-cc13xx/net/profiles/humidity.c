@@ -54,6 +54,7 @@ uint8_t actualise_humidity(bt_size_t *database){
     PRINTF("HDC: Temp=%d.%02d C\n", ((uint16_t)value)  / 100, ((uint16_t)value)  % 100);
   } else{
     PRINTF("HDC: Temp Read Error\n");
+    return ATT_ECODE_SENSOR_READINGS;
   }
   // let space for humidity value
   value = value << 16;
@@ -64,6 +65,7 @@ uint8_t actualise_humidity(bt_size_t *database){
     value += hum;
   } else{
     PRINTF("HDC: Humidity Read Error\n");
+    return ATT_ECODE_SENSOR_READINGS;
   }
   database->type = BT_SIZE32;
   database->value.u32 = (uint32_t) value;
@@ -80,6 +82,8 @@ uint8_t enable_disable_humidity(const bt_size_t *new_value){
       PRINTF("DESACTIVATION CAPTEUR");
       SENSORS_DEACTIVATE(hdc_1000_sensor);
       break;
+    default :
+      return ATT_ECODE_BAD_NUMBER;
   }
   return SUCCESS;
 }

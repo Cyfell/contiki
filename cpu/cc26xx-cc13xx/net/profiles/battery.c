@@ -56,6 +56,7 @@ uint8_t get_battery_info(bt_size_t *database){
     PRINTF("Bat: Temp=%d C\n", value);
   } else{
     PRINTF("BAT: Temp Read Error\n");
+    return ATT_ECODE_SENSOR_READINGS;
   }
   // let space for Voltage value
   value = value << 16;
@@ -66,6 +67,7 @@ uint8_t get_battery_info(bt_size_t *database){
     value += ((tmp * 125) >> 5);
   } else{
     PRINTF("BAT: Voltage Read Error\n");
+    return ATT_ECODE_SENSOR_READINGS;
   }
   database->type = BT_SIZE32;
   database->value.u32 = (uint32_t) value;
@@ -82,6 +84,8 @@ uint8_t enable_disable_battery(const bt_size_t * new_value){
       PRINTF("DESACTIVATION CAPTEUR");
       SENSORS_DEACTIVATE(batmon_sensor);
       break;
+    default :
+      return ATT_ECODE_BAD_NUMBER;
   }
   return SUCCESS;
 }

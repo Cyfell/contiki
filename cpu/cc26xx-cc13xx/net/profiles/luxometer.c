@@ -53,6 +53,7 @@ uint8_t actualise_luxometer(bt_size_t *database){
     PRINTF("OPT: Light=%d.%02d lux\n", value / 100, value % 100);
   } else{
     PRINTF("OPT: Light Read Error\n");
+    return ATT_ECODE_SENSOR_READINGS;
   }
   database->type = BT_SIZE16;
   database->value.u16 = (uint16_t) value;
@@ -69,6 +70,8 @@ uint8_t enable_disable_luxometer(const bt_size_t *new_value){
       PRINTF("DESACTIVATION CAPTEUR");
       SENSORS_DEACTIVATE(opt_3001_sensor);
       break;
+    default :
+      return ATT_ECODE_BAD_NUMBER;
   }
   return SUCCESS;
 }

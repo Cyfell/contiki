@@ -95,6 +95,8 @@ uint8_t enable_disable_mpu(const bt_size_t *new_value){
       PRINTF("DESACTIVATION CAPTEUR");
       SENSORS_DEACTIVATE(mpu_9250_sensor);
       break;
+    default :
+      return ATT_ECODE_BAD_NUMBER;
   }
   return SUCCESS;
 }

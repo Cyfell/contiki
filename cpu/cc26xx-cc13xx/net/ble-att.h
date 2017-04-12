@@ -88,6 +88,9 @@
 #define ATT_ECODE_IO				              0x80
 #define ATT_ECODE_TIMEOUT			            0x81
 #define ATT_ECODE_ABORTED			            0x82
+#define ATT_ECODE_SENSOR_READINGS         0x83
+#define ATT_ECODE_ACTION_NOT_SET          0x84
+#define ATT_ECODE_BAD_NUMBER              0x85
 /*---------------------------------------------------------------------------*/
 
 #define ATT_MTU_RESPONSE_LEN              0x03

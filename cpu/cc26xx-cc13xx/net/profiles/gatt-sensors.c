@@ -531,7 +531,7 @@ uint8_t set_value(const uint16_t handle, const bt_size_t *new_value){
     return ATT_ECODE_WRITE_NOT_PERM;
 
   if(att->set_action == NULL)
-    return ATT_ECODE_UNLIKELY;
+    return ATT_ECODE_ACTION_NOT_SET;
 
   if(new_value->type != att->att_value.type)
     return ATT_ECODE_INVAL_ATTR_VALUE_LEN;

@@ -54,6 +54,7 @@ uint8_t actualise_barometer(bt_size_t *database){
     PRINTF("BAR: Pressure=%d.%02d hPa\n", (value) / 100, (value) % 100);
   } else{
     PRINTF("BAR: Pressure Read Error\n");
+    return ATT_ECODE_SENSOR_READINGS;
   }
   // let space for temp value
   value = value << 32;
@@ -64,6 +65,7 @@ uint8_t actualise_barometer(bt_size_t *database){
     value += tmp;
   } else{
     PRINTF("BAR: Temperature Read Error\n");
+    return ATT_ECODE_SENSOR_READINGS;
   }
   database->type = BT_SIZE64;
   database->value.u64 =  value;
@@ -80,6 +82,8 @@ uint8_t enable_disable_barometer(const bt_size_t *new_value){
       PRINTF("DESACTIVATION CAPTEUR");
       SENSORS_DEACTIVATE(bmp_280_sensor);
       break;
+    default :
+      return ATT_ECODE_BAD_NUMBER;
   }
   return SUCCESS;
 }
