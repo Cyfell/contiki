@@ -48,14 +48,14 @@
 /* process for temp notification */
 PROCESS(temp_notify_process, "temp_notify_process");
 /* process callback on disconnect event */
-PROCESS(on_disconnect_temp_process, "Disconnect Notify");
+PROCESS(temp_disconnect_process, "temp_disconnect_process");
 
-static uint16_t handle_to_notify = 0x0009;
+static uint16_t handle_to_notify;
 static bt_size_t previous_value;
 static uint32_t period_notify;
 
 /*---------------------------------------------------------------------------*/
-uint8_t actualise_temp(bt_size_t *value){
+uint8_t get_value_temp(bt_size_t *value){
   int temp, tobj;
   temp = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_ALL);
 
@@ -75,7 +75,7 @@ uint8_t actualise_temp(bt_size_t *value){
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t enable_disable_temp(const bt_size_t * new_value){
+uint8_t set_status_temp_sensor(const bt_size_t * new_value){
   switch(new_value->value.u8){
     case 1:
       PRINTF("ACTIVATION CAPTEUR\n");
@@ -91,14 +91,14 @@ uint8_t enable_disable_temp(const bt_size_t * new_value){
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t get_status_temp(bt_size_t *database){
+uint8_t get_status_temp_sensor(bt_size_t *database){
   database->type = BT_SIZE8;
   database->value.u8 = (uint8_t) tmp_007_sensor.status(SENSORS_ACTIVE);
   PRINTF("status temp sensor : 0x%X\n", tmp_007_sensor.status(SENSORS_ACTIVE));
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t get_status_notify(bt_size_t *status_value){
+uint8_t get_status_temp_notify(bt_size_t *status_value){
   status_value->type = BT_SIZE8;
   if (process_is_running(&temp_notify_process) == 0){
       status_value->value.u8 = 0;
@@ -111,17 +111,18 @@ uint8_t get_status_notify(bt_size_t *status_value){
 /*---------------------------------------------------------------------------*/
 static inline void enable_notification(){
   PRINTF("ACTIVATION TEMP NOTIFICATIONS\n");
+  handle_to_notify = g_current_att->att_value.value.u16;
   process_start(&temp_notify_process, NULL);
-  process_start(&on_disconnect_temp_process, NULL);
+  process_start(&temp_disconnect_process, NULL);
 }
 /*---------------------------------------------------------------------------*/
 static inline void disable_notification(){
   PRINTF("DESACTIVATION TEMP NOTIFICATIONS\n");
   process_exit(&temp_notify_process);
-  process_exit(&on_disconnect_temp_process);
+  process_exit(&temp_disconnect_process);
 }
 /*---------------------------------------------------------------------------*/
-uint8_t set_notify(const bt_size_t *new_value){
+uint8_t set_status_temp_notify(const bt_size_t *new_value){
 uint8_t error;
 error = SUCCESS;
   switch(new_value->value.u8){
@@ -175,7 +176,7 @@ PROCESS_THREAD(temp_notify_process, ev, data)
     /* update notification period with possible new period */
     etimer_reset_with_new_interval(&notify_timer, (clock_time_t) period_notify);
 
-        error = actualise_temp(&sensor_value);
+        error = get_value_temp(&sensor_value);
         if (is_values_equals(&sensor_value, &previous_value) != 0){
           if (error != SUCCESS){
             prepare_error_resp_notif(handle_to_notify, error);
@@ -193,7 +194,7 @@ PROCESS_THREAD(temp_notify_process, ev, data)
 }
 /*---------------------------------------------------------------------------*/
 // Disable notifications when disconnection event show up
-PROCESS_THREAD(on_disconnect_temp_process, ev, data){
+PROCESS_THREAD(temp_disconnect_process, ev, data){
 
     PROCESS_BEGIN();
 

@@ -62,7 +62,7 @@
 #define UUID_HUMIDITY_SERVICE             {	0x00, 0x00, 0xAA, 0x10, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 #define UUID_HUMIDITY_DATA                {	0x00, 0x00, 0xAA, 0x11, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 #define UUID_HUMIDITY_ED                  {	0x00, 0x00, 0xAA, 0x12, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
-
+#define UUID_HUMIDITY_NOTIFY_PARAM        {	0x00, 0x00, 0xAA, 0x13, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 #define UUID_BAROMETER_SERVICE            {	0x00, 0x00, 0xAA, 0x20, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 #define UUID_BAROMETER_DATA               {	0x00, 0x00, 0xAA, 0x21, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 #define UUID_BAROMETER_ED                 {	0x00, 0x00, 0xAA, 0x22, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
@@ -173,7 +173,7 @@ static const attribute_t *list_attr[]=
     .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // TEMP DATA
-    .get_action = actualise_temp,
+    .get_action = get_value_temp,
     .set_action = NULL,
     .att_value.type = BT_SIZE16,
     .att_value.value.u16 = 0x0,
@@ -193,8 +193,8 @@ static const attribute_t *list_attr[]=
     .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // TEMP ED
-    .get_action = get_status_temp,
-    .set_action = enable_disable_temp,
+    .get_action = get_status_temp_sensor,
+    .set_action = set_status_temp_sensor,
     .att_value.type = BT_SIZE8,
     .att_value.value.u64 = 0x0,
     .att_uuid.data = UUID_TEMP_ED,
@@ -203,8 +203,8 @@ static const attribute_t *list_attr[]=
     .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // TEMP NOTIFY
-    .get_action = get_status_notify,
-    .set_action = set_notify,
+    .get_action = get_status_temp_notify,
+    .set_action = set_status_temp_notify,
     .att_value.type = BT_SIZE8,
     .att_value.value.u16 = 0x0009,
     .att_uuid.data = UUID_CLIENT_CHARACTERISTIC_CONFIGURATION,
@@ -252,7 +252,7 @@ static const attribute_t *list_attr[]=
     .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // HUMIDITY DATA
-    .get_action = actualise_humidity,
+    .get_action = get_value_humidity,
     .set_action = NULL,
     .att_value.type = BT_SIZE32,
     .att_value.value.u32 = 0x0E,
@@ -272,11 +272,40 @@ static const attribute_t *list_attr[]=
     .att_handle = __COUNTER__+1,
   },
   &(attribute_t){ // HUMIDITY ED
-    .get_action = get_status_humidity,
-    .set_action = enable_disable_humidity,
+    .get_action = get_status_humidity_sensor,
+    .set_action = set_status_humidity_sensor,
     .att_value.type = BT_SIZE8,
     .att_value.value.u8 = 0x0,
     .att_uuid.data = UUID_HUMIDITY_ED,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle = __COUNTER__+1,
+  },
+  &(attribute_t){ // TEMP NOTIFY
+    .get_action = get_status_humidity_notify,
+    .set_action = set_status_humidity_notify,
+    .att_value.type = BT_SIZE8,
+    .att_value.value.u16 = 0x0011,
+    .att_uuid.data = UUID_CLIENT_CHARACTERISTIC_CONFIGURATION,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle = __COUNTER__+1,
+  },
+  &(attribute_t){ // CHAR DECLARATION : TEMP PERIOD
+    .get_action = NULL,
+    .set_action = NULL,
+    .att_value.type = BT_CHARACTERISTIC,
+    .att_value.value.u64 = swap40(0x0A0B0013AA),
+    .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle = __COUNTER__+1,
+  },
+  &(attribute_t){ // TEMP NOTIFY PARAM
+    .get_action = get_period_humidity,
+    .set_action = set_period_humidity,
+    .att_value.type = BT_SIZE32,
+    .att_uuid.data = UUID_HUMIDITY_NOTIFY_PARAM,
     .properties.write = 1,
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
