@@ -36,10 +36,10 @@
 #include "board-peripherals.h"
 #include "sensors.h"
 #include "gatt-sensors.h"
-PROCESS_NAME(sensors_notify_process);
-PROCESS_NAME(on_disconnect_process);
-uint8_t status_notify();
-uint8_t enable_notification();
-uint8_t disable_notification();
+
+void send_notify();
+void prepare_notification(uint16_t handle_to_notify, bt_size_t *sensor_value);
+void prepare_error_resp_notif(uint16_t error_handle, uint8_t error);
+int is_values_equals(bt_size_t *v1, bt_size_t *v2);
 
 #endif // NOTIFY_H_

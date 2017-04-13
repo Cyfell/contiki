@@ -35,8 +35,14 @@
 #define TEMP_H_
 
 #include "net/att-database.h"
+#include "process.h"
 /*---------------------------------------------------------------------------*/
+PROCESS_NAME(temp_notify_process);
+PROCESS_NAME(on_disconnect_temp_process);
+
 uint8_t actualise_temp(bt_size_t *value);
+uint8_t set_period_temp(const bt_size_t *new_period);
+uint8_t get_period_temp(bt_size_t *period_to_send);
 uint8_t enable_disable_temp(const bt_size_t *new_value);
 uint8_t get_status_temp(bt_size_t *database);
 uint8_t set_notify(const bt_size_t *new_value);
