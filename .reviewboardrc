@@ -1,0 +1,4 @@
+REVIEWBOARD_URL = "http://owi-gnb-reviewboard.dhcp.gnb.intranet"
+REPOSITORY = "GATT"
+BRANCH = "master"
+LAND_DEST_BRANCH = "master"
