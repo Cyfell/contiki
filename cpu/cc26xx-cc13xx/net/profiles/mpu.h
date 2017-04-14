@@ -35,9 +35,18 @@
 #define MPU_H_
 
 #include "net/att-database.h"
+#include "process.h"
 /*---------------------------------------------------------------------------*/
-uint8_t actualise_mpu(bt_size_t *value);
-uint8_t enable_disable_mpu(const bt_size_t *new_value);
-uint8_t get_status_mpu(bt_size_t *database);
+uint8_t get_value_mpu(bt_size_t *value);
+uint8_t set_status_mpu_sensor(const bt_size_t *new_value);
+uint8_t get_status_mpu_sensor(bt_size_t *database);
+/* notification functions */
+uint8_t set_period_mpu(const bt_size_t *new_period);
+uint8_t get_period_mpu(bt_size_t *period_to_send);
+uint8_t set_status_mpu_notify(const bt_size_t *new_value);
+uint8_t get_status_mpu_notify(bt_size_t *database);
+/* notify process */
+PROCESS_NAME(mpu_notify_process);
+PROCESS_NAME(mpu_disconnect_process);
 /*---------------------------------------------------------------------------*/
 #endif  // MPU_H_
