@@ -97,7 +97,7 @@ uint8_t set_status_humidity_sensor(const bt_size_t *new_value){
   }
   return SUCCESS;
 }
-
+/*---------------------------------------------------------------------------*/
 uint8_t get_status_humidity_sensor(bt_size_t *database){
   database->type = BT_SIZE8;
   database->value.u8 = (uint8_t) hdc_1000_sensor.status(SENSORS_ACTIVE);
