@@ -32,7 +32,7 @@
  */
 /*---------------------------------------------------------------------------*/
 
-#define DEBUG 0
+#define DEBUG 1
 #if DEBUG
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
@@ -43,9 +43,18 @@
 #include "../ble-att.h"
 #include "luxometer.h"
 #include "board-peripherals.h"
+#include "notify.h"
+#include "ble-hal-cc26xx.h"
+/* process for temp notification */
+PROCESS(luxometer_notify_process, "luxometer_notify_process");
+/* process callback on disconnect event */
+PROCESS(on_disconnect_luxometer_process, "Disconnect luxometer notify");
 
+static uint16_t handle_to_notify;
+static bt_size_t previous_value;
+static uint32_t period_notify;
 /*---------------------------------------------------------------------------*/
-uint8_t actualise_luxometer(bt_size_t *database){
+uint8_t get_value_luxometer(bt_size_t *database){
   int value;
 
   value = opt_3001_sensor.value(0);
@@ -60,7 +69,7 @@ uint8_t actualise_luxometer(bt_size_t *database){
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t enable_disable_luxometer(const bt_size_t *new_value){
+uint8_t set_status_luxometer_sensor(const bt_size_t *new_value){
   switch(new_value->value.u8){
     case 1:
       PRINTF("ACTIVATION CAPTEUR\n");
@@ -76,9 +85,116 @@ uint8_t enable_disable_luxometer(const bt_size_t *new_value){
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t get_status_luxometer(bt_size_t *database){
+uint8_t get_status_luxometer_sensor(bt_size_t *database){
   database->type = BT_SIZE8;
   database->value.u8 = (uint8_t) opt_3001_sensor.status(SENSORS_ACTIVE);
-  PRINTF("status humidity luxometer : 0x%X\n", opt_3001_sensor.status(SENSORS_ACTIVE));
+  PRINTF("status luxometer luxometer : 0x%X\n", opt_3001_sensor.status(SENSORS_ACTIVE));
   return SUCCESS;
+}
+/*---------------------------------------------------------------------------*/
+uint8_t get_status_luxometer_notify(bt_size_t *status_value){
+  status_value->type = BT_SIZE8;
+  if (process_is_running(&luxometer_notify_process) == 0){
+      status_value->value.u8 = 0;
+  }else{
+    status_value->value.u8 = 1;
+  }
+
+  return SUCCESS;
+}
+/*---------------------------------------------------------------------------*/
+static inline void enable_notification(){
+  PRINTF("ACTIVATION luxometer NOTIFICATIONS\n");
+  handle_to_notify = g_current_att->att_value.value.u16;
+  process_start(&luxometer_notify_process, NULL);
+  process_start(&on_disconnect_luxometer_process, NULL);
+}
+/*---------------------------------------------------------------------------*/
+static inline void disable_notification(){
+  PRINTF("DESACTIVATION luxometer NOTIFICATIONS\n");
+  process_exit(&luxometer_notify_process);
+  process_exit(&on_disconnect_luxometer_process);
+}
+/*---------------------------------------------------------------------------*/
+uint8_t set_status_luxometer_notify(const bt_size_t *new_value){
+uint8_t error;
+error = SUCCESS;
+  switch(new_value->value.u8){
+    case 1:
+    enable_notification();
+      break;
+    case 0:
+    disable_notification();
+      break;
+    default:
+      return ATT_ECODE_BAD_NUMBER; //ERROR
+  }
+
+  if (error != SUCCESS)
+    return error;
+
+  return SUCCESS;
+}
+/*---------------------------------------------------------------------------*/
+uint8_t set_period_luxometer(const bt_size_t *new_period){
+  /* convert period received in system seconds */
+  period_notify = (swap32(new_period->value.u32)) * CLOCK_SECOND;
+  /* period mini = CLOCK_SECOND */
+  if (period_notify < (uint32_t) CLOCK_SECOND)
+    period_notify = (uint32_t) CLOCK_SECOND;
+
+  PRINTF("new period : %lX\n", period_notify);
+  return SUCCESS;
+}
+/*---------------------------------------------------------------------------*/
+uint8_t get_period_luxometer(bt_size_t *period_to_send){
+  /* convert period in seconds */
+  period_to_send->value.u32 = (period_notify)/CLOCK_SECOND;
+  period_to_send->type = BT_SIZE32;
+  return SUCCESS;
+}
+/*---------------------------------------------------------------------------*/
+PROCESS_THREAD(luxometer_notify_process, ev, data)
+{
+  static struct etimer notify_timer;
+  bt_size_t sensor_value;
+  uint8_t error;
+
+  PROCESS_BEGIN();
+  /* initiate notify period to CLOCK_SECOND */
+  period_notify = CLOCK_SECOND;
+  etimer_set(&notify_timer, (clock_time_t) period_notify);
+
+  while(1){
+    PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&notify_timer));
+    /* update notification period with possible new period */
+    etimer_reset_with_new_interval(&notify_timer, (clock_time_t) period_notify);
+
+        error = get_value_luxometer(&sensor_value);
+        if (is_values_equals(&sensor_value, &previous_value) != 0){
+          if (error != SUCCESS){
+            prepare_error_resp_notif(handle_to_notify, error);
+            /* If error, disable notifications */
+            disable_notification();
+          }else {
+            prepare_notification(handle_to_notify, &sensor_value);
+            previous_value = sensor_value;
+          }
+
+          send_notify();
+        }
+  }
+  PROCESS_END();
+}
+/*---------------------------------------------------------------------------*/
+// Disable notifications when disconnection event show up
+PROCESS_THREAD(on_disconnect_luxometer_process, ev, data){
+
+    PROCESS_BEGIN();
+
+      while(1){
+        PROCESS_WAIT_EVENT_UNTIL(ev == ll_disconnect_event);
+        disable_notification();
+      }
+  PROCESS_END();
 }
