@@ -88,6 +88,12 @@
 #define UUID_BATTERY_ED                   {	0x00, 0x00, 0xAA, 0x62, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 #define UUID_BATTERY_NOTIFY_PARAM         {	0x00, 0x00, 0xAA, 0x63, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 
+#define UUID_BUTTONS_SERVICE              {	0x00, 0x00, 0xAA, 0x70, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+#define UUID_BUTTONS_DATA                 {	0x00, 0x00, 0xAA, 0x71, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+#define UUID_BUTTONS_ED                   {	0x00, 0x00, 0xAA, 0x72, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+#define UUID_BUTTONS_NOTIFY_PARAM         {	0x00, 0x00, 0xAA, 0x73, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+
+
 #define GET_NEXT_START_GROUP(x) get_attribute(x+1)
 #define GET_NEXT_BY_UUID(x, y, z) get_attribute_by_uuid(x+1, y, z)
 #define UUID_PRIMARY_16 uuid_16_to_128(PRIMARY_GROUP_TYPE)
@@ -651,6 +657,83 @@ static const attribute_t *list_attr[]=
   &(attribute_t){ // BATTERY NOTIFY PARAM
     .get_action = get_period_battery,
     .set_action = set_period_battery,
+    .att_value.type = BT_SIZE32,
+    .att_uuid.data = UUID_BATTERY_NOTIFY_PARAM,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle = __COUNTER__+1,
+  },
+  &(attribute_t){ // PRIMARY SERVICE DECLARATION : BUTTONS
+    .get_action = NULL,
+    .set_action = NULL,
+    .att_value.type = BT_SIZE128,
+    .att_value.value.u128.data = UUID_BUTTONS_SERVICE,
+    .att_uuid.data = UUID_PRIMARY_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle = __COUNTER__+1,
+  },
+  &(attribute_t){ // CHAR DECLARATION : BUTTONS DATA
+    .get_action = NULL,
+    .set_action = NULL,
+    .att_value.type = BT_CHARACTERISTIC,
+    .att_value.value.u64 = swap40(0x123C0071AA),
+    .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle = __COUNTER__+1,
+  },
+  &(attribute_t){ // BATTERY DATA
+    .get_action = get_value_buttons,
+    .set_action = NULL,
+    .att_value.type = BT_SIZE32,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle = __COUNTER__+1,
+  },
+  &(attribute_t){ // CHAR DECLARATION : BATTERY ED
+    .get_action = NULL,
+    .set_action = NULL,
+    .att_value.type = BT_CHARACTERISTIC,
+    .att_value.value.u64 = swap40(0x0A3E0062AA),
+    .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle = __COUNTER__+1,
+  },
+  &(attribute_t){ // BATTERY ED
+    .get_action = get_status_buttons_sensor,
+    .set_action = set_status_buttons_sensor,
+    .att_value.type = BT_SIZE8,
+    .att_value.value.u8 = 0x0,
+    .att_uuid.data = UUID_BUTTONS_ED,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle = __COUNTER__+1,
+  },
+  &(attribute_t){ // BATTERY NOTIFY
+    .get_action = get_status_buttons_notify,
+    .set_action = set_status_buttons_notify,
+    .att_value.type = BT_SIZE8,
+    .att_value.value.u16 = 0x003C,
+    .att_uuid.data = UUID_CLIENT_CHARACTERISTIC_CONFIGURATION,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle = __COUNTER__+1,
+  },
+  &(attribute_t){ // CHAR DECLARATION : BATTERY PERIOD
+    .get_action = NULL,
+    .set_action = NULL,
+    .att_value.type = BT_CHARACTERISTIC,
+    .att_value.value.u64 = swap40(0x0A410063AA),
+    .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle = __COUNTER__+1,
+  },
+  &(attribute_t){ // BATTERY NOTIFY PARAM
+    .get_action = get_period_buttons,
+    .set_action = set_period_buttons,
     .att_value.type = BT_SIZE32,
     .att_uuid.data = UUID_BATTERY_NOTIFY_PARAM,
     .properties.write = 1,
