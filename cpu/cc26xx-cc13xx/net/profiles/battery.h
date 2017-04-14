@@ -35,9 +35,18 @@
 #define BATTERY_H_
 
 #include "net/att-database.h"
+#include "process.h"
 /*---------------------------------------------------------------------------*/
-uint8_t get_battery_info(bt_size_t *database);
-uint8_t enable_disable_battery(const bt_size_t *new_value);
-uint8_t get_status_battery(bt_size_t *database);
+uint8_t get_value_battery(bt_size_t *value);
+uint8_t set_status_battery_sensor(const bt_size_t *new_value);
+uint8_t get_status_battery_sensor(bt_size_t *database);
+/* notification functions */
+uint8_t set_period_battery(const bt_size_t *new_period);
+uint8_t get_period_battery(bt_size_t *period_to_send);
+uint8_t set_status_battery_notify(const bt_size_t *new_value);
+uint8_t get_status_battery_notify(bt_size_t *database);
+/* notify process */
+PROCESS_NAME(battery_notify_process);
+PROCESS_NAME(battery_disconnect_process);
 /*---------------------------------------------------------------------------*/
 #endif  // BATTERY_H_
