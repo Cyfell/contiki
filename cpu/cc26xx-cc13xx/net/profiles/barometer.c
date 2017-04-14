@@ -32,7 +32,7 @@
  */
 /*---------------------------------------------------------------------------*/
 
-#define DEBUG 0
+#define DEBUG 1
 #if DEBUG
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
@@ -61,7 +61,7 @@ uint8_t get_value_barometer(bt_size_t *database){
 
   value = bmp_280_sensor.value(BMP_280_SENSOR_TYPE_PRESS);
   if (value != CC26XX_SENSOR_READING_ERROR) {
-    PRINTF("BAR: Pressure=%d.%02d hPa\n", (value) / 100, (value) % 100);
+    PRINTF("BAR: Pressure=%ld.%02ld hPa\n", (uint32_t)(value) / 100, (uint32_t)(value) % 100);
   } else{
     PRINTF("BAR: Pressure Read Error\n");
     return ATT_ECODE_SENSOR_READINGS;

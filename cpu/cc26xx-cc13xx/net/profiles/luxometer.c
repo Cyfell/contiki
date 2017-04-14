@@ -48,7 +48,7 @@
 /* process for temp notification */
 PROCESS(luxometer_notify_process, "luxometer_notify_process");
 /* process callback on disconnect event */
-PROCESS(on_disconnect_luxometer_process, "Disconnect luxometer notify");
+PROCESS(luxometer_disconnect_process, "Disconnect luxometer notify");
 
 static uint16_t handle_to_notify;
 static bt_size_t previous_value;
@@ -107,13 +107,13 @@ static inline void enable_notification(){
   PRINTF("ACTIVATION luxometer NOTIFICATIONS\n");
   handle_to_notify = g_current_att->att_value.value.u16;
   process_start(&luxometer_notify_process, NULL);
-  process_start(&on_disconnect_luxometer_process, NULL);
+  process_start(&luxometer_disconnect_process, NULL);
 }
 /*---------------------------------------------------------------------------*/
 static inline void disable_notification(){
   PRINTF("DESACTIVATION luxometer NOTIFICATIONS\n");
   process_exit(&luxometer_notify_process);
-  process_exit(&on_disconnect_luxometer_process);
+  process_exit(&luxometer_disconnect_process);
 }
 /*---------------------------------------------------------------------------*/
 uint8_t set_status_luxometer_notify(const bt_size_t *new_value){
@@ -188,7 +188,7 @@ PROCESS_THREAD(luxometer_notify_process, ev, data)
 }
 /*---------------------------------------------------------------------------*/
 // Disable notifications when disconnection event show up
-PROCESS_THREAD(on_disconnect_luxometer_process, ev, data){
+PROCESS_THREAD(luxometer_disconnect_process, ev, data){
 
     PROCESS_BEGIN();
 

@@ -48,7 +48,7 @@
 /* process for temp notification */
 PROCESS(humidity_notify_process, "temp_humidity_process");
 /* process callback on disconnect event */
-PROCESS(on_disconnect_humidity_process, "Disconnect humidity notify");
+PROCESS(humidity_disconnect_process, "Disconnect humidity notify");
 
 static uint16_t handle_to_notify;
 static bt_size_t previous_value;
@@ -120,13 +120,13 @@ static inline void enable_notification(){
   PRINTF("ACTIVATION HUMIDITY NOTIFICATIONS\n");
   handle_to_notify = g_current_att->att_value.value.u16;
   process_start(&humidity_notify_process, NULL);
-  process_start(&on_disconnect_humidity_process, NULL);
+  process_start(&humidity_disconnect_process, NULL);
 }
 /*---------------------------------------------------------------------------*/
 static inline void disable_notification(){
   PRINTF("DESACTIVATION HUMIDITY NOTIFICATIONS\n");
   process_exit(&humidity_notify_process);
-  process_exit(&on_disconnect_humidity_process);
+  process_exit(&humidity_disconnect_process);
 }
 /*---------------------------------------------------------------------------*/
 uint8_t set_status_humidity_notify(const bt_size_t *new_value){
@@ -201,7 +201,7 @@ PROCESS_THREAD(humidity_notify_process, ev, data)
 }
 /*---------------------------------------------------------------------------*/
 // Disable notifications when disconnection event show up
-PROCESS_THREAD(on_disconnect_humidity_process, ev, data){
+PROCESS_THREAD(humidity_disconnect_process, ev, data){
 
     PROCESS_BEGIN();
 
