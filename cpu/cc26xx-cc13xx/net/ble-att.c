@@ -241,14 +241,14 @@ static uint8_t parse_start_stop_handle(const uint8_t *data, uint16_t *starting_h
   if (starting_handle > ending_handle || starting_handle == NULL_HANDLE)
     return ATT_ECODE_INVALID_HANDLE;
 
-  return SUCCESS
+  return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
 static uint8_t parse_type_req(const uint8_t *data, const uint16_t len, uint16_t *starting_handle, uint16_t *ending_handle, uint128_t *uuid_to_match){
   uint8_t error;
   error = parse_start_stop_handle(&data[1], starting_handle, ending_handle);
   if (error != SUCCESS){
-    g_error_handle = starting_handle;
+    g_error_handle = *starting_handle;
     return error;
   }
   /* for group request if len < 8 a 16bits uuid is sent, 128bits otherwise */

@@ -687,15 +687,16 @@ static const attribute_t *list_attr[]=
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
   },
-  &(attribute_t){ // BATTERY DATA
+  &(attribute_t){ // BUTTONS DATA
     .get_action = get_value_buttons,
     .set_action = NULL,
     .att_value.type = BT_SIZE32,
+    .att_uuid.data = UUID_BUTTONS_DATA,
     .properties.write = 0,
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
   },
-  &(attribute_t){ // CHAR DECLARATION : BATTERY ED
+  &(attribute_t){ // CHAR DECLARATION : BUTTONS ED
     .get_action = NULL,
     .set_action = NULL,
     .att_value.type = BT_CHARACTERISTIC,
@@ -705,7 +706,7 @@ static const attribute_t *list_attr[]=
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
   },
-  &(attribute_t){ // BATTERY ED
+  &(attribute_t){ // BUTTONS ED
     .get_action = get_status_buttons_sensor,
     .set_action = set_status_buttons_sensor,
     .att_value.type = BT_SIZE8,
@@ -715,7 +716,7 @@ static const attribute_t *list_attr[]=
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
   },
-  &(attribute_t){ // BATTERY NOTIFY
+  &(attribute_t){ // BUTTONS NOTIFY
     .get_action = get_status_buttons_notify,
     .set_action = set_status_buttons_notify,
     .att_value.type = BT_SIZE8,
@@ -725,7 +726,7 @@ static const attribute_t *list_attr[]=
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
   },
-  &(attribute_t){ // CHAR DECLARATION : BATTERY PERIOD
+  &(attribute_t){ // CHAR DECLARATION : BUTTONS PERIOD
     .get_action = NULL,
     .set_action = NULL,
     .att_value.type = BT_CHARACTERISTIC,
@@ -735,11 +736,11 @@ static const attribute_t *list_attr[]=
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
   },
-  &(attribute_t){ // BATTERY NOTIFY PARAM
+  &(attribute_t){ // BUTTONS NOTIFY PARAM
     .get_action = get_period_buttons,
     .set_action = set_period_buttons,
     .att_value.type = BT_SIZE32,
-    .att_uuid.data = UUID_BATTERY_NOTIFY_PARAM,
+    .att_uuid.data = UUID_BUTTONS_NOTIFY_PARAM,
     .properties.write = 1,
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
@@ -754,7 +755,7 @@ static const attribute_t *list_attr[]=
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
   },
-  &(attribute_t){ // CHAR DECLARATION : BUTTONS DATA
+  &(attribute_t){ // CHAR DECLARATION : REED-RELAY DATA
     .get_action = NULL,
     .set_action = NULL,
     .att_value.type = BT_CHARACTERISTIC,
@@ -764,15 +765,16 @@ static const attribute_t *list_attr[]=
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
   },
-  &(attribute_t){ // BATTERY DATA
+  &(attribute_t){ // REED-RELAY DATA
     .get_action = get_value_reed_relay,
     .set_action = NULL,
     .att_value.type = BT_SIZE32,
+    .att_uuid.data = UUID_REED_RELAY_DATA,
     .properties.write = 0,
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
   },
-  &(attribute_t){ // CHAR DECLARATION : BATTERY ED
+  &(attribute_t){ // CHAR DECLARATION : REED-RELAY ED
     .get_action = NULL,
     .set_action = NULL,
     .att_value.type = BT_CHARACTERISTIC,
@@ -782,17 +784,17 @@ static const attribute_t *list_attr[]=
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
   },
-  &(attribute_t){ // BATTERY ED
+  &(attribute_t){ // REED-RELAY ED
     .get_action = get_status_reed_relay_sensor,
     .set_action = set_status_reed_relay_sensor,
     .att_value.type = BT_SIZE8,
     .att_value.value.u8 = 0x0,
-    .att_uuid.data = UUID_BUTTONS_ED,
+    .att_uuid.data = UUID_REED_RELAY_ED,
     .properties.write = 1,
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
   },
-  &(attribute_t){ // BATTERY NOTIFY
+  &(attribute_t){ // REED-RELAY NOTIFY
     .get_action = get_status_reed_relay_notify,
     .set_action = set_status_reed_relay_notify,
     .att_value.type = BT_SIZE8,
@@ -802,7 +804,7 @@ static const attribute_t *list_attr[]=
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
   },
-  &(attribute_t){ // CHAR DECLARATION : BATTERY PERIOD
+  &(attribute_t){ // CHAR DECLARATION : REED-RELAY PERIOD
     .get_action = NULL,
     .set_action = NULL,
     .att_value.type = BT_CHARACTERISTIC,
@@ -812,11 +814,11 @@ static const attribute_t *list_attr[]=
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
   },
-  &(attribute_t){ // BATTERY NOTIFY PARAM
+  &(attribute_t){ // REED-RELAY NOTIFY PARAM
     .get_action = get_period_reed_relay,
     .set_action = set_period_reed_relay,
     .att_value.type = BT_SIZE32,
-    .att_uuid.data = UUID_BATTERY_NOTIFY_PARAM,
+    .att_uuid.data = UUID_REED_RELAY_NOTIFY_PARAM,
     .properties.write = 1,
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
