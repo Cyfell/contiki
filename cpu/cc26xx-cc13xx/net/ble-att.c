@@ -331,7 +331,9 @@ uint8_t static prepare_find_info(uint8_t *data, uint16_t len){
   g_tx_buffer.sdu[0] = ATT_INFORMATION_RESPONSE;
   g_tx_buffer.sdu[1] = FORMAT_16BITS_UUID;
   g_tx_buffer.sdu_length = 2;
-  if (get_find_info_values(starting_handle, ending_handle, &g_tx_buffer) != SUCCESS){
+  error = get_find_info_values(starting_handle, ending_handle, &g_tx_buffer);
+  if (error != SUCCESS){
+    g_error_handle = starting_handle;
     return error;
   }
   return SUCCESS;
