@@ -977,7 +977,7 @@ static void fill_response_tab(attribute_t *att, const uint16_t ending_handle, co
   }
 }
 /*---------------------------------------------------------------------------*/
-uint8_t fill_group_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const uint128_t *uuid_to_match, att_buffer_t *g_tx_buffer){
+uint8_t get_group_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const uint128_t *uuid_to_match, att_buffer_t *g_tx_buffer){
   attribute_t *att_groupe_start;
   PRINTF("GET GROUP\n");
 
@@ -996,7 +996,7 @@ uint8_t fill_group_type_response_values(const uint16_t starting_handle, const ui
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t fill_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const uint128_t *uuid_to_match, att_buffer_t *g_tx_buffer){
+uint8_t get_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const uint128_t *uuid_to_match, att_buffer_t *g_tx_buffer){
   attribute_t *att_groupe_start;
   PRINTF("GET GROUP\n");
 

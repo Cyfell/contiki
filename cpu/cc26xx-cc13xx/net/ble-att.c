@@ -232,14 +232,25 @@ static uint8_t prepare_write(uint8_t *data, const uint16_t len){
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-static uint8_t parse_type_req(const uint8_t *data, const uint16_t len, uint16_t *starting_handle, uint16_t *ending_handle, uint128_t *uuid_to_match){
+static uint8_t parse_start_stop_handle(const uint8_t *data, uint16_t *starting_handle, uint16_t *ending_handle){
   /* Copy starting handle */
-  memcpy(starting_handle, &data[1], 2);
+  memcpy(starting_handle, &data[0], 2);
   /* Copy ending handle */
-  memcpy(ending_handle, &data[3], 2);
+  memcpy(ending_handle, &data[2], 2);
   /* see spec Bluetooth v5 p2198 */
   if (starting_handle > ending_handle || starting_handle == NULL_HANDLE)
     return ATT_ECODE_INVALID_HANDLE;
+
+  return SUCCESS
+}
+/*---------------------------------------------------------------------------*/
+static uint8_t parse_type_req(const uint8_t *data, const uint16_t len, uint16_t *starting_handle, uint16_t *ending_handle, uint128_t *uuid_to_match){
+  uint8_t error;
+  error = parse_start_stop_handle(&data[1], starting_handle, ending_handle);
+  if (error != SUCCESS){
+    g_error_handle = starting_handle;
+    return error;
+  }
   /* for group request if len < 8 a 16bits uuid is sent, 128bits otherwise */
   if (len < 8){
     uint16_t tmp_uuid_16;
@@ -284,11 +295,11 @@ static uint8_t prepare_type(const uint8_t *data, const uint16_t len){
   if (data[0] == ATT_READ_BY_GROUP_TYPE_REQUEST){
     g_tx_buffer.sdu[0] = ATT_READ_BY_GROUP_TYPE_RESPONSE;
     g_tx_buffer.sdu_length = 1;
-    error = fill_group_type_response_values(starting_handle, ending_handle, &uuid_to_match, &g_tx_buffer);
+    error = get_group_type_response_values(starting_handle, ending_handle, &uuid_to_match, &g_tx_buffer);
   } else{
     g_tx_buffer.sdu[0] = ATT_READ_BY_TYPE_RESPONSE;
     g_tx_buffer.sdu_length = 1;
-    error = fill_type_response_values(starting_handle, ending_handle, &uuid_to_match, &g_tx_buffer);
+    error = get_type_response_values(starting_handle, ending_handle, &uuid_to_match, &g_tx_buffer);
   }
   if (error != SUCCESS){
     g_error_handle = starting_handle;
@@ -327,6 +338,10 @@ static void input(void){
 
     case ATT_READ_BY_TYPE_REQUEST:
       control = prepare_type(data, len);
+      break;
+
+    case ATT_FIND_INFO_BY_TYPE_REQUEST:
+      control = prepare_find_info(data, len);
       break;
 
     default :
