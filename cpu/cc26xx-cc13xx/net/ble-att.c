@@ -308,6 +308,34 @@ static uint8_t prepare_type(const uint8_t *data, const uint16_t len){
 
   return SUCCESS;
 }
+/*
+ Find info request packet
+ +------------------------------------------+
+ | Opcode | Starting Handle | Ending Handle |
+ +------------------------------------------+
+ Opcode : 1 octet
+ Starting handle : 2 octets
+ Ending handle : 2 octets
+*/
+#define FORMAT_16BITS_UUID 01
+uint8_t static prepare_find_info(uint8_t *data, uint16_t len){
+  uint16_t starting_handle, ending_handle;
+  uint8_t error;
+  PRINTF("FIND INFO\n");
+  error = parse_start_stop_handle(&data[1], &starting_handle, &ending_handle);
+
+  if (error != SUCCESS){
+    g_error_handle = starting_handle;
+    return error;
+  }
+  g_tx_buffer.sdu[0] = ATT_INFORMATION_RESPONSE;
+  g_tx_buffer.sdu[1] = FORMAT_16BITS_UUID;
+  g_tx_buffer.sdu_length = 2;
+  if (get_find_info_values(starting_handle, ending_handle, &g_tx_buffer) != SUCCESS){
+    return error;
+  }
+  return SUCCESS;
+}
 /*---------------------------------------------------------------------------*/
 static void input(void){
   uint8_t control = ATT_ECODE_REQ_NOT_SUPP;
@@ -340,7 +368,7 @@ static void input(void){
       control = prepare_type(data, len);
       break;
 
-    case ATT_FIND_INFO_BY_TYPE_REQUEST:
+    case ATT_INFORMATION_REQUEST:
       control = prepare_find_info(data, len);
       break;
 

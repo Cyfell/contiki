@@ -52,5 +52,6 @@ uint8_t get_value(const uint16_t handle, bt_size_t *value_ptr);
 uint8_t set_value(const uint16_t handle, const bt_size_t *new_value);
 uint8_t get_group_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const uint128_t *uuid_to_match, att_buffer_t *g_tx_buffer);
 uint8_t get_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const uint128_t *uuid_to_match, att_buffer_t *g_tx_buffer);
+uint8_t get_find_info_values(const uint16_t starting_handle, const uint16_t ending_handle, att_buffer_t *g_tx_buffer);
 /*---------------------------------------------------------------------------*/
 #endif //GATT_SENSORS_H_
