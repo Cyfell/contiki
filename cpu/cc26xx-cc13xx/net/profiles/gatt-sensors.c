@@ -31,7 +31,7 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-#define DEBUG 0
+#define DEBUG 1
 #if DEBUG
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
@@ -97,6 +97,7 @@
 #define UUID_REED_RELAY_DATA              {	0x00, 0x00, 0xAA, 0x81, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 #define UUID_REED_RELAY_ED                {	0x00, 0x00, 0xAA, 0x82, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 #define UUID_REED_RELAY_NOTIFY_PARAM      {	0x00, 0x00, 0xAA, 0x83, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+#define UUID_TEST_USER_DESC      {	0x00, 0x00, 0x29, 0x01, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 
 #define GET_NEXT_START_GROUP(x) get_attribute(x+1)
 #define GET_NEXT_BY_UUID(x, y, z) get_attribute_by_uuid(x+1, y, z)
@@ -198,11 +199,21 @@ static const attribute_t *list_attr[]=
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
   },
+  &(attribute_t){ // TEMP NOTIFY
+    .get_action = get_status_temp_notify,
+    .set_action = set_status_temp_notify,
+    .att_value.type = BT_SIZE16,
+    .att_value.value.u16 = 0x0009,
+    .att_uuid.data = UUID_CLIENT_CHARACTERISTIC_CONFIGURATION,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle = __COUNTER__+1,
+  },
   &(attribute_t){ // CHAR DECLARATION : TEMP ED
     .get_action = NULL,
     .set_action = NULL,
     .att_value.type = BT_CHARACTERISTIC,
-    .att_value.value.u64 = swap40(0x0A0B0002AA),
+    .att_value.value.u64 = swap40(0x0A0C0002AA),
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
@@ -214,16 +225,6 @@ static const attribute_t *list_attr[]=
     .att_value.type = BT_SIZE8,
     .att_value.value.u64 = 0x0,
     .att_uuid.data = UUID_TEMP_ED,
-    .properties.write = 1,
-    .properties.read = 1,
-    .att_handle = __COUNTER__+1,
-  },
-  &(attribute_t){ // TEMP NOTIFY
-    .get_action = get_status_temp_notify,
-    .set_action = set_status_temp_notify,
-    .att_value.type = BT_SIZE8,
-    .att_value.value.u16 = 0x0009,
-    .att_uuid.data = UUID_CLIENT_CHARACTERISTIC_CONFIGURATION,
     .properties.write = 1,
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
@@ -277,11 +278,21 @@ static const attribute_t *list_attr[]=
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
   },
+  &(attribute_t){ // HUMIDITY NOTIFY
+    .get_action = get_status_humidity_notify,
+    .set_action = set_status_humidity_notify,
+    .att_value.type = BT_SIZE16,
+    .att_value.value.u16 = 0x0011,
+    .att_uuid.data = UUID_CLIENT_CHARACTERISTIC_CONFIGURATION,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle = __COUNTER__+1,
+  },
   &(attribute_t){ // CHAR DECLARATION : HUMIDITY ED
     .get_action = NULL,
     .set_action = NULL,
     .att_value.type = BT_CHARACTERISTIC,
-    .att_value.value.u64 = swap40(0x0A130012AA),
+    .att_value.value.u64 = swap40(0x0A140012AA),
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
@@ -293,16 +304,6 @@ static const attribute_t *list_attr[]=
     .att_value.type = BT_SIZE8,
     .att_value.value.u8 = 0x0,
     .att_uuid.data = UUID_HUMIDITY_ED,
-    .properties.write = 1,
-    .properties.read = 1,
-    .att_handle = __COUNTER__+1,
-  },
-  &(attribute_t){ // HUMIDITY NOTIFY
-    .get_action = get_status_humidity_notify,
-    .set_action = set_status_humidity_notify,
-    .att_value.type = BT_SIZE8,
-    .att_value.value.u16 = 0x0011,
-    .att_uuid.data = UUID_CLIENT_CHARACTERISTIC_CONFIGURATION,
     .properties.write = 1,
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
@@ -356,11 +357,21 @@ static const attribute_t *list_attr[]=
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
   },
+  &(attribute_t){ // barometer NOTIFY
+    .get_action = get_status_barometer_notify,
+    .set_action = set_status_barometer_notify,
+    .att_value.type = BT_SIZE16,
+    .att_value.value.u16 = 0x0019,
+    .att_uuid.data = UUID_CLIENT_CHARACTERISTIC_CONFIGURATION,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle = __COUNTER__+1,
+  },
   &(attribute_t){ // CHAR DECLARATION : BAROMETER ED
     .get_action = NULL,
     .set_action = NULL,
     .att_value.type = BT_CHARACTERISTIC,
-    .att_value.value.u64 = swap40(0x0A1B0022AA),
+    .att_value.value.u64 = swap40(0x0A1C0022AA),
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
@@ -372,16 +383,6 @@ static const attribute_t *list_attr[]=
     .att_value.type = BT_SIZE8,
     .att_value.value.u8 = 0x0,
     .att_uuid.data = UUID_BAROMETER_ED,
-    .properties.write = 1,
-    .properties.read = 1,
-    .att_handle = __COUNTER__+1,
-  },
-  &(attribute_t){ // barometer NOTIFY
-    .get_action = get_status_barometer_notify,
-    .set_action = set_status_barometer_notify,
-    .att_value.type = BT_SIZE8,
-    .att_value.value.u16 = 0x0019,
-    .att_uuid.data = UUID_CLIENT_CHARACTERISTIC_CONFIGURATION,
     .properties.write = 1,
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
@@ -435,11 +436,21 @@ static const attribute_t *list_attr[]=
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
   },
+  &(attribute_t){ // LUXOMETER NOTIFY
+    .get_action = get_status_luxometer_notify,
+    .set_action = set_status_luxometer_notify,
+    .att_value.type = BT_SIZE16,
+    .att_value.value.u16 = 0x0021,
+    .att_uuid.data = UUID_CLIENT_CHARACTERISTIC_CONFIGURATION,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle = __COUNTER__+1,
+  },
   &(attribute_t){ // CHAR DECLARATION : LUXOMETER ED
     .get_action = NULL,
     .set_action = NULL,
     .att_value.type = BT_CHARACTERISTIC,
-    .att_value.value.u64 = swap40(0x0A230032AA),
+    .att_value.value.u64 = swap40(0x0A240032AA),
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
@@ -451,16 +462,6 @@ static const attribute_t *list_attr[]=
     .att_value.type = BT_SIZE8,
     .att_value.value.u8 = 0x0,
     .att_uuid.data = UUID_LUXOMETER_ED,
-    .properties.write = 1,
-    .properties.read = 1,
-    .att_handle = __COUNTER__+1,
-  },
-  &(attribute_t){ // LUXOMETER NOTIFY
-    .get_action = get_status_luxometer_notify,
-    .set_action = set_status_luxometer_notify,
-    .att_value.type = BT_SIZE8,
-    .att_value.value.u16 = 0x0021,
-    .att_uuid.data = UUID_CLIENT_CHARACTERISTIC_CONFIGURATION,
     .properties.write = 1,
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
@@ -513,11 +514,21 @@ static const attribute_t *list_attr[]=
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
   },
+  &(attribute_t){ // MPU NOTIFY
+    .get_action = get_status_mpu_notify,
+    .set_action = set_status_mpu_notify,
+    .att_value.type = BT_SIZE16,
+    .att_value.value.u16 = 0x0029,
+    .att_uuid.data = UUID_CLIENT_CHARACTERISTIC_CONFIGURATION,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle = __COUNTER__+1,
+  },
   &(attribute_t){ // CHAR DECLARATION : MPU ED
     .get_action = NULL,
     .set_action = NULL,
     .att_value.type = BT_CHARACTERISTIC,
-    .att_value.value.u64 = swap40(0x0A2B0042AA),
+    .att_value.value.u64 = swap40(0x0A2C0042AA),
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
@@ -529,16 +540,6 @@ static const attribute_t *list_attr[]=
     .att_value.type = BT_SIZE8,
     .att_value.value.u8 = 0x0,
     .att_uuid.data = UUID_MPU_ED,
-    .properties.write = 1,
-    .properties.read = 1,
-    .att_handle = __COUNTER__+1,
-  },
-  &(attribute_t){ // MPU NOTIFY
-    .get_action = get_status_mpu_notify,
-    .set_action = set_status_mpu_notify,
-    .att_value.type = BT_SIZE8,
-    .att_value.value.u16 = 0x0029,
-    .att_uuid.data = UUID_CLIENT_CHARACTERISTIC_CONFIGURATION,
     .properties.write = 1,
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
@@ -619,11 +620,21 @@ static const attribute_t *list_attr[]=
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
   },
+  &(attribute_t){ // BATTERY NOTIFY
+    .get_action = get_status_battery_notify,
+    .set_action = set_status_battery_notify,
+    .att_value.type = BT_SIZE16,
+    .att_value.value.u16 = 0x0034,
+    .att_uuid.data = UUID_CLIENT_CHARACTERISTIC_CONFIGURATION,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle = __COUNTER__+1,
+  },
   &(attribute_t){ // CHAR DECLARATION : BATTERY ED
     .get_action = NULL,
     .set_action = NULL,
     .att_value.type = BT_CHARACTERISTIC,
-    .att_value.value.u64 = swap40(0x0A360062AA),
+    .att_value.value.u64 = swap40(0x0A370062AA),
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
@@ -635,16 +646,6 @@ static const attribute_t *list_attr[]=
     .att_value.type = BT_SIZE8,
     .att_value.value.u8 = 0x0,
     .att_uuid.data = UUID_BATTERY_ED,
-    .properties.write = 1,
-    .properties.read = 1,
-    .att_handle = __COUNTER__+1,
-  },
-  &(attribute_t){ // BATTERY NOTIFY
-    .get_action = get_status_battery_notify,
-    .set_action = set_status_battery_notify,
-    .att_value.type = BT_SIZE8,
-    .att_value.value.u16 = 0x0034,
-    .att_uuid.data = UUID_CLIENT_CHARACTERISTIC_CONFIGURATION,
     .properties.write = 1,
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
@@ -697,11 +698,21 @@ static const attribute_t *list_attr[]=
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
   },
+  &(attribute_t){ // BUTTONS NOTIFY
+    .get_action = get_status_buttons_notify,
+    .set_action = set_status_buttons_notify,
+    .att_value.type = BT_SIZE16,
+    .att_value.value.u16 = 0x003C,
+    .att_uuid.data = UUID_CLIENT_CHARACTERISTIC_CONFIGURATION,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle = __COUNTER__+1,
+  },
   &(attribute_t){ // CHAR DECLARATION : BUTTONS ED
     .get_action = NULL,
     .set_action = NULL,
     .att_value.type = BT_CHARACTERISTIC,
-    .att_value.value.u64 = swap40(0x0A3E0072AA),
+    .att_value.value.u64 = swap40(0x0A3F0072AA),
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
@@ -713,16 +724,6 @@ static const attribute_t *list_attr[]=
     .att_value.type = BT_SIZE8,
     .att_value.value.u8 = 0x0,
     .att_uuid.data = UUID_BUTTONS_ED,
-    .properties.write = 1,
-    .properties.read = 1,
-    .att_handle = __COUNTER__+1,
-  },
-  &(attribute_t){ // BUTTONS NOTIFY
-    .get_action = get_status_buttons_notify,
-    .set_action = set_status_buttons_notify,
-    .att_value.type = BT_SIZE8,
-    .att_value.value.u16 = 0x003C,
-    .att_uuid.data = UUID_CLIENT_CHARACTERISTIC_CONFIGURATION,
     .properties.write = 1,
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
@@ -775,11 +776,21 @@ static const attribute_t *list_attr[]=
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
   },
+  &(attribute_t){ // REED-RELAY NOTIFY
+    .get_action = get_status_reed_relay_notify,
+    .set_action = set_status_reed_relay_notify,
+    .att_value.type = BT_SIZE16,
+    .att_value.value.u16 = 0x0044,
+    .att_uuid.data = UUID_CLIENT_CHARACTERISTIC_CONFIGURATION,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle = __COUNTER__+1,
+  },
   &(attribute_t){ // CHAR DECLARATION : REED-RELAY ED
     .get_action = NULL,
     .set_action = NULL,
     .att_value.type = BT_CHARACTERISTIC,
-    .att_value.value.u64 = swap40(0x0A460082AA),
+    .att_value.value.u64 = swap40(0x0A470082AA),
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
@@ -795,21 +806,11 @@ static const attribute_t *list_attr[]=
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
   },
-  &(attribute_t){ // REED-RELAY NOTIFY
-    .get_action = get_status_reed_relay_notify,
-    .set_action = set_status_reed_relay_notify,
-    .att_value.type = BT_SIZE8,
-    .att_value.value.u16 = 0x0044,
-    .att_uuid.data = UUID_CLIENT_CHARACTERISTIC_CONFIGURATION,
-    .properties.write = 1,
-    .properties.read = 1,
-    .att_handle = __COUNTER__+1,
-  },
   &(attribute_t){ // CHAR DECLARATION : REED-RELAY PERIOD
     .get_action = NULL,
     .set_action = NULL,
     .att_value.type = BT_CHARACTERISTIC,
-    .att_value.value.u64 = swap40(0x0A490063AA),
+    .att_value.value.u64 = swap40(0x0A490083AA),
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
@@ -820,6 +821,16 @@ static const attribute_t *list_attr[]=
     .set_action = set_period_reed_relay,
     .att_value.type = BT_SIZE32,
     .att_uuid.data = UUID_REED_RELAY_NOTIFY_PARAM,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle = __COUNTER__+1,
+  },
+  &(attribute_t){ // REED-RELAY NOTIFY PARAM
+    .get_action = NULL,
+    .set_action = NULL,
+    .att_value.type = BT_SIZE_STR,
+    .att_value.value.str ="COUCOU LOL",
+    .att_uuid.data = UUID_TEST_USER_DESC,
     .properties.write = 1,
     .properties.read = 1,
     .att_handle = __COUNTER__+1,
@@ -841,7 +852,7 @@ uint8_t get_value(const uint16_t handle, bt_size_t * value_ptr){
   attribute_t *att;
   PRINTF("GET VALUE\n");
   att = get_attribute(handle);
-
+// PRINTF("value : 0x%s\n", att->att_value.value.str);
   if (!att)
     return ATT_ECODE_ATTR_NOT_FOUND;
 
@@ -849,7 +860,7 @@ uint8_t get_value(const uint16_t handle, bt_size_t * value_ptr){
     return ATT_ECODE_READ_NOT_PERM;
 
   if (att->get_action == NULL){
-    value_ptr = &att->att_value;
+    *value_ptr = att->att_value;
     return SUCCESS;
   }
 

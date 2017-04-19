@@ -99,11 +99,11 @@ uint8_t get_status_temp_sensor(bt_size_t *database){
 }
 /*---------------------------------------------------------------------------*/
 uint8_t get_status_temp_notify(bt_size_t *status_value){
-  status_value->type = BT_SIZE8;
+  status_value->type = BT_SIZE16;
   if (process_is_running(&temp_notify_process) == 0){
-      status_value->value.u8 = 0;
+      status_value->value.u16 = 0;
   }else{
-    status_value->value.u8 = 1;
+    status_value->value.u16 = 1;
   }
 
   return SUCCESS;

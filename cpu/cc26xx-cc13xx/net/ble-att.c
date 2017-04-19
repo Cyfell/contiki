@@ -158,13 +158,11 @@ const char *error(uint8_t status){
 /*---------------------------------------------------------------------------*/
 /*
  Read request packet
- +-----------------------------------------------------------+
- | Opcode | Starting Handle | Ending Handle | Attribute Type |
- +-----------------------------------------------------------+
+ +----------------+
+ | Opcode | Handle|
+ +----------------+
  Opcode : 1 octet
- Starting handle : 2 octets
- Ending handle : 2 octets
- Attribute type : 2 or 16 octets
+ handle : 2 octets
 */
 /* prepare read response */
 static uint8_t prepare_read(const uint8_t *data){
@@ -180,7 +178,6 @@ static uint8_t prepare_read(const uint8_t *data){
     g_error_handle = handle;
     return error;
   }
-
     /* Prepare payload */
     /* Response code */
   g_tx_buffer.sdu[0] = ATT_READ_RESPONSE;
@@ -217,7 +214,7 @@ static uint8_t prepare_write(uint8_t *data, const uint16_t len){
   /* Copy new value */
   memcpy(&new_value.value, &data[3], len - OP_DATA_OFFSET);
   new_value.type = len - 3;
-
+  PRINTF("Handle : 0x%X || Value : 0x%X", handle, new_value.value.u8);
   error = set_value(handle, &new_value);
 
   if (error != SUCCESS){
@@ -346,6 +343,9 @@ static void input(void){
 
   uint8_t *data = (uint8_t *) packetbuf_dataptr();
   uint16_t len = packetbuf_datalen();
+  // for(uint8_t i=0; i < len; i++){
+  //   PRINTF("data input : 0x%X\n", data[i]);
+  // }
   switch (data[0]){
     case ATT_ERROR_RESPONSE:
         PRINTF("%s", error(data[4]));
@@ -375,6 +375,7 @@ static void input(void){
       break;
 
     default :
+    PRINTF("not supported request number : 0x%X\n", data[0]);
       control = ATT_ECODE_REQ_NOT_SUPP;
       break;
   }
