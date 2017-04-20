@@ -126,6 +126,9 @@ typedef struct {
 /* connection parameter */
 static ble_conn_param_t conn_param;
 
+/* connection timeout timer */
+static struct timer conn_timeout_timer;
+
 typedef struct {
   uint64_t channel_map;
   uint16_t counter;
@@ -730,14 +733,15 @@ state_advertising(process_event_t ev, process_data_t data,
       conn_param.win_size = conn_param.win_size * 5000;
       conn_param.win_offset = conn_param.win_offset * 5000;
       conn_param.interval = conn_param.interval * 5000;
-      conn_param.timeout = conn_param.timeout * 40000;
       conn_param.window_widening = CONN_EVENT_WINDOW_WIDENING;
+      /* set connection timeout timer see coreV5 p2639*/
+      timer_set(&conn_timeout_timer, (conn_param.timeout*CLOCK_SECOND)/100);
 
       conn_event.counter = 0;
       conn_event.unmapped_channel = 0;
       update_data_channel();
       first_conn_event_anchor = conn_param.timestamp + conn_param.win_offset + CONN_EVENT_DELAY;
-
+      timer_set(&conn_timeout_timer, (conn_param.timeout*CLOCK_SECOND)/100);
       if(conn_param.win_offset <= 60000) {
         //printf("too early");
         /* in this case the first anchor point starts too early,
@@ -928,6 +932,11 @@ state_conn_slave(process_event_t ev, process_data_t data,
       PRINTF("command_status_flags: crc_err: %d, ignored: %d, md: %d, ack: %d\n",
              o->pktStatus.bLastCrcErr, o->pktStatus.bLastIgnored,
              o->pktStatus.bLastMd, o->pktStatus.bLastAck);
+      if(timer_expired(&conn_timeout_timer)){
+        disconnect(0);
+      }
+    }else{
+      timer_restart(&conn_timeout_timer);
     }
 
     /* calculate parameters for upcoming connection event */
