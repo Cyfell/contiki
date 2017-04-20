@@ -59,25 +59,33 @@ uint8_t get_value_luxometer(bt_size_t *database){
 
   value = opt_3001_sensor.value(0);
   if (value != CC26XX_SENSOR_READING_ERROR) {
-    PRINTF("OPT: Light=%d.%02d lux\n", value / 100, value % 100);
+    PRINTF("OPT: Light=%d.%02d lux Raw : %X\n", value / 100, value % 100, value);
   } else{
     PRINTF("OPT: Light Read Error\n");
     return ATT_ECODE_SENSOR_READINGS;
   }
-  database->type = BT_SIZE16;
-  database->value.u16 = (uint16_t) value;
+  database->type = BT_SIZE32;
+  database->value.u32 = (uint32_t) value;
   return SUCCESS;
+}
+/*---------------------------------------------------------------------------*/
+static inline void enable_sensor(){
+  SENSORS_ACTIVATE(opt_3001_sensor);
+}
+/*---------------------------------------------------------------------------*/
+static inline void disable_sensor(){
+  SENSORS_DEACTIVATE(opt_3001_sensor);
 }
 /*---------------------------------------------------------------------------*/
 uint8_t set_status_luxometer_sensor(const bt_size_t *new_value){
   switch(new_value->value.u8){
     case 1:
       PRINTF("ACTIVATION CAPTEUR\n");
-      SENSORS_ACTIVATE(opt_3001_sensor);
+      enable_sensor();
       break;
     case 0:
       PRINTF("DESACTIVATION CAPTEUR");
-      SENSORS_DEACTIVATE(opt_3001_sensor);
+      disable_sensor();
       break;
     default :
       return ATT_ECODE_BAD_NUMBER;
@@ -117,8 +125,8 @@ static inline void disable_notification(){
 }
 /*---------------------------------------------------------------------------*/
 uint8_t set_status_luxometer_notify(const bt_size_t *new_value){
-uint8_t error;
-error = SUCCESS;
+  uint8_t error;
+  error = SUCCESS;
   switch(new_value->value.u8){
     case 1:
     enable_notification();
@@ -169,20 +177,22 @@ PROCESS_THREAD(luxometer_notify_process, ev, data)
     PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&notify_timer));
     /* update notification period with possible new period */
     etimer_reset_with_new_interval(&notify_timer, (clock_time_t) period_notify);
+    error = get_value_luxometer(&sensor_value);
+    if (is_values_equals(&sensor_value, &previous_value) != 0){
+      if (error != SUCCESS){
+        prepare_error_resp_notif(handle_to_notify, error);
+        /* If error, disable notifications */
+        disable_notification();
+      }else {
+        prepare_notification(handle_to_notify, &sensor_value);
+        previous_value = sensor_value;
+      }
 
-        error = get_value_luxometer(&sensor_value);
-        if (is_values_equals(&sensor_value, &previous_value) != 0){
-          if (error != SUCCESS){
-            prepare_error_resp_notif(handle_to_notify, error);
-            /* If error, disable notifications */
-            disable_notification();
-          }else {
-            prepare_notification(handle_to_notify, &sensor_value);
-            previous_value = sensor_value;
-          }
-
-          send_notify();
-        }
+      send_notify();
+    }
+    /* disable/enable otherwise sensor value doesn't change... */
+    disable_sensor();
+    enable_sensor();
   }
   PROCESS_END();
 }
@@ -190,11 +200,11 @@ PROCESS_THREAD(luxometer_notify_process, ev, data)
 // Disable notifications when disconnection event show up
 PROCESS_THREAD(luxometer_disconnect_process, ev, data){
 
-    PROCESS_BEGIN();
+  PROCESS_BEGIN();
 
-      while(1){
-        PROCESS_WAIT_EVENT_UNTIL(ev == ll_disconnect_event);
-        disable_notification();
-      }
+  while(1){
+    PROCESS_WAIT_EVENT_UNTIL(ev == ll_disconnect_event);
+    disable_notification();
+  }
   PROCESS_END();
 }
