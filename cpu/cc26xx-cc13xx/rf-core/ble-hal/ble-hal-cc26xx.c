@@ -219,6 +219,8 @@ static uint8_t cmd_buf[RF_CMD_BUFFER_SIZE];
 static uint8_t param_buf[RF_PARAM_BUFFER_SIZE];
 /* buffer for all command output */
 static uint8_t output_buf[RF_PARAM_BUFFER_SIZE];
+/* Errors codes */
+#define BLE_ECODE_CONNECTION_TIMEOUT         0x08
 /*---------------------------------------------------------------------------*/
 /* Types of LL control PDUs                                                  */
 #define BLE_LL_CONN_UPDATE_REQ              0x00
@@ -457,8 +459,9 @@ connection_update(unsigned int connection_handle,
 }
 /*---------------------------------------------------------------------------*/
 static ble_result_t
-disconnect(unsigned short reason)
+disconnect(unsigned int connection_handle, unsigned short reason)
 {
+  PRINTF("reason : 0x%X\n", reason);
   state = BLE_CONTROLLER_STATE_ADVERTISING;
   adv_event_next = rf_core_read_current_rf_ticks() + adv_param.interval;
   rf_core_start_timer_comp(adv_event_next);
@@ -826,7 +829,7 @@ process_ll_ctrl_msg(uint8_t *data)
     resp_len = 6;
   } else if(op_code == BLE_LL_TERMINATE_IND) {
     PRINTF("Terminate Connexion\n");
-    disconnect(data[1]);
+    disconnect(0, data[1]);
   } else {
     PRINTF("parse_ll_ctrl_msg() opcode: 0x%02X received\n", op_code);
   }
@@ -933,7 +936,7 @@ state_conn_slave(process_event_t ev, process_data_t data,
              o->pktStatus.bLastCrcErr, o->pktStatus.bLastIgnored,
              o->pktStatus.bLastMd, o->pktStatus.bLastAck);
       if(timer_expired(&conn_timeout_timer)){
-        disconnect(0);
+        disconnect(0, BLE_ECODE_CONNECTION_TIMEOUT);
       }
     }else{
       timer_restart(&conn_timeout_timer);
