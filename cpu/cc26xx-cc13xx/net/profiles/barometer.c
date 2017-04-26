@@ -42,7 +42,7 @@
 
 #include "../ble-att.h"
 #include "barometer.h"
-#include "board-peripherals.h"
+#include "sensortag/bmp-280-sensor.h"
 #include "notify.h"
 #include "ble-hal-cc26xx.h"
 /* process for temp notification */

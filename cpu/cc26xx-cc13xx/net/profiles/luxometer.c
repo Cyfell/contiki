@@ -42,7 +42,7 @@
 
 #include "../ble-att.h"
 #include "luxometer.h"
-#include "board-peripherals.h"
+#include "sensortag/opt-3001-sensor.h"
 #include "notify.h"
 #include "ble-hal-cc26xx.h"
 /* process for temp notification */

@@ -42,32 +42,7 @@
 #endif
 
 #define BASE_UUID16_OFFSET	2
-static void bt_uuid_to_string(const uint128_t *uuid, char *str, size_t n)
-{
-	unsigned int   data0;
-	unsigned short data1;
-	unsigned short data2;
-	unsigned short data3;
-	unsigned int   data4;
-	unsigned short data5;
-	const uint8_t *data;
 
-
-	data = (uint8_t *) uuid;
-
-	memcpy(&data0, &data[0], 4);
-	memcpy(&data1, &data[4], 2);
-	memcpy(&data2, &data[6], 2);
-	memcpy(&data3, &data[8], 2);
-	memcpy(&data4, &data[10], 4);
-	memcpy(&data5, &data[14], 2);
-
-	snprintf(str, n, "%.8x-%.4x-%.4x-%.4x-%.8x%.4x",
-				data0, data1,
-				data2, data3,
-				data4, data5);
-
-}
 static uint128_t bluetooth_base_uuid = {
 	.data = {	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00,
 			0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
@@ -77,38 +52,23 @@ inline uint128_t uuid_16_to_128(uint16_t uuid_16){
  uint128_t result;
  /* Set base uuid */
  result = bluetooth_base_uuid;
-// printf("uuid : 0x%X\n", uuid_16);
  uuid_16 = swap16(uuid_16);
 
- // printf("uuid : 0x%X\n", uuid_16);
  memcpy(&result.data[BASE_UUID16_OFFSET], &uuid_16, sizeof(uuid_16));
- // char uuid[40];
- // size_t s = 40;
- // bt_uuid_to_string(&result, uuid, s);
- // printf("uuid converted : %s\n", uuid);
+
  return result;
 }
 
 inline uint16_t uuid_128_to_16(const uint128_t uuid_128){
- uint16_t result;
+	uint16_t result;
 
-memcpy(&result, &uuid_128.data[BASE_UUID16_OFFSET], sizeof(result));
- // result = (uuid_128.data[2] << 8) + uuid_128.data[3];
-result = swap16(result);
- // printf("uuid : %x\n", result);
- return result;
+	memcpy(&result, &uuid_128.data[BASE_UUID16_OFFSET], sizeof(result));
+
+	result = swap16(result);
+	return result;
 }
 inline uint8_t uuid_128_compare(const uint128_t u1, const uint128_t u2){
-	/* TEST*/
-	// char uuid[40];
-	// size_t s = 40;
-	// bt_uuid_to_string(&u1, uuid, s);
-	// PRINTF("uuid data base : %s\n", uuid);
-	// bt_uuid_to_string(&u2, uuid, s);
-	// PRINTF("uuid cherche : %s\n", uuid);
-	/* /TEST */
 	for (uint8_t i = 0; i < sizeof(uint128_t); i++){
-		//PRINTF("u1 : 0x%X || u2 : 0x%X", u1.data[i], u2.data[i]);
 		if (u1.data[i] != u2.data[i])
 			return 0;
 	}

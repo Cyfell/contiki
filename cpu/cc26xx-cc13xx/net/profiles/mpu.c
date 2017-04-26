@@ -42,7 +42,7 @@
 
 #include "../ble-att.h"
 #include "mpu.h"
-#include "board-peripherals.h"
+#include "sensortag/mpu-9250-sensor.h"
 #include "notify.h"
 #include "ble-hal-cc26xx.h"
 /* process for temp notification */

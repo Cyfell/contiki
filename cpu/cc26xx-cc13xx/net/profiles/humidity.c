@@ -42,7 +42,7 @@
 
 #include "../ble-att.h"
 #include "humidity.h"
-#include "board-peripherals.h"
+#include "sensortag/hdc-1000-sensor.h"
 #include "notify.h"
 #include "ble-hal-cc26xx.h"
 /* process for temp notification */
@@ -82,15 +82,23 @@ uint8_t get_value_humidity(bt_size_t *database){
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
+static inline void enable_sensor(){
+  SENSORS_ACTIVATE(hdc_1000_sensor);
+}
+/*---------------------------------------------------------------------------*/
+static inline void disable_sensor(){
+  SENSORS_DEACTIVATE(hdc_1000_sensor);
+}
+/*---------------------------------------------------------------------------*/
 uint8_t set_status_humidity_sensor(const bt_size_t *new_value){
   switch(new_value->value.u8){
     case 1:
       PRINTF("ACTIVATION CAPTEUR\n");
-      SENSORS_ACTIVATE(hdc_1000_sensor);
+      enable_sensor();
       break;
     case 0:
       PRINTF("DESACTIVATION CAPTEUR");
-      SENSORS_DEACTIVATE(hdc_1000_sensor);
+      disable_sensor();
       break;
     default :
       return ATT_ECODE_BAD_NUMBER;
@@ -130,8 +138,8 @@ static inline void disable_notification(){
 }
 /*---------------------------------------------------------------------------*/
 uint8_t set_status_humidity_notify(const bt_size_t *new_value){
-uint8_t error;
-error = SUCCESS;
+  uint8_t error;
+  error = SUCCESS;
   switch(new_value->value.u8){
     case 1:
     enable_notification();
@@ -183,19 +191,21 @@ PROCESS_THREAD(humidity_notify_process, ev, data)
     /* update notification period with possible new period */
     etimer_reset_with_new_interval(&notify_timer, (clock_time_t) period_notify);
 
-        error = get_value_humidity(&sensor_value);
-        if (is_values_equals(&sensor_value, &previous_value) != 0){
-          if (error != SUCCESS){
-            prepare_error_resp_notif(handle_to_notify, error);
-            /* If error, disable notifications */
-            disable_notification();
-          }else {
-            prepare_notification(handle_to_notify, &sensor_value);
-            previous_value = sensor_value;
-          }
+    error = get_value_humidity(&sensor_value);
+    if (is_values_equals(&sensor_value, &previous_value) != 0){
+      if (error != SUCCESS){
+        prepare_error_resp_notif(handle_to_notify, error);
+        /* If error, disable notifications */
+        disable_notification();
+      }else {
+        prepare_notification(handle_to_notify, &sensor_value);
+        previous_value = sensor_value;
+      }
 
-          send_notify();
-        }
+      send_notify();
+    }
+    disable_sensor();
+    enable_sensor();
   }
   PROCESS_END();
 }

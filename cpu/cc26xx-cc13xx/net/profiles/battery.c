@@ -132,8 +132,8 @@ static inline void disable_notification(){
 }
 /*---------------------------------------------------------------------------*/
 uint8_t set_status_battery_notify(const bt_size_t *new_value){
-uint8_t error;
-error = SUCCESS;
+  uint8_t error;
+  error = SUCCESS;
   switch(new_value->value.u8){
     case 1:
     enable_notification();

@@ -214,7 +214,7 @@ static uint8_t prepare_write(uint8_t *data, const uint16_t len){
   /* Copy new value */
   memcpy(&new_value.value, &data[3], len - OP_DATA_OFFSET);
   new_value.type = len - 3;
-  PRINTF("Handle : 0x%X || Value : 0x%X", handle, new_value.value.u8);
+  PRINTF("Handle : 0x%X || Value : 0x%X", handle, new_value.value.u16);
   error = set_value(handle, &new_value);
 
   if (error != SUCCESS){

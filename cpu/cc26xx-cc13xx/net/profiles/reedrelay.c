@@ -42,7 +42,7 @@
 
 #include "../ble-att.h"
 #include "reedrelay.h"
-#include "board-peripherals.h"
+#include "sensortag/reed-relay.h"
 #include "notify.h"
 #include "ble-hal-cc26xx.h"
 /* process for temp notification */
@@ -116,7 +116,7 @@ static inline void disable_notification(){
 uint8_t set_status_reed_relay_notify(const bt_size_t *new_value){
 uint8_t error;
 error = SUCCESS;
-  switch(new_value->value.u8){
+  switch(new_value->value.u16){
     case 1:
     enable_notification();
       break;

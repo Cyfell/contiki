@@ -37,15 +37,7 @@
 
 #include <stdio.h>
 /*---------------------------------------------------------------------------*/
-#define CLIENT_PORT     61617
-#define SERVER_ADDR     "aaaa::1"
-/*#define SERVER_ADDR     "fe80::21a:7dff:feda:7114" */
-#define SERVER_PORT     61616
-
 #define ECHO_INTERVAL   (1 * CLOCK_SECOND)
-#define SEND_INTERVAL   (1 * CLOCK_SECOND)
-
-#define TEST_PAYLOAD    "IPv6 over BLE message from TI SensorTag"
 /*---------------------------------------------------------------------------*/
  static struct etimer timer;
 

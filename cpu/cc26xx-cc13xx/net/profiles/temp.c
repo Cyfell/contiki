@@ -42,7 +42,7 @@
 
 #include "../ble-att.h"
 #include "temp.h"
-#include "board-peripherals.h"
+#include "sensortag/tmp-007-sensor.h"
 #include "notify.h"
 #include "ble-hal-cc26xx.h"
 /* process for temp notification */

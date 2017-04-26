@@ -42,7 +42,7 @@
 
 #include "../ble-att.h"
 #include "buttons.h"
-#include "button-sensor.h"
+#include "sensortag/button-sensor.h"
 #include "notify.h"
 #include "ble-hal-cc26xx.h"
 /* process for temp notification */
