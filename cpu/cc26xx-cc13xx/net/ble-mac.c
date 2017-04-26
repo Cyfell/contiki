@@ -132,17 +132,6 @@ init_adv_data(char *adv_data)
   adv_data[adv_data_len++] = 2;
   adv_data[adv_data_len++] = 0x0A;
   adv_data[adv_data_len++] = 0;        /* 0 dBm */
-  /* service UUIDs (16-bit identifiers) */
-  adv_data[adv_data_len++] = 3;
-  adv_data[adv_data_len++] = 0x03;
-  adv_data[adv_data_len++] = 0x20;
-  adv_data[adv_data_len++] = 0x18;     /* only IP support service exposed */
-  /* service UUIDs (32-bit identifiers) */
-  adv_data[adv_data_len++] = 1;
-  adv_data[adv_data_len++] = 0x05;     /* empty list */
-  /* service UUIDs (128-bit identifiers) */
-  adv_data[adv_data_len++] = 1;
-  adv_data[adv_data_len++] = 0x07;     /* empty list */
   return adv_data_len;
 }
 /*---------------------------------------------------------------------------*/
