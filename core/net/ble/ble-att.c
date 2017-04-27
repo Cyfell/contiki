@@ -32,10 +32,10 @@
  */
 /*---------------------------------------------------------------------------*/
 #include <stdint.h>
-#include "net/ble-att.h"
+#include "net/ble/ble-att.h"
 #include "net/netstack.h"
 #include "net/packetbuf.h"
-#include "net/profiles/gatt-sensors.h"
+#include "net/ble/gatt.h"
 #include "notify.h"
 
 

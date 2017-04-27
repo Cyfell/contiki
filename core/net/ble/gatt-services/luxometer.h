@@ -31,22 +31,22 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-#ifndef BAROMETER_H_
-#define BAROMETER_H_
+#ifndef LUXOMETER_H_
+#define LUXOMETER_H_
 
-#include "net/att-database.h"
+#include "net/ble/att-database.h"
 #include "process.h"
 /*---------------------------------------------------------------------------*/
-uint8_t get_value_barometer(bt_size_t *value);
-uint8_t set_status_barometer_sensor(const bt_size_t *new_value);
-uint8_t get_status_barometer_sensor(bt_size_t *database);
+uint8_t get_value_luxometer(bt_size_t *value);
+uint8_t set_status_luxometer_sensor(const bt_size_t *new_value);
+uint8_t get_status_luxometer_sensor(bt_size_t *database);
 /* notification functions */
-uint8_t set_period_barometer(const bt_size_t *new_period);
-uint8_t get_period_barometer(bt_size_t *period_to_send);
-uint8_t set_status_barometer_notify(const bt_size_t *new_value);
-uint8_t get_status_barometer_notify(bt_size_t *database);
+uint8_t set_period_luxometer(const bt_size_t *new_period);
+uint8_t get_period_luxometer(bt_size_t *period_to_send);
+uint8_t set_status_luxometer_notify(const bt_size_t *new_value);
+uint8_t get_status_luxometer_notify(bt_size_t *database);
 /* notify process */
-PROCESS_NAME(barometer_notify_process);
-PROCESS_NAME(barometer_disconnect_process);
+PROCESS_NAME(luxometer_notify_process);
+PROCESS_NAME(luxometer_disconnect_process);
 /*---------------------------------------------------------------------------*/
-#endif  // BAROMETER_H_
+#endif  // LUXOMETER_H_

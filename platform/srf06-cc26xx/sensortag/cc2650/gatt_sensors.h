@@ -30,13 +30,17 @@
  * Author: Arthur Courtel <arthurcourtel@gmail.com>
  *
  */
-/*---------------------------------------------------------------------------*/
-#ifndef LED_H_
-#define LED_H_
 
-#include "net/att-database.h"
-/*---------------------------------------------------------------------------*/
-uint8_t actualise_led(const bt_size_t *new_value);
-uint8_t get_status_leds(bt_size_t *database);
-/*---------------------------------------------------------------------------*/
-#endif  // LED_H_
+#ifndef GATT_SENSORS_H_
+#define GATT_SENSORS_H_
+
+#define GATT_SENSORS_TEMP1
+#define GATT_SENSORS_HUM
+#define GATT_SENSORS_BAROMETER
+#define GATT_SENSORS_LUXOMETER
+#define GATT_SENSORS_MPU
+#define GATT_SENSORS_LED
+#define GATT_SENSORS_BATTERY
+#define GATT_SENSORS_BUTTONS
+#define GATT_SENSORS_REED_RELAY
+#endif //GATT_SENSORS_H_

@@ -31,27 +31,22 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-#ifndef GATT_SENSORS_H_
-#define GATT_SENSORS_H_
+#ifndef MPU_H_
+#define MPU_H_
+
+#include "net/ble/att-database.h"
+#include "process.h"
 /*---------------------------------------------------------------------------*/
-#include "net/att-database.h"
-#include "net/ble-att.h"
-#include "net/profiles/temp.h"
-#include "net/profiles/humidity.h"
-#include "net/profiles/barometer.h"
-#include "net/profiles/luxometer.h"
-#include "net/profiles/mpu.h"
-#include "net/profiles/led.h"
-#include "net/profiles/battery.h"
-#include "net/profiles/buttons.h"
-#include "net/profiles/reedrelay.h"
+uint8_t get_value_mpu(bt_size_t *value);
+uint8_t set_status_mpu_sensor(const bt_size_t *new_value);
+uint8_t get_status_mpu_sensor(bt_size_t *database);
+/* notification functions */
+uint8_t set_period_mpu(const bt_size_t *new_period);
+uint8_t get_period_mpu(bt_size_t *period_to_send);
+uint8_t set_status_mpu_notify(const bt_size_t *new_value);
+uint8_t get_status_mpu_notify(bt_size_t *database);
+/* notify process */
+PROCESS_NAME(mpu_notify_process);
+PROCESS_NAME(mpu_disconnect_process);
 /*---------------------------------------------------------------------------*/
-attribute_t *g_current_att;
-/*---------------------------------------------------------------------------*/
-uint8_t get_value(const uint16_t handle, bt_size_t *value_ptr);
-uint8_t set_value(const uint16_t handle, const bt_size_t *new_value);
-uint8_t get_group_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const uint128_t *uuid_to_match, att_buffer_t *g_tx_buffer);
-uint8_t get_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const uint128_t *uuid_to_match, att_buffer_t *g_tx_buffer);
-uint8_t get_find_info_values(const uint16_t starting_handle, const uint16_t ending_handle, att_buffer_t *g_tx_buffer);
-/*---------------------------------------------------------------------------*/
-#endif //GATT_SENSORS_H_
+#endif  // MPU_H_

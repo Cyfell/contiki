@@ -31,23 +31,27 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-#ifndef HUMIDITY_H_
-#define HUMIDITY_H_
-
-#include "net/att-database.h"
-#include "process.h"
+#ifndef GATT_H_
+#define GATT_H_
 /*---------------------------------------------------------------------------*/
-
-uint8_t get_value_humidity(bt_size_t *value);
-uint8_t set_status_humidity_sensor(const bt_size_t *new_value);
-uint8_t get_status_humidity_sensor(bt_size_t *database);
-/* notification functions */
-uint8_t set_period_humidity(const bt_size_t *new_period);
-uint8_t get_period_humidity(bt_size_t *period_to_send);
-uint8_t set_status_humidity_notify(const bt_size_t *new_value);
-uint8_t get_status_humidity_notify(bt_size_t *database);
-/* notify process */
-PROCESS_NAME(humidity_notify_process);
-PROCESS_NAME(humidity_disconnect_process);
+#include "net/ble/att-database.h"
+#include "net/ble/ble-att.h"
+#include "net/ble/gatt-services/temp.h"
+#include "net/ble/gatt-services/humidity.h"
+#include "net/ble/gatt-services/barometer.h"
+#include "net/ble/gatt-services/luxometer.h"
+#include "net/ble/gatt-services/mpu.h"
+#include "net/ble/gatt-services/led.h"
+#include "net/ble/gatt-services/battery.h"
+#include "net/ble/gatt-services/buttons.h"
+#include "net/ble/gatt-services/reedrelay.h"
 /*---------------------------------------------------------------------------*/
-#endif  // HUMIDITY_H_
+attribute_t *g_current_att;
+/*---------------------------------------------------------------------------*/
+uint8_t get_value(const uint16_t handle, bt_size_t *value_ptr);
+uint8_t set_value(const uint16_t handle, const bt_size_t *new_value);
+uint8_t get_group_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const uint128_t *uuid_to_match, att_buffer_t *g_tx_buffer);
+uint8_t get_type_response_values(const uint16_t starting_handle, const uint16_t ending_handle, const uint128_t *uuid_to_match, att_buffer_t *g_tx_buffer);
+uint8_t get_find_info_values(const uint16_t starting_handle, const uint16_t ending_handle, att_buffer_t *g_tx_buffer);
+/*---------------------------------------------------------------------------*/
+#endif //GATT_H_

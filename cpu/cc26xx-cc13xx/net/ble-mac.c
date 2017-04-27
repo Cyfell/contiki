@@ -33,7 +33,7 @@
 /*---------------------------------------------------------------------------*/
 
 #include "ble-hal.h"
-#include "ble-att.h"
+#include "net/ble/ble-att.h"
 #include "net/packetbuf.h"
 #include "net/netstack.h"
 #include "net/ip/uip.h"

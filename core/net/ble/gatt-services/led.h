@@ -31,22 +31,12 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-#ifndef LUXOMETER_H_
-#define LUXOMETER_H_
+#ifndef LED_H_
+#define LED_H_
 
-#include "net/att-database.h"
-#include "process.h"
+#include "net/ble/att-database.h"
 /*---------------------------------------------------------------------------*/
-uint8_t get_value_luxometer(bt_size_t *value);
-uint8_t set_status_luxometer_sensor(const bt_size_t *new_value);
-uint8_t get_status_luxometer_sensor(bt_size_t *database);
-/* notification functions */
-uint8_t set_period_luxometer(const bt_size_t *new_period);
-uint8_t get_period_luxometer(bt_size_t *period_to_send);
-uint8_t set_status_luxometer_notify(const bt_size_t *new_value);
-uint8_t get_status_luxometer_notify(bt_size_t *database);
-/* notify process */
-PROCESS_NAME(luxometer_notify_process);
-PROCESS_NAME(luxometer_disconnect_process);
+uint8_t actualise_led(const bt_size_t *new_value);
+uint8_t get_status_leds(bt_size_t *database);
 /*---------------------------------------------------------------------------*/
-#endif  // LUXOMETER_H_
+#endif  // LED_H_

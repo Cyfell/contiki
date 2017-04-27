@@ -34,7 +34,7 @@
 #ifndef TEMP_H_
 #define TEMP_H_
 
-#include "net/att-database.h"
+#include "net/ble/att-database.h"
 #include "process.h"
 /*---------------------------------------------------------------------------*/
 
