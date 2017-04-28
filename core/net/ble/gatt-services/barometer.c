@@ -31,7 +31,8 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-
+#include "gatt_config.h"
+#ifdef GATT_SENSORS_BAROMETER
 #define DEBUG 1
 #if DEBUG
 #include <stdio.h>
@@ -211,3 +212,4 @@ PROCESS_THREAD(on_disconnect_barometer_process, ev, data){
       }
   PROCESS_END();
 }
+#endif

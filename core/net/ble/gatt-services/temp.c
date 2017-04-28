@@ -31,7 +31,8 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-
+#include "gatt_config.h"
+#ifdef GATT_SENSORS_TEMP1
 #define DEBUG 1
 #if DEBUG
 #include <stdio.h>
@@ -57,17 +58,17 @@ static uint32_t period_notify;
 /*---------------------------------------------------------------------------*/
 uint8_t get_value_temp(bt_size_t *value){
   int temp, tobj;
-  temp = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_ALL);
+  temp = GATT_SENSORS_TEMP1.value(TMP_007_SENSOR_TYPE_ALL);
 
   if (temp == CC26XX_SENSOR_READING_ERROR)
     return ATT_ECODE_SENSOR_READINGS; //ERROR
 
-  temp = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_AMBIENT);
+  temp = GATT_SENSORS_TEMP1.value(TMP_007_SENSOR_TYPE_AMBIENT);
   PRINTF("TEMP Ambiant: %02X\n", temp);
 
   temp = temp << 16;
 
-  tobj = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_OBJECT);
+  tobj = GATT_SENSORS_TEMP1.value(TMP_007_SENSOR_TYPE_OBJECT);
   PRINTF("TEMP Ambiant: %02X\n", tobj);
   temp += tobj;
   value->type = BT_SIZE32;
@@ -79,11 +80,11 @@ uint8_t set_status_temp_sensor(const bt_size_t * new_value){
   switch(new_value->value.u8){
     case 1:
       PRINTF("ACTIVATION CAPTEUR\n");
-      SENSORS_ACTIVATE(tmp_007_sensor);
+      SENSORS_ACTIVATE(GATT_SENSORS_TEMP1);
       break;
     case 0:
       PRINTF("DESACTIVATION CAPTEUR");
-      SENSORS_DEACTIVATE(tmp_007_sensor);
+      SENSORS_DEACTIVATE(GATT_SENSORS_TEMP1);
       break;
     default :
       return ATT_ECODE_BAD_NUMBER;
@@ -93,8 +94,8 @@ uint8_t set_status_temp_sensor(const bt_size_t * new_value){
 /*---------------------------------------------------------------------------*/
 uint8_t get_status_temp_sensor(bt_size_t *database){
   database->type = BT_SIZE8;
-  database->value.u8 = (uint8_t) tmp_007_sensor.status(SENSORS_ACTIVE);
-  PRINTF("status temp sensor : 0x%X\n", tmp_007_sensor.status(SENSORS_ACTIVE));
+  database->value.u8 = (uint8_t) GATT_SENSORS_TEMP1.status(SENSORS_ACTIVE);
+  PRINTF("status temp sensor : 0x%X\n", GATT_SENSORS_TEMP1.status(SENSORS_ACTIVE));
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
@@ -204,3 +205,4 @@ PROCESS_THREAD(temp_disconnect_process, ev, data){
       }
   PROCESS_END();
 }
+#endif

@@ -31,7 +31,8 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-
+#include "gatt_config.h"
+#ifdef GATT_SENSORS_HUM
 #define DEBUG 1
 #if DEBUG
 #include <stdio.h>
@@ -59,7 +60,7 @@ uint8_t get_value_humidity(bt_size_t *database){
   uint32_t value;
   uint16_t hum;
 
-  value = hdc_1000_sensor.value(HDC_1000_SENSOR_TYPE_TEMP);
+  value = GATT_SENSORS_HUM.value(HDC_1000_SENSOR_TYPE_TEMP);
   if (value != CC26XX_SENSOR_READING_ERROR) {
     PRINTF("HDC: Temp=%d.%02d C\n", ((uint16_t)value)  / 100, ((uint16_t)value)  % 100);
   } else{
@@ -69,7 +70,7 @@ uint8_t get_value_humidity(bt_size_t *database){
   // let space for humidity value
   value = value << 16;
 
-  hum = hdc_1000_sensor.value(HDC_1000_SENSOR_TYPE_HUMIDITY);
+  hum = GATT_SENSORS_HUM.value(HDC_1000_SENSOR_TYPE_HUMIDITY);
   if (hum != CC26XX_SENSOR_READING_ERROR) {
     PRINTF("HDC: Humidity=%d.%02d %%RH\n", hum / 100, hum % 100);
     value += hum;
@@ -83,11 +84,11 @@ uint8_t get_value_humidity(bt_size_t *database){
 }
 /*---------------------------------------------------------------------------*/
 static inline void enable_sensor(){
-  SENSORS_ACTIVATE(hdc_1000_sensor);
+  SENSORS_ACTIVATE(GATT_SENSORS_HUM);
 }
 /*---------------------------------------------------------------------------*/
 static inline void disable_sensor(){
-  SENSORS_DEACTIVATE(hdc_1000_sensor);
+  SENSORS_DEACTIVATE(GATT_SENSORS_HUM);
 }
 /*---------------------------------------------------------------------------*/
 uint8_t set_status_humidity_sensor(const bt_size_t *new_value){
@@ -108,8 +109,8 @@ uint8_t set_status_humidity_sensor(const bt_size_t *new_value){
 /*---------------------------------------------------------------------------*/
 uint8_t get_status_humidity_sensor(bt_size_t *database){
   database->type = BT_SIZE8;
-  database->value.u8 = (uint8_t) hdc_1000_sensor.status(SENSORS_ACTIVE);
-  PRINTF("status humidity barometer : 0x%X\n", hdc_1000_sensor.status(SENSORS_ACTIVE));
+  database->value.u8 = (uint8_t) GATT_SENSORS_HUM.status(SENSORS_ACTIVE);
+  PRINTF("status humidity barometer : 0x%X\n", GATT_SENSORS_HUM.status(SENSORS_ACTIVE));
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
@@ -221,3 +222,4 @@ PROCESS_THREAD(humidity_disconnect_process, ev, data){
       }
   PROCESS_END();
 }
+#endif

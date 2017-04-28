@@ -34,13 +34,14 @@
 #ifndef GATT_SENSORS_H_
 #define GATT_SENSORS_H_
 
-#define GATT_SENSORS_TEMP1
-#define GATT_SENSORS_HUM
-#define GATT_SENSORS_BAROMETER
-#define GATT_SENSORS_LUXOMETER
-#define GATT_SENSORS_MPU
-#define GATT_SENSORS_LED
-#define GATT_SENSORS_BATTERY
-#define GATT_SENSORS_BUTTONS
-#define GATT_SENSORS_REED_RELAY
+#define GATT_SENSORS_TEMP1 tmp_007_sensor
+#define GATT_SENSORS_HUM hdc_1000_sensor
+#define GATT_SENSORS_BAROMETER bmp_280_sensor
+#define GATT_SENSORS_LUXOMETER opt_3001_sensor
+#define GATT_SENSORS_MPU mpu_9250_sensor
+#define GATT_LEDS
+#define GATT_SENSORS_BATTERY batmon_sensor
+#define GATT_SENSORS_BUTTONS_LEFT button_left_sensor
+#define GATT_SENSORS_BUTTONS_RIGHT button_right_sensor
+#define GATT_SENSORS_REED_RELAY reed_relay_sensor
 #endif //GATT_SENSORS_H_

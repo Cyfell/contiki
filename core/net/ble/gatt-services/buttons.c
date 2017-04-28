@@ -31,7 +31,9 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-
+#include "gatt_config.h"
+#ifdef GATT_SENSORS_BUTTONS_LEFT
+#ifdef GATT_SENSORS_BUTTONS_RIGHT
 #define DEBUG 1
 #if DEBUG
 #include <stdio.h>
@@ -58,11 +60,11 @@ static uint32_t period_notify;
 uint8_t get_value_buttons(bt_size_t *database){
   uint8_t value;
 
-  value = button_left_sensor.value(BUTTON_SENSOR_VALUE_STATE);
+  value = GATT_SENSORS_BUTTONS_LEFT.value(BUTTON_SENSOR_VALUE_STATE);
   // let space for buttons value
   value = value << 1;
 
-  value += button_right_sensor.value(BUTTON_SENSOR_VALUE_STATE);
+  value += GATT_SENSORS_BUTTONS_RIGHT.value(BUTTON_SENSOR_VALUE_STATE);
   PRINTF("BTN: State=%X\n", value);
 
   database->type = BT_SIZE8;
@@ -74,13 +76,13 @@ uint8_t set_status_buttons_sensor(const bt_size_t *new_value){
   switch(new_value->value.u8){
     case 1:
       PRINTF("ACTIVATION CAPTEUR\n");
-      SENSORS_ACTIVATE(button_left_sensor);
-      SENSORS_ACTIVATE(button_right_sensor);
+      SENSORS_ACTIVATE(GATT_SENSORS_BUTTONS_LEFT);
+      SENSORS_ACTIVATE(GATT_SENSORS_BUTTONS_RIGHT);
       break;
     case 0:
       PRINTF("DESACTIVATION CAPTEUR");
-      SENSORS_DEACTIVATE(button_left_sensor);
-      SENSORS_DEACTIVATE(button_right_sensor);
+      SENSORS_DEACTIVATE(GATT_SENSORS_BUTTONS_LEFT);
+      SENSORS_DEACTIVATE(GATT_SENSORS_BUTTONS_RIGHT);
       break;
     default :
       return ATT_ECODE_BAD_NUMBER;
@@ -91,9 +93,9 @@ uint8_t set_status_buttons_sensor(const bt_size_t *new_value){
 uint8_t get_status_buttons_sensor(bt_size_t *database){
   uint8_t status;
   status = 0;
-  if (button_left_sensor.status(SENSORS_ACTIVE))
+  if (GATT_SENSORS_BUTTONS_LEFT.status(SENSORS_ACTIVE))
     status++;
-  if (button_right_sensor.status(SENSORS_ACTIVE))
+  if (GATT_SENSORS_BUTTONS_RIGHT.status(SENSORS_ACTIVE))
     status++;
 
   database->type = BT_SIZE8;
@@ -208,3 +210,5 @@ PROCESS_THREAD(buttons_disconnect_process, ev, data){
       }
   PROCESS_END();
 }
+#endif
+#endif

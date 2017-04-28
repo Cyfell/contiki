@@ -31,7 +31,8 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-
+#include "gatt_config.h"
+#ifdef GATT_SENSORS_BATTERY
 #define DEBUG 0
 #if DEBUG
 #include <stdio.h>
@@ -60,7 +61,7 @@ uint8_t get_value_battery(bt_size_t *database){
   int value;
   uint16_t tmp;
 
-  value = batmon_sensor.value(BATMON_SENSOR_TYPE_TEMP);
+  value = GATT_SENSORS_BATTERY.value(BATMON_SENSOR_TYPE_TEMP);
   PRINTF("value : 0x%X\n", value);
   if (value != 0) {
     PRINTF("Bat: Temp=%d C\n", value);
@@ -71,7 +72,7 @@ uint8_t get_value_battery(bt_size_t *database){
   // let space for Voltage value
   value = value << 16;
 
-  tmp = batmon_sensor.value(BATMON_SENSOR_TYPE_VOLT);
+  tmp = GATT_SENSORS_BATTERY.value(BATMON_SENSOR_TYPE_VOLT);
   if (tmp != 0) {
       PRINTF("Bat: Volt=%d mV\n", (tmp * 125) >> 5);
     value += ((tmp * 125) >> 5);
@@ -88,11 +89,11 @@ uint8_t set_status_battery_sensor(const bt_size_t * new_value){
   switch(new_value->value.u8){
     case 1:
       PRINTF("ACTIVATION CAPTEUR\n");
-      SENSORS_ACTIVATE(batmon_sensor);
+      SENSORS_ACTIVATE(GATT_SENSORS_BATTERY);
       break;
     case 0:
       PRINTF("DESACTIVATION CAPTEUR");
-      SENSORS_DEACTIVATE(batmon_sensor);
+      SENSORS_DEACTIVATE(GATT_SENSORS_BATTERY);
       break;
     default :
       return ATT_ECODE_BAD_NUMBER;
@@ -102,8 +103,8 @@ uint8_t set_status_battery_sensor(const bt_size_t * new_value){
 /*---------------------------------------------------------------------------*/
 uint8_t get_status_battery_sensor(bt_size_t *database){
   database->type = BT_SIZE8;
-  database->value.u8 = (uint8_t) batmon_sensor.status(SENSORS_ACTIVE);
-  PRINTF("status temp sensor : 0x%X\n", batmon_sensor.status(SENSORS_ACTIVE));
+  database->value.u8 = (uint8_t) GATT_SENSORS_BATTERY.status(SENSORS_ACTIVE);
+  PRINTF("status temp sensor : 0x%X\n", GATT_SENSORS_BATTERY.status(SENSORS_ACTIVE));
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
@@ -213,3 +214,4 @@ PROCESS_THREAD(battery_disconnect_process, ev, data){
       }
   PROCESS_END();
 }
+#endif

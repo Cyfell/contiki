@@ -31,7 +31,8 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-
+#include "gatt_config.h"
+#ifdef GATT_SENSORS_MPU
 #define DEBUG 0
 #if DEBUG
 #include <stdio.h>
@@ -61,32 +62,32 @@ uint8_t get_value_mpu(bt_size_t *database){
 
   iterator = 0;
 
-  value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_GYRO_X);
+  value = GATT_SENSORS_MPU.value(MPU_9250_SENSOR_TYPE_GYRO_X);
   PRINTF("value : 0x%X\n", value);
   database->value.u128.data[iterator++] = value & 0x00ff;
   database->value.u128.data[iterator++] = (value & 0xff00) >>8;
 
-  value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_GYRO_Y);
+  value = GATT_SENSORS_MPU.value(MPU_9250_SENSOR_TYPE_GYRO_Y);
   PRINTF("value : 0x%X\n", value);
   database->value.u128.data[iterator++] = value & 0x00ff;
   database->value.u128.data[iterator++] = (value & 0xff00) >>8;
 
-  value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_GYRO_Z);
+  value = GATT_SENSORS_MPU.value(MPU_9250_SENSOR_TYPE_GYRO_Z);
   PRINTF("value : 0x%X\n", value);
   database->value.u128.data[iterator++] = value & 0x00ff;
   database->value.u128.data[iterator++] = (value & 0xff00) >>8;
 
-  value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_X);
+  value = GATT_SENSORS_MPU.value(MPU_9250_SENSOR_TYPE_ACC_X);
   PRINTF("value : 0x%X\n", value);
   database->value.u128.data[iterator++] = value & 0x00ff;
   database->value.u128.data[iterator++] = (value & 0xff00) >>8;
 
-  value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_Y);
+  value = GATT_SENSORS_MPU.value(MPU_9250_SENSOR_TYPE_ACC_Y);
   PRINTF("value : 0x%X\n", value);
   database->value.u128.data[iterator++] = value & 0x00ff;
   database->value.u128.data[iterator++] = (value & 0xff00) >>8;
 
-  value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_Z);
+  value = GATT_SENSORS_MPU.value(MPU_9250_SENSOR_TYPE_ACC_Z);
   PRINTF("value : 0x%X\n", value);
   database->value.u128.data[iterator++] = value & 0x00ff;
   database->value.u128.data[iterator++] = (value & 0xff00) >>8;
@@ -99,11 +100,11 @@ uint8_t set_status_mpu_sensor(const bt_size_t *new_value){
   switch(new_value->value.u8){
     case 1:
       PRINTF("ACTIVATION CAPTEUR\n");
-      mpu_9250_sensor.configure(SENSORS_ACTIVE, MPU_9250_SENSOR_TYPE_ALL);
+      GATT_SENSORS_MPU.configure(SENSORS_ACTIVE, MPU_9250_SENSOR_TYPE_ALL);
       break;
     case 0:
       PRINTF("DESACTIVATION CAPTEUR");
-      SENSORS_DEACTIVATE(mpu_9250_sensor);
+      SENSORS_DEACTIVATE(GATT_SENSORS_MPU);
       break;
     default :
       return ATT_ECODE_BAD_NUMBER;
@@ -113,8 +114,8 @@ uint8_t set_status_mpu_sensor(const bt_size_t *new_value){
 /*---------------------------------------------------------------------------*/
 uint8_t get_status_mpu_sensor(bt_size_t *database){
   database->type = BT_SIZE8;
-  database->value.u8 = (uint8_t) mpu_9250_sensor.status(SENSORS_ACTIVE);
-  PRINTF("status mpu sensor : 0x%X\n", mpu_9250_sensor.status(SENSORS_ACTIVE));
+  database->value.u8 = (uint8_t) GATT_SENSORS_MPU.status(SENSORS_ACTIVE);
+  PRINTF("status mpu sensor : 0x%X\n", GATT_SENSORS_MPU.status(SENSORS_ACTIVE));
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
@@ -224,3 +225,4 @@ PROCESS_THREAD(mpu_disconnect_process, ev, data){
       }
   PROCESS_END();
 }
+#endif

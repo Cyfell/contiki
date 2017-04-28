@@ -31,7 +31,8 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-
+#include "gatt_config.h"
+#ifdef GATT_SENSORS_LUXOMETER
 #define DEBUG 1
 #if DEBUG
 #include <stdio.h>
@@ -57,7 +58,7 @@ static uint32_t period_notify;
 uint8_t get_value_luxometer(bt_size_t *database){
   int value;
 
-  value = opt_3001_sensor.value(0);
+  value = GATT_SENSORS_LUXOMETER.value(0);
   if (value != CC26XX_SENSOR_READING_ERROR) {
     PRINTF("OPT: Light=%d.%02d lux Raw : %X\n", value / 100, value % 100, value);
   } else{
@@ -70,11 +71,11 @@ uint8_t get_value_luxometer(bt_size_t *database){
 }
 /*---------------------------------------------------------------------------*/
 static inline void enable_sensor(){
-  SENSORS_ACTIVATE(opt_3001_sensor);
+  SENSORS_ACTIVATE(GATT_SENSORS_LUXOMETER);
 }
 /*---------------------------------------------------------------------------*/
 static inline void disable_sensor(){
-  SENSORS_DEACTIVATE(opt_3001_sensor);
+  SENSORS_DEACTIVATE(GATT_SENSORS_LUXOMETER);
 }
 /*---------------------------------------------------------------------------*/
 uint8_t set_status_luxometer_sensor(const bt_size_t *new_value){
@@ -95,8 +96,8 @@ uint8_t set_status_luxometer_sensor(const bt_size_t *new_value){
 /*---------------------------------------------------------------------------*/
 uint8_t get_status_luxometer_sensor(bt_size_t *database){
   database->type = BT_SIZE8;
-  database->value.u8 = (uint8_t) opt_3001_sensor.status(SENSORS_ACTIVE);
-  PRINTF("status luxometer luxometer : 0x%X\n", opt_3001_sensor.status(SENSORS_ACTIVE));
+  database->value.u8 = (uint8_t) GATT_SENSORS_LUXOMETER.status(SENSORS_ACTIVE);
+  PRINTF("status luxometer luxometer : 0x%X\n", GATT_SENSORS_LUXOMETER.status(SENSORS_ACTIVE));
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
@@ -208,3 +209,4 @@ PROCESS_THREAD(luxometer_disconnect_process, ev, data){
   }
   PROCESS_END();
 }
+#endif

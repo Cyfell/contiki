@@ -31,7 +31,8 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-
+#include "gatt_config.h"
+#ifdef GATT_SENSORS_REED_RELAY
 #define DEBUG 0
 #if DEBUG
 #include <stdio.h>
@@ -58,7 +59,7 @@ static uint32_t period_notify;
 uint8_t get_value_reed_relay(bt_size_t *database){
   uint8_t value;
 
-  value = (uint8_t) reed_relay_sensor.value(SENSORS_ACTIVE);
+  value = (uint8_t) GATT_SENSORS_REED_RELAY.value(SENSORS_ACTIVE);
   PRINTF("Reed relay value : 0x%X\n", value);
 
   database->type = BT_SIZE8;
@@ -70,11 +71,11 @@ uint8_t set_status_reed_relay_sensor(const bt_size_t * new_value){
   switch(new_value->value.u8){
     case 1:
       PRINTF("ACTIVATION CAPTEUR\n");
-      SENSORS_ACTIVATE(reed_relay_sensor);
+      SENSORS_ACTIVATE(GATT_SENSORS_REED_RELAY);
       break;
     case 0:
       PRINTF("DESACTIVATION CAPTEUR");
-      SENSORS_DEACTIVATE(reed_relay_sensor);
+      SENSORS_DEACTIVATE(GATT_SENSORS_REED_RELAY);
       break;
     default :
       return ATT_ECODE_BAD_NUMBER;
@@ -84,8 +85,8 @@ uint8_t set_status_reed_relay_sensor(const bt_size_t * new_value){
 /*---------------------------------------------------------------------------*/
 uint8_t get_status_reed_relay_sensor(bt_size_t *database){
   database->type = BT_SIZE8;
-  database->value.u8 = (uint8_t) reed_relay_sensor.status(SENSORS_ACTIVE);
-  PRINTF("status temp sensor : 0x%X\n", reed_relay_sensor.status(SENSORS_ACTIVE));
+  database->value.u8 = (uint8_t) GATT_SENSORS_REED_RELAY.status(SENSORS_ACTIVE);
+  PRINTF("status temp sensor : 0x%X\n", GATT_SENSORS_REED_RELAY.status(SENSORS_ACTIVE));
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
@@ -195,3 +196,4 @@ PROCESS_THREAD(reed_relay_disconnect_process, ev, data){
       }
   PROCESS_END();
 }
+#endif

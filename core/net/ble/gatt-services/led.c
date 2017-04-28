@@ -31,7 +31,7 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-
+#ifdef GATT_LEDS
 #define DEBUG 0
 #if DEBUG
 #include <stdio.h>
@@ -50,17 +50,20 @@
 
 /*---------------------------------------------------------------------------*/
 uint8_t actualise_led(const bt_size_t *new_value){
+#ifdef LEDS_RED
   if (new_value->value.u8 & MASK_LED_RED){
     leds_on(LEDS_RED);
   }else{
     leds_off(LEDS_RED);
   }
+#endif
+#ifdef LEDS_GREEN
   if (new_value->value.u8 & MASK_LED_GREEN){
     leds_on(LEDS_GREEN);
   } else{
     leds_off(LEDS_GREEN);
   }
-
+#endif
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
@@ -70,3 +73,4 @@ uint8_t get_status_leds(bt_size_t *database){
   PRINTF("status get leds : 0x%X\n", leds_get());
   return SUCCESS;
 }
+#endif
