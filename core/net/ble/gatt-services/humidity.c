@@ -45,7 +45,7 @@
 #include "humidity.h"
 #include "sensortag/hdc-1000-sensor.h"
 #include "notify.h"
-#include "ble-hal-cc26xx.h"
+#include SOURCE_LL_DISCONNECT_EVENT
 /* process for temp notification */
 PROCESS(humidity_notify_process, "temp_humidity_process");
 /* process callback on disconnect event */

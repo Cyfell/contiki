@@ -45,7 +45,7 @@
 #include "mpu.h"
 #include "sensortag/mpu-9250-sensor.h"
 #include "notify.h"
-#include "ble-hal-cc26xx.h"
+#include SOURCE_LL_DISCONNECT_EVENT
 /* process for temp notification */
 PROCESS(mpu_notify_process, "mpu_notify_process");
 /* process callback on disconnect event */

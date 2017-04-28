@@ -45,7 +45,7 @@
 #include "barometer.h"
 #include "sensortag/bmp-280-sensor.h"
 #include "notify.h"
-#include "ble-hal-cc26xx.h"
+#include SOURCE_LL_DISCONNECT_EVENT
 /* process for temp notification */
 PROCESS(barometer_notify_process, "temp_barometer_process");
 /* process callback on disconnect event */

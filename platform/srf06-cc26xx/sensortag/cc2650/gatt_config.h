@@ -33,7 +33,7 @@
 
 #ifndef GATT_SENSORS_H_
 #define GATT_SENSORS_H_
-
+#define SOURCE_LL_DISCONNECT_EVENT "ble-hal-cc26xx.h"
 #define GATT_SENSORS_TEMP1 tmp_007_sensor
 #define GATT_SENSORS_HUM hdc_1000_sensor
 #define GATT_SENSORS_BAROMETER bmp_280_sensor

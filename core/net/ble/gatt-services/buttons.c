@@ -46,7 +46,7 @@
 #include "buttons.h"
 #include "sensortag/button-sensor.h"
 #include "notify.h"
-#include "ble-hal-cc26xx.h"
+#include SOURCE_LL_DISCONNECT_EVENT
 /* process for temp notification */
 PROCESS(buttons_notify_process, "temp_buttons_process");
 /* process callback on disconnect event */
