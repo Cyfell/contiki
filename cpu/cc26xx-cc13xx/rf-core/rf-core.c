@@ -384,7 +384,6 @@ rf_core_power_down()
   ti_lib_prcm_power_domain_off(PRCM_DOMAIN_RFCORE);
   while(ti_lib_prcm_power_domain_status(PRCM_DOMAIN_RFCORE)
         != PRCM_DOMAIN_POWER_OFF) ;
-
   rf_switch_power_down();
 
   ti_lib_int_pend_clear(INT_RFC_CPE_0);

@@ -46,7 +46,6 @@
 #include "board.h"
 #include <stdlib.h>
 #include <string.h>
-#include "lib/memb.h"
 
 
 #define GET_NEXT_START_GROUP(x) get_attribute(x+1)
@@ -285,6 +284,13 @@ uint8_t get_find_info_values(const uint16_t starting_handle, const uint16_t endi
   /* Fill in table */
   fill_response_find(att_groupe_start, ending_handle, g_tx_buffer);
 
+  return SUCCESS;
+}
+/*---------------------------------------------------------------------------*/
+#define ATT_GENERIC_ACCESS_DECLARATION 0x1800
+uint8_t get_generic_access_service(bt_size_t * value_ptr){
+  value_ptr->type = BT_SIZE16;
+  value_ptr->value.u16 = ATT_GENERIC_ACCESS_DECLARATION;
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/

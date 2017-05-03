@@ -31,7 +31,9 @@
  *
  */
 /*---------------------------------------------------------------------------*/
+#include "gatt_config.h"
 #ifdef GATT_LEDS
+#warning "coucou"
 #define DEBUG 0
 #if DEBUG
 #include <stdio.h>
@@ -45,11 +47,10 @@
 
 #include "../ble-att.h"
 #include "led.h"
-#include "board-peripherals.h"
 #include "leds.h"
 
 /*---------------------------------------------------------------------------*/
-uint8_t actualise_led(const bt_size_t *new_value){
+uint8_t set_status_leds(const bt_size_t *new_value){
 #ifdef LEDS_RED
   if (new_value->value.u8 & MASK_LED_RED){
     leds_on(LEDS_RED);
