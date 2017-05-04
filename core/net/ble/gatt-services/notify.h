@@ -42,4 +42,4 @@ void prepare_notification(uint16_t handle_to_notify, bt_size_t *sensor_value);
 void prepare_error_resp_notif(uint16_t error_handle, uint8_t error);
 int is_values_equals(bt_size_t *v1, bt_size_t *v2);
 
-#endif // NOTIFY_H_
+#endif /* NOTIFY_H_ */

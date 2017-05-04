@@ -41,44 +41,51 @@
 #define PRINTF(...)
 #endif
 
-#define BASE_UUID16_OFFSET	2
+#define BASE_UUID16_OFFSET  2
 
 static uint128_t bluetooth_base_uuid = {
-	.data = {	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00,
-			0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
+  .data = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00,
+            0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB }
 };
 
-inline uint128_t uuid_16_to_128(uint16_t uuid_16){
- uint128_t result;
- /* Set base uuid */
- result = bluetooth_base_uuid;
- uuid_16 = swap16(uuid_16);
+inline uint128_t
+uuid_16_to_128(uint16_t uuid_16)
+{
+  uint128_t result;
+  /* Set base uuid */
+  result = bluetooth_base_uuid;
+  uuid_16 = swap16(uuid_16);
 
- memcpy(&result.data[BASE_UUID16_OFFSET], &uuid_16, sizeof(uuid_16));
+  memcpy(&result.data[BASE_UUID16_OFFSET], &uuid_16, sizeof(uuid_16));
 
- return result;
+  return result;
 }
+inline uint16_t
+uuid_128_to_16(const uint128_t uuid_128)
+{
+  uint16_t result;
 
-inline uint16_t uuid_128_to_16(const uint128_t uuid_128){
-	uint16_t result;
+  memcpy(&result, &uuid_128.data[BASE_UUID16_OFFSET], sizeof(result));
 
-	memcpy(&result, &uuid_128.data[BASE_UUID16_OFFSET], sizeof(result));
-
-	result = swap16(result);
-	return result;
+  result = swap16(result);
+  return result;
 }
-inline uint8_t uuid_128_compare(const uint128_t u1, const uint128_t u2){
-	for (uint8_t i = 0; i < sizeof(uint128_t); i++){
-		if (u1.data[i] != u2.data[i])
-			return 0;
-	}
-	return 1;
+inline uint8_t
+uuid_128_compare(const uint128_t u1, const uint128_t u2)
+{
+  for(uint8_t i = 0; i < sizeof(uint128_t); i++) {
+    if(u1.data[i] != u2.data[i]) {
+      return 0;
+    }
+  }
+  return 1;
 }
-
-inline uint128_t swap128(const uint128_t *input){
-	uint128_t output;
-	for(uint8_t i = 0; i < sizeof(uint128_t); i++){
-		output.data[i] = input->data[sizeof(uint128_t)-i-1];
-	}
-	return output;
+inline uint128_t
+swap128(const uint128_t *input)
+{
+  uint128_t output;
+  for(uint8_t i = 0; i < sizeof(uint128_t); i++) {
+    output.data[i] = input->data[sizeof(uint128_t) - i - 1];
+  }
+  return output;
 }

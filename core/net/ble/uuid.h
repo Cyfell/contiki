@@ -37,28 +37,28 @@
 #include "util.h"
 /*---------------------------------------------------------------------------*/
 typedef struct {
-	uint8_t data[16];
+  uint8_t data[16];
 } uint128_t;
 
 typedef struct {
-	enum {
-		BT_SIZE8 = 1,
-		BT_SIZE16 = 2,
-		BT_SIZE32 = 4,
-		BT_CHARACTERISTIC = 5,
-		BT_SIZE64 = 8,
-		BT_SIZEMPU = 12,
-		BT_SIZE128 = 16,
-		BT_SIZE_STR = 30,
-	} type;
-	union {
-		uint8_t		u8;
-		uint16_t  u16;
-		uint32_t  u32;
-		uint64_t  u64;
-		uint128_t u128;
-		char 			str[30];
-	} value;
+  enum {
+    BT_SIZE8 = 1,
+    BT_SIZE16 = 2,
+    BT_SIZE32 = 4,
+    BT_CHARACTERISTIC = 5,
+    BT_SIZE64 = 8,
+    BT_SIZEMPU = 12,
+    BT_SIZE128 = 16,
+    BT_SIZE_STR = 30,
+  } type;
+  union {
+    uint8_t u8;
+    uint16_t u16;
+    uint32_t u32;
+    uint64_t u64;
+    uint128_t u128;
+    char str[30];
+  } value;
 } bt_size_t;
 /*---------------------------------------------------------------------------*/
 uint128_t uuid_16_to_128(uint16_t uuid_16);

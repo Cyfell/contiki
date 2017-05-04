@@ -66,28 +66,28 @@
 #define ATT_SIGNED_WRITE_COMMAND          0xD2 /* NOT IMPLEMENTED*/
 /*---------------------------------------------------------------------------*/
 /* Error codes for Error response PDU */
-#define ATT_ECODE_INVALID_HANDLE		      0x01
-#define ATT_ECODE_READ_NOT_PERM			      0x02
-#define ATT_ECODE_WRITE_NOT_PERM	       	0x03
-#define ATT_ECODE_INVALID_PDU		         	0x04
-#define ATT_ECODE_AUTHENTICATION	       	0x05
-#define ATT_ECODE_REQ_NOT_SUPP		      	0x06
-#define ATT_ECODE_INVALID_OFFSET	       	0x07
-#define ATT_ECODE_AUTHORIZATION		       	0x08
-#define ATT_ECODE_PREP_QUEUE_FULL	       	0x09
-#define ATT_ECODE_ATTR_NOT_FOUND	       	0x0A
-#define ATT_ECODE_ATTR_NOT_LONG		       	0x0B
-#define ATT_ECODE_INSUFF_ENCR_KEY_SIZE		0x0C
-#define ATT_ECODE_INVAL_ATTR_VALUE_LEN		0x0D
-#define ATT_ECODE_UNLIKELY		          	0x0E
-#define ATT_ECODE_INSUFF_ENC		        	0x0F
-#define ATT_ECODE_UNSUPP_GRP_TYPE	      	0x10
-#define ATT_ECODE_INSUFF_RESOURCES	     	0x11
+#define ATT_ECODE_INVALID_HANDLE          0x01
+#define ATT_ECODE_READ_NOT_PERM           0x02
+#define ATT_ECODE_WRITE_NOT_PERM          0x03
+#define ATT_ECODE_INVALID_PDU             0x04
+#define ATT_ECODE_AUTHENTICATION          0x05
+#define ATT_ECODE_REQ_NOT_SUPP            0x06
+#define ATT_ECODE_INVALID_OFFSET          0x07
+#define ATT_ECODE_AUTHORIZATION           0x08
+#define ATT_ECODE_PREP_QUEUE_FULL         0x09
+#define ATT_ECODE_ATTR_NOT_FOUND          0x0A
+#define ATT_ECODE_ATTR_NOT_LONG           0x0B
+#define ATT_ECODE_INSUFF_ENCR_KEY_SIZE    0x0C
+#define ATT_ECODE_INVAL_ATTR_VALUE_LEN    0x0D
+#define ATT_ECODE_UNLIKELY                0x0E
+#define ATT_ECODE_INSUFF_ENC              0x0F
+#define ATT_ECODE_UNSUPP_GRP_TYPE         0x10
+#define ATT_ECODE_INSUFF_RESOURCES        0x11
 /*---------------------------------------------------------------------------*/
 /* Application error */
-#define ATT_ECODE_IO				              0x80
-#define ATT_ECODE_TIMEOUT			            0x81
-#define ATT_ECODE_ABORTED			            0x82
+#define ATT_ECODE_IO                      0x80
+#define ATT_ECODE_TIMEOUT                 0x81
+#define ATT_ECODE_ABORTED                 0x82
 #define ATT_ECODE_SENSOR_READINGS         0x83
 #define ATT_ECODE_ACTION_NOT_SET          0x84
 #define ATT_ECODE_BAD_NUMBER              0x85
@@ -115,4 +115,4 @@ typedef struct {
   uint16_t sdu_length;
 } att_buffer_t;
 
-#endif //BLE_ATT_H_
+#endif /*BLE_ATT_H_ */

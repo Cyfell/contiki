@@ -47,7 +47,9 @@ static att_buffer_t g_tx_buffer_notify;
 #define ATT_CID       4
 
 /*---------------------------------------------------------------------------*/
-void prepare_notification(uint16_t handle_to_notify, bt_size_t *sensor_value){
+void
+prepare_notification(uint16_t handle_to_notify, bt_size_t *sensor_value)
+{
   g_tx_buffer_notify.sdu[0] = ATT_HANDLE_VALUE_NOTIFICATION;
   memcpy(&g_tx_buffer_notify.sdu[1], &handle_to_notify, sizeof(handle_to_notify));
   memcpy(&g_tx_buffer_notify.sdu[3], &sensor_value->value, sensor_value->type);
@@ -55,7 +57,9 @@ void prepare_notification(uint16_t handle_to_notify, bt_size_t *sensor_value){
   g_tx_buffer_notify.sdu_length = LENGHT_ATT_HEADER_NOTIFICATION + sensor_value->type;
 }
 /*---------------------------------------------------------------------------*/
-void prepare_error_resp_notif(uint16_t error_handle, uint8_t error){
+void
+prepare_error_resp_notif(uint16_t error_handle, uint8_t error)
+{
   /* Response code */
   g_tx_buffer_notify.sdu[0] = ATT_ERROR_RESPONSE;
   /* Operation asked */
@@ -68,7 +72,9 @@ void prepare_error_resp_notif(uint16_t error_handle, uint8_t error){
   g_tx_buffer_notify.sdu_length = 5;
 }
 /*---------------------------------------------------------------------------*/
-void send_notify(){
+void
+send_notify()
+{
   PRINTF("SEND NOTIFY\n");
   memcpy(packetbuf_dataptr(), g_tx_buffer_notify.sdu, g_tx_buffer_notify.sdu_length);
   packetbuf_set_datalen(g_tx_buffer_notify.sdu_length);
@@ -76,7 +82,9 @@ void send_notify(){
   NETSTACK_MAC.send(NULL, NULL);
 }
 /*---------------------------------------------------------------------------*/
-int is_values_equals(bt_size_t *v1, bt_size_t *v2){
+int
+is_values_equals(bt_size_t *v1, bt_size_t *v2)
+{
   PRINTF("comparaison : %d", memcmp(v1, v2, sizeof(bt_size_t)));
   return memcmp(v1, v2, sizeof(bt_size_t));
 }

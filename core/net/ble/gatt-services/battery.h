@@ -49,4 +49,4 @@ uint8_t get_status_battery_notify(bt_size_t *database);
 PROCESS_NAME(battery_notify_process);
 PROCESS_NAME(battery_disconnect_process);
 /*---------------------------------------------------------------------------*/
-#endif  // BATTERY_H_
+#endif  /* BATTERY_H_ */

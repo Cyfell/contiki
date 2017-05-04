@@ -49,4 +49,4 @@ uint8_t get_status_barometer_notify(bt_size_t *database);
 PROCESS_NAME(barometer_notify_process);
 PROCESS_NAME(barometer_disconnect_process);
 /*---------------------------------------------------------------------------*/
-#endif  // BAROMETER_H_
+#endif  /* BAROMETER_H_ */

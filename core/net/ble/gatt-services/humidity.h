@@ -50,4 +50,4 @@ uint8_t get_status_humidity_notify(bt_size_t *database);
 PROCESS_NAME(humidity_notify_process);
 PROCESS_NAME(humidity_disconnect_process);
 /*---------------------------------------------------------------------------*/
-#endif  // HUMIDITY_H_
+#endif  /* HUMIDITY_H_ */

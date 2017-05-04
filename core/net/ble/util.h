@@ -30,22 +30,22 @@
  * Author: Arthur Courtel <arthurcourtel@gmail.com>
  *
  */
- /*---------------------------------------------------------------------------*/
- #ifndef UTIL_H_
- #define UTIL_H_
- #include <stdint.h>
+/*---------------------------------------------------------------------------*/
+#ifndef UTIL_H_
+#define UTIL_H_
+#include <stdint.h>
 
- #define swap40(x) \
-      (__extension__(( ( (x) & 0xff00000000ull) >> 32)                  \
-                     | (((x) & 0x00ff000000ull) >> 16)                 \
-                     | (((x) & 0x000000ff00ull) << 16)                  \
-                     | (((x) & 0x00000000ffull) << 32)))
+#define swap40(x) \
+  (__extension__((((x) & 0xff00000000ull) >> 32) \
+                 | (((x) & 0x00ff000000ull) >> 16) \
+                 | (((x) & 0x000000ff00ull) << 16) \
+                 | (((x) & 0x00000000ffull) << 32)))
 
- #define swap32(x) \
-      (__extension__(( ( (x) & 0xff000000ull) >> 24)                  \
-                     | (((x) & 0x00ff0000ull) >> 8)                 \
-                     | (((x) & 0x0000ff00ull) << 8)                  \
-                     | (((x) & 0x000000ffull) << 24)))
+#define swap32(x) \
+  (__extension__((((x) & 0xff000000ull) >> 24) \
+                 | (((x) & 0x00ff0000ull) >> 8) \
+                 | (((x) & 0x0000ff00ull) << 8) \
+                 | (((x) & 0x000000ffull) << 24)))
 
 #define swap16(x) (((x) >> 8) | ((x) << 8))
-#endif //UTIL_H_
+#endif /*UTIL_H_ */

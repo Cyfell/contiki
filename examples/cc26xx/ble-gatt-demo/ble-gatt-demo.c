@@ -39,10 +39,10 @@
 /*---------------------------------------------------------------------------*/
 #define ECHO_INTERVAL   (1 * CLOCK_SECOND)
 /*---------------------------------------------------------------------------*/
- static struct etimer timer;
+static struct etimer timer;
 
- PROCESS(ble_gatt_demo_process, "BLE gatt demo process");
- AUTOSTART_PROCESSES(&ble_gatt_demo_process);
+PROCESS(ble_gatt_demo_process, "BLE gatt demo process");
+AUTOSTART_PROCESSES(&ble_gatt_demo_process);
 
 PROCESS_THREAD(ble_gatt_demo_process, ev, data)
 {
@@ -50,11 +50,10 @@ PROCESS_THREAD(ble_gatt_demo_process, ev, data)
   printf("BLE gatt demo process started\n");
   leds_on(LEDS_GREEN);
 
-   do {
-     etimer_set(&timer, ECHO_INTERVAL);
-     PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&timer));
-} while(1);
-
+  do {
+    etimer_set(&timer, ECHO_INTERVAL);
+    PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&timer));
+  } while(1);
 
   PROCESS_END();
 }

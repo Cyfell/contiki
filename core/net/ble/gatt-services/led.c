@@ -50,27 +50,31 @@
 #include "leds.h"
 
 /*---------------------------------------------------------------------------*/
-uint8_t set_status_leds(const bt_size_t *new_value){
+uint8_t
+set_status_leds(const bt_size_t *new_value)
+{
 #ifdef LEDS_RED
-  if (new_value->value.u8 & MASK_LED_RED){
+  if(new_value->value.u8 & MASK_LED_RED) {
     leds_on(LEDS_RED);
-  }else{
+  } else {
     leds_off(LEDS_RED);
   }
 #endif
 #ifdef LEDS_GREEN
-  if (new_value->value.u8 & MASK_LED_GREEN){
+  if(new_value->value.u8 & MASK_LED_GREEN) {
     leds_on(LEDS_GREEN);
-  } else{
+  } else {
     leds_off(LEDS_GREEN);
   }
 #endif
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t get_status_leds(bt_size_t *database){
+uint8_t
+get_status_leds(bt_size_t *database)
+{
   database->type = BT_SIZE8;
-  database->value.u8 = (uint8_t) leds_get();
+  database->value.u8 = (uint8_t)leds_get();
   PRINTF("status get leds : 0x%X\n", leds_get());
   return SUCCESS;
 }

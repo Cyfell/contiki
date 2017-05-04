@@ -50,4 +50,4 @@ uint8_t get_status_temp_notify(bt_size_t *database);
 PROCESS_NAME(temp_notify_process);
 PROCESS_NAME(temp_disconnect_process);
 /*---------------------------------------------------------------------------*/
-#endif  // TEMP_H_
+#endif  /* TEMP_H_ */
