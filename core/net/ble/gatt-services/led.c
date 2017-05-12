@@ -33,7 +33,6 @@
 /*---------------------------------------------------------------------------*/
 #include "gatt_config.h"
 #ifdef GATT_LEDS
-#warning "coucou"
 #define DEBUG 0
 #if DEBUG
 #include <stdio.h>

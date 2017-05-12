@@ -49,50 +49,44 @@
 static const attribute_t *list_attr[] =
 {
   &(attribute_t){ /* PRIMARY SERVICE DECLARATION : GENERIC ACCESS SERVICE */
-    .get_action = NULL,
+    .get_action = get_generic_access_service,
     .set_action = NULL,
-    .att_value.type = BT_SIZE16,
-    .att_value.value.u16 = 0x1800,
+    .att_value_len = BT_SIZE16,
     .att_uuid.data = UUID_PRIMARY_DECLARATION,
-    .properties.write = 1,
+    .properties.write = 0,
     .properties.read = 1,
     .att_handle = __COUNTER__ + 1,
   },
-  &(attribute_t){ /* CHAR DECLARATION : DEVICE NAME */
-    .get_action = NULL,
+  &(attribute_t){ // CHAR DECLARATION : DEVICE NAME
+    .get_action = get_char_declaration,
     .set_action = NULL,
-    .att_value.type = BT_CHARACTERISTIC,
-    .att_value.value.u64 = swap40(0x020300002A),
+    .att_value_len = BT_CHARACTERISTIC,
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
     .att_handle = __COUNTER__ + 1,
   },
-  &(attribute_t){ /* DEVICE NAME */
-    .get_action = NULL,
+  &(attribute_t){ // DEVICE NAME
+    .get_action = get_device_name,
     .set_action = NULL,
-    .att_value.type = BT_SIZE_STR,
-    .att_value.value.str = BOARD_STRING,
+    .att_value_len = BT_SIZE_STR,
     .att_uuid.data = UUID_DEVICE_NAME,
     .properties.write = 0,
     .properties.read = 1,
     .att_handle = __COUNTER__ + 1,
   },
-  &(attribute_t){ /* PRIMARY SERVICE DECLARATION : INFORMATION SERVICE */
-    .get_action = NULL,
+  &(attribute_t){ // PRIMARY SERVICE DECLARATION : INFORMATION SERVICE
+    .get_action = get_generic_information_service,
     .set_action = NULL,
-    .att_value.type = BT_SIZE16,
-    .att_value.value.u16 = 0x180A,
+    .att_value_len = BT_SIZE16,
     .att_uuid.data = UUID_PRIMARY_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
     .att_handle = __COUNTER__ + 1,
   },
-  &(attribute_t){ /* CHAR DECLARATION : CONTIKI VERSION */
-    .get_action = NULL,
+  &(attribute_t){ // CHAR DECLARATION : CONTIKI VERSION
+    .get_action = get_char_declaration,
     .set_action = NULL,
-    .att_value.type = BT_CHARACTERISTIC,
-    .att_value.value.u64 = swap40(0x020600262A),
     .att_uuid.data = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
@@ -101,8 +95,7 @@ static const attribute_t *list_attr[] =
   &(attribute_t){ /* CONTIKI VERSION */
     .get_action = NULL,
     .set_action = NULL,
-    .att_value.type = BT_SIZE_STR,
-    .att_value.value.str = CONTIKI_VERSION_STRING,
+    .att_value_len = BT_SIZE_STR,
     .att_uuid.data = UUID_CONTIKI_VERSION,
     .properties.write = 0,
     .properties.read = 1,
@@ -124,7 +117,7 @@ static const attribute_t *list_attr[] =
     .att_handle = __COUNTER__ + 1,
   },
   &(attribute_t){ /* CHAR DECLARATION : TEMP DATA */
-    .get_action = NULL,
+    .get_action = get_char_declaration,
     .set_action = NULL,
     .att_value.type = BT_CHARACTERISTIC,
     .att_value.value.u64 = swap40(0x1209006E2A),
@@ -164,7 +157,7 @@ static const attribute_t *list_attr[] =
     .att_handle = __COUNTER__ + 1,
   },
   &(attribute_t){ /* CHAR DECLARATION : TEMP ED */
-    .get_action = NULL,
+    .get_action = get_char_declaration,
     .set_action = NULL,
     .att_value.type = BT_CHARACTERISTIC,
     .att_value.value.u64 = swap40(0x0A0D0002AA),
@@ -194,7 +187,7 @@ static const attribute_t *list_attr[] =
     .att_handle = __COUNTER__ + 1,
   },
   &(attribute_t){ /* CHAR DECLARATION : TEMP PERIOD */
-    .get_action = NULL,
+    .get_action = get_char_declaration,
     .set_action = NULL,
     .att_value.type = BT_CHARACTERISTIC,
     .att_value.value.u64 = swap40(0x0A100003AA),

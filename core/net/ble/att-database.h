@@ -35,21 +35,25 @@
 #define ATT_DATABASE_H_
 #include "uuid.h"
 
-typedef const struct attribute_s {
-  uint8_t (*get_action)(bt_size_t *value);
-  uint8_t (*set_action)(const bt_size_t *value);
-  bt_size_t att_value;
-  uint128_t att_uuid;
-  struct {
-    uint8_t extended_properties : 1;
-    uint8_t authenticated_signed_writes : 1;
-    uint8_t indicate : 1;
-    uint8_t notify : 1;
-    uint8_t write : 1;
-    uint8_t write_without_response : 1;
-    uint8_t read : 1;
-    uint8_t broadcast : 1;
-  }properties;
-  uint16_t att_handle;
+typedef const struct attribute_s{
+    uint8_t (*get_action)(bt_size_t* value);
+    uint8_t (*set_action)(const bt_size_t* value);
+    uint8_t att_value_len;
+    uint128_t att_uuid;
+    union{
+      struct{
+        uint8_t broadcast:1;
+        uint8_t read:1;
+        uint8_t write_without_response:1;
+        uint8_t write:1;
+        uint8_t notify:1;
+        uint8_t indicate:1;
+        uint8_t authenticated_signed_writes:1;
+        uint8_t extended_properties:1;
+      };
+      uint8_t raw;
+    }properties;
+  	uint16_t att_handle;
+
 } attribute_t;
 #endif
