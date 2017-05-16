@@ -113,7 +113,7 @@ static inline void
 enable_notification()
 {
   PRINTF("ACTIVATION reed_relay NOTIFICATIONS\n");
-  handle_to_notify = g_current_att->att_value.value.u16;
+  handle_to_notify = g_current_att->att_handle - HANDLE_SPACE_TO_DATA_ATTRIBUTE;
   process_start(&reed_relay_notify_process, NULL);
   process_start(&reed_relay_disconnect_process, NULL);
 }

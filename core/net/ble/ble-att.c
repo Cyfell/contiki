@@ -294,7 +294,6 @@ parse_type_req(const uint8_t *data, const uint16_t len, uint16_t *starting_handl
 static uint8_t
 prepare_type(const uint8_t *data, const uint16_t len)
 {
-  PRINTF("READ BY TYPE\n");
   uint128_t uuid_to_match;
   uint16_t starting_handle, ending_handle;
   uint8_t error;
@@ -304,7 +303,7 @@ prepare_type(const uint8_t *data, const uint16_t len)
     g_error_handle = starting_handle;
     return error;
   }
-
+PRINTF("starting_handle : 0x%X || ending_handle : 0x%X || uuid_to_match : 0x%X\n", starting_handle, ending_handle, uuid_128_to_16(uuid_to_match));
   /* Prepare payload */
   /* Response code */
   g_tx_buffer.sdu_length = 1;
@@ -340,7 +339,6 @@ prepare_find_info(uint8_t *data, uint16_t len)
 {
   uint16_t starting_handle, ending_handle;
   uint8_t error;
-  PRINTF("FIND INFO\n");
   error = parse_start_stop_handle(&data[1], &starting_handle, &ending_handle);
 
   if(error != SUCCESS) {
@@ -367,9 +365,10 @@ input(void)
 
   uint8_t *data = (uint8_t *)packetbuf_dataptr();
   uint16_t len = packetbuf_datalen();
-  /* for(uint8_t i=0; i < len; i++){ */
-  /*   PRINTF("data input : 0x%X\n", data[i]); */
-  /* } */
+  //  for(uint8_t i=0; i < len; i++){
+  //    PRINTF("data input : 0x%X\n", data[i]);
+  //  }
+  PRINTF("request : 0x%X\n", data[0]);
   switch(data[0]) {
   case ATT_ERROR_RESPONSE:
     PRINTF("%s", error(data[4]));

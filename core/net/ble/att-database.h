@@ -39,7 +39,13 @@ typedef const struct attribute_s{
     uint8_t (*get_action)(bt_size_t* value);
     uint8_t (*set_action)(const bt_size_t* value);
     uint8_t att_value_len;
-    uint128_t att_uuid;
+    uint16_t att_uuid;
+    union{
+      const char *description;
+      uint16_t current_service;
+    }specific;
+
+
     union{
       struct{
         uint8_t broadcast:1;

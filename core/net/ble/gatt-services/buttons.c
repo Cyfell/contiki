@@ -129,7 +129,7 @@ static inline void
 enable_notification()
 {
   PRINTF("ACTIVATION buttons NOTIFICATIONS\n");
-  handle_to_notify = g_current_att->att_value.value.u16;
+  handle_to_notify = g_current_att->att_handle - HANDLE_SPACE_TO_DATA_ATTRIBUTE;
   process_start(&buttons_notify_process, NULL);
   process_start(&buttons_disconnect_process, NULL);
 }

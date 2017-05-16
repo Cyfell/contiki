@@ -718,9 +718,9 @@ state_advertising(process_event_t ev, process_data_t data,
     }
 
     //test
-    /*for(int i=0;i<45;i++){
-      PRINTF("Data %d : 0x%x\n",i,current_rx_entry[i]);
-    }*/
+    // for(int i=0;i<45;i++){
+    //   PRINTF("Data %d : 0x%x\n",i,current_rx_entry[i]);
+    // }
 
     if((current_rx_entry[9] & 0x0F) == 5) {
       /* CONN REQ received */

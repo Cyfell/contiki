@@ -80,6 +80,14 @@ uuid_128_compare(const uint128_t u1, const uint128_t u2)
   }
   return 1;
 }
+inline uint8_t
+uuid_16_compare(const uint16_t u1, const uint16_t u2)
+{
+  if(u1 != u2)
+    return 0;
+
+  return 1;
+}
 inline uint128_t
 swap128(const uint128_t *input)
 {

@@ -61,7 +61,22 @@ uint8_t
 get_value_battery(bt_size_t *database)
 {
   int value;
-  uint16_t tmp;
+
+  value = GATT_SENSORS_BATTERY.value(BATMON_SENSOR_TYPE_VOLT);
+  if(value != 0) {
+    PRINTF("Bat: Volt=%d mV\n", (value * 125) >> 5);
+    value = ((value * 125) >> 5);
+  } else {
+    PRINTF("BAT: Voltage Read Error\n");
+    return ATT_ECODE_SENSOR_READINGS;
+  }
+  database->type = BT_SIZE16;
+  database->value.u16 = (uint16_t)value;
+  return SUCCESS;
+}
+/*---------------------------------------------------------------------------*/
+uint8_t get_value_battery_temp(bt_size_t *database){
+  int value;
 
   value = GATT_SENSORS_BATTERY.value(BATMON_SENSOR_TYPE_TEMP);
   PRINTF("value : 0x%X\n", value);
@@ -71,19 +86,8 @@ get_value_battery(bt_size_t *database)
     PRINTF("BAT: Temp Read Error\n");
     return ATT_ECODE_SENSOR_READINGS;
   }
-  /* let space for Voltage value */
-  value = value << 16;
-
-  tmp = GATT_SENSORS_BATTERY.value(BATMON_SENSOR_TYPE_VOLT);
-  if(tmp != 0) {
-    PRINTF("Bat: Volt=%d mV\n", (tmp * 125) >> 5);
-    value += ((tmp * 125) >> 5);
-  } else {
-    PRINTF("BAT: Voltage Read Error\n");
-    return ATT_ECODE_SENSOR_READINGS;
-  }
-  database->type = BT_SIZE32;
-  database->value.u32 = (uint32_t)value;
+  database->type = BT_SIZE16;
+  database->value.u16 = (uint16_t)value;
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
@@ -131,7 +135,7 @@ static inline void
 enable_notification()
 {
   PRINTF("ACTIVATION battery NOTIFICATIONS\n");
-  handle_to_notify = g_current_att->att_value.value.u16;
+  handle_to_notify = g_current_att->att_handle - HANDLE_SPACE_TO_DATA_ATTRIBUTE;
   process_start(&battery_notify_process, NULL);
   process_start(&battery_disconnect_process, NULL);
 }

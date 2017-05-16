@@ -38,6 +38,7 @@
 #include "process.h"
 /*---------------------------------------------------------------------------*/
 uint8_t get_value_battery(bt_size_t *value);
+uint8_t get_value_battery_temp(bt_size_t *value);
 uint8_t set_status_battery_sensor(const bt_size_t *new_value);
 uint8_t get_status_battery_sensor(bt_size_t *database);
 /* notification functions */

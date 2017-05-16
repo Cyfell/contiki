@@ -142,7 +142,7 @@ static inline void
 enable_notification()
 {
   PRINTF("ACTIVATION mpu NOTIFICATIONS\n");
-  handle_to_notify = g_current_att->att_value.value.u16;
+  handle_to_notify = g_current_att->att_handle - HANDLE_SPACE_TO_DATA_ATTRIBUTE;
   process_start(&mpu_notify_process, NULL);
   process_start(&mpu_disconnect_process, NULL);
 }

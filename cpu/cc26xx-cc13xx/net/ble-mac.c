@@ -132,6 +132,13 @@ init_adv_data(char *adv_data)
   adv_data[adv_data_len++] = 2;
   adv_data[adv_data_len++] = 0x0A;
   adv_data[adv_data_len++] = 0;        /* 0 dBm */
+  /* Custom */
+  adv_data[adv_data_len++] = 5;
+  adv_data[adv_data_len++] = 0x16;
+  adv_data[adv_data_len++] = 0x01;
+  adv_data[adv_data_len++] = 0xAA;
+  adv_data[adv_data_len++] = 0x00;
+  adv_data[adv_data_len++] = 0xBB;
   return adv_data_len;
 }
 /*---------------------------------------------------------------------------*/
