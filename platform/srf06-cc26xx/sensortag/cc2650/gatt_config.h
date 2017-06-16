@@ -45,4 +45,4 @@
 #define GATT_SENSORS_BUTTONS_LEFT button_left_sensor
 #define GATT_SENSORS_BUTTONS_RIGHT button_right_sensor
 #define GATT_SENSORS_REED_RELAY reed_relay_sensor
-#endif //GATT_CONFIG_H_
+#endif /* GATT_CONFIG_H_ */

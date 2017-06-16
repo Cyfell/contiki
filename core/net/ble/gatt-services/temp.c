@@ -33,7 +33,7 @@
 /*---------------------------------------------------------------------------*/
 #include "gatt_config.h"
 #ifdef GATT_SENSORS_TEMP1
-#define DEBUG 1
+#define DEBUG 0
 #if DEBUG
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
@@ -96,11 +96,11 @@ set_status_temp_sensor(const bt_size_t *new_value)
 {
   switch(new_value->value.u8) {
   case 1:
-    PRINTF("ACTIVATION CAPTEUR\n");
+    PRINTF("SENSOR ACTIVATION\n");
     SENSORS_ACTIVATE(GATT_SENSORS_TEMP1);
     break;
   case 0:
-    PRINTF("DESACTIVATION CAPTEUR");
+    PRINTF("SENSOR DEACTIVATION");
     SENSORS_DEACTIVATE(GATT_SENSORS_TEMP1);
     break;
   default:
@@ -143,7 +143,7 @@ enable_notification()
 static inline void
 disable_notification()
 {
-  PRINTF("DESACTIVATION TEMP NOTIFICATIONS\n");
+  PRINTF("DEACTIVATION TEMP NOTIFICATIONS\n");
   process_exit(&temp_notify_process);
   process_exit(&temp_disconnect_process);
 }

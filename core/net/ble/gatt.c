@@ -31,7 +31,7 @@
  *
  */
 /*---------------------------------------------------------------------------*/
-#define DEBUG 1
+#define DEBUG 0
 #if DEBUG
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
@@ -46,6 +46,8 @@
 #include "board.h"
 #include <stdlib.h>
 #include <string.h>
+
+#define PRIMARY_GROUP_TYPE                0x2800
 
 #define GET_NEXT_START_GROUP(x) get_attribute(x + 1)
 #define GET_NEXT_BY_UUID(x, y, z) get_attribute_by_uuid(x + 1, y, z)
@@ -81,7 +83,7 @@ get_value(const uint16_t handle, bt_size_t *value_ptr)
 
   g_current_att = att;
 
-  if (!att){
+  if(!att) {
     return ATT_ECODE_ATTR_NOT_FOUND;
   }
 
@@ -89,7 +91,7 @@ get_value(const uint16_t handle, bt_size_t *value_ptr)
     return ATT_ECODE_READ_NOT_PERM;
   }
 
-  if (att->get_action == NULL){
+  if(att->get_action == NULL) {
     return ATT_ECODE_ACTION_NOT_SET;
   }
 
@@ -117,10 +119,9 @@ set_value(const uint16_t handle, const bt_size_t *new_value)
 
   g_current_att = att;
   PRINTF("new data len : 0x%X || correct len : 0x%X\n", new_value->type, att->att_value_len);
-  if(new_value->type != att->att_value_len){
+  if(new_value->type != att->att_value_len) {
     return ATT_ECODE_INVAL_ATTR_VALUE_LEN;
   }
-
 
   return att->set_action(new_value);
 }
@@ -164,11 +165,10 @@ fill_response_tab_group(attribute_t *att, const uint16_t ending_handle, const ui
   uint16_t group_end_handle;
   bt_size_t value_tmp;
 
-
-  g_tx_buffer->sdu[1] = sizeof(att->att_handle)*2 + att->att_value_len;
+  g_tx_buffer->sdu[1] = sizeof(att->att_handle) * 2 + att->att_value_len;
   g_tx_buffer->sdu_length += 1;
 
-  while((g_tx_buffer->sdu_length + att->att_value_len) < serveur_mtu){
+  while((g_tx_buffer->sdu_length + att->att_value_len) < serveur_mtu) {
     /* Look for the end handle of the group */
     group_end_handle = get_group_end(att->att_handle, uuid_to_match);
 
@@ -184,17 +184,17 @@ fill_response_tab_group(attribute_t *att, const uint16_t ending_handle, const ui
     att->get_action(&value_tmp);
 
     /* Copy value */
-      memcpy(&g_tx_buffer->sdu[g_tx_buffer->sdu_length], &value_tmp.value, value_tmp.type);
+    memcpy(&g_tx_buffer->sdu[g_tx_buffer->sdu_length], &value_tmp.value, value_tmp.type);
     g_tx_buffer->sdu_length += value_tmp.type;
     type_previous_value = value_tmp.type;
     att = GET_NEXT_START_GROUP(group_end_handle);
 
     /* Check if next group is not null or contain other value type */
 
-    if (                 (att == NULL)                                  // verrify if next attribute is null
-                      || (value_tmp.type != type_previous_value)   // verrify if next attribute's value is different type
-                      || (att->att_handle > ending_handle)              // verrify if next attribute exceed ending_handle
-                      || !(att->properties.read)){                      // verrify if next attribute can't be read
+    if((att == NULL)                                                    /* verrify if next attribute is null */
+       || (value_tmp.type != type_previous_value)                  /* verrify if next attribute's value is different type */
+       || (att->att_handle > ending_handle)                             /* verrify if next attribute exceed ending_handle */
+       || !(att->properties.read)) {                                    /* verrify if next attribute can't be read */
       break;
     }
   }
@@ -206,11 +206,10 @@ fill_response_tab(attribute_t *att, const uint16_t ending_handle, const uint128_
   uint8_t type_previous_value;
   bt_size_t value_tmp;
 
-
   g_tx_buffer->sdu[1] = sizeof(att->att_handle) + att->att_value_len;
   g_tx_buffer->sdu_length += 1;
 
-  while((g_tx_buffer->sdu_length + att->att_value_len) < serveur_mtu){
+  while((g_tx_buffer->sdu_length + att->att_value_len) < serveur_mtu) {
     /* Copy start handle of current group */
     memcpy(&g_tx_buffer->sdu[g_tx_buffer->sdu_length], &att->att_handle, sizeof(att->att_handle));
     g_tx_buffer->sdu_length += sizeof(att->att_handle);
@@ -227,10 +226,10 @@ fill_response_tab(attribute_t *att, const uint16_t ending_handle, const uint128_
     att = GET_NEXT_BY_UUID(att->att_handle, uuid_to_match, ending_handle);
 
     /* Check if next group is not null or contain other value type */
-    if (                 (att == NULL)                                  // verrify if next attribute is null
-                      || (value_tmp.type != type_previous_value)   // verrify if next attribute's value is different type
-                      || (att->att_handle > ending_handle)              // verrify if next attribute exceed ending_handle
-                      || !(att->properties.read)){                      // verrify if next attribute can't be read
+    if((att == NULL)                                                    /* verrify if next attribute is null */
+       || (value_tmp.type != type_previous_value)                  /* verrify if next attribute's value is different type */
+       || (att->att_handle > ending_handle)                             /* verrify if next attribute exceed ending_handle */
+       || !(att->properties.read)) {                                    /* verrify if next attribute can't be read */
       break;
     }
   }
@@ -324,35 +323,45 @@ get_find_info_values(const uint16_t starting_handle, const uint16_t ending_handl
 }
 /*---------------------------------------------------------------------------*/
 
-uint8_t get_primary_service(bt_size_t *value_ptr){
+uint8_t
+get_primary_service(bt_size_t *value_ptr)
+{
   value_ptr->type = BT_SIZE16;
   value_ptr->value.u16 = g_current_att->specific.current_service;
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t get_description(bt_size_t *value_ptr){
+uint8_t
+get_description(bt_size_t *value_ptr)
+{
   value_ptr->type = BT_SIZE_STR;
-  strcpy (value_ptr->value.str, g_current_att->specific.description);
+  strcpy(value_ptr->value.str, g_current_att->specific.description);
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t get_device_name(bt_size_t *value_ptr){
+uint8_t
+get_device_name(bt_size_t *value_ptr)
+{
   value_ptr->type = BT_SIZE_STR;
   memcpy(&value_ptr->value.str, &BOARD_STRING, strlen(BOARD_STRING));
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t get_contiki_version(bt_size_t *value_ptr){
+uint8_t
+get_contiki_version(bt_size_t *value_ptr)
+{
   value_ptr->type = BT_SIZE_STR;
   memcpy(&value_ptr->value.str, &CONTIKI_VERSION_STRING, strlen(CONTIKI_VERSION_STRING));
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t get_char_declaration(bt_size_t *value_ptr){
+uint8_t
+get_char_declaration(bt_size_t *value_ptr)
+{
   uint64_t tmp;
   attribute_t *data = GET_NEXT(g_current_att->att_handle);
   value_ptr->type = BT_CHARACTERISTIC;
-  tmp =  data->att_uuid;
+  tmp = data->att_uuid;
   tmp = tmp << 8 * BT_SIZE16;
   tmp = tmp + data->att_handle;
   tmp = tmp << 8 * BT_SIZE8;

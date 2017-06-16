@@ -62,7 +62,7 @@ uint8_t
 get_value_barometer_pressure(bt_size_t *database)
 {
   uint32_t value;
-  if (g_sensor_activated){
+  if(g_sensor_activated) {
     value = GATT_SENSORS_BAROMETER.value(BMP_280_SENSOR_TYPE_PRESS);
 
     if(value != CC26XX_SENSOR_READING_ERROR) {
@@ -74,10 +74,10 @@ get_value_barometer_pressure(bt_size_t *database)
 
     database->type = BT_SIZE32;
     database->value.u32 = value;
-        /* I need to disable/enable the sensor otherwise it doesn't work */
+    /* I need to disable/enable the sensor otherwise it doesn't work */
     disable_sensor();
     enable_sensor();
-    
+
     return SUCCESS;
   }
   return ATT_ECODE_SENSOR_READINGS;
@@ -87,7 +87,7 @@ uint8_t
 get_value_barometer_temp(bt_size_t *database)
 {
   uint16_t temp;
-  if (g_sensor_activated){
+  if(g_sensor_activated) {
     temp = GATT_SENSORS_BAROMETER.value(BMP_280_SENSOR_TYPE_TEMP);
 
     if(temp != CC26XX_SENSOR_READING_ERROR) {
@@ -125,12 +125,12 @@ set_status_barometer_sensor(const bt_size_t *new_value)
 {
   switch(new_value->value.u8) {
   case 1:
-    PRINTF("ACTIVATION CAPTEUR\n");
+    PRINTF("SENSOR ACTIVATION\n");
     enable_sensor();
     g_sensor_activated = 1;
     break;
   case 0:
-    PRINTF("DESACTIVATION CAPTEUR");
+    PRINTF("SENSOR DEACTIVATION\n");
     disable_sensor();
     g_sensor_activated = 0;
     break;
@@ -174,7 +174,7 @@ enable_notification()
 static inline void
 disable_notification()
 {
-  PRINTF("DESACTIVATION barometer NOTIFICATIONS\n");
+  PRINTF("DEACTIVATION barometer NOTIFICATIONS\n");
   process_exit(&barometer_notify_process);
   process_exit(&on_disconnect_barometer_process);
 }

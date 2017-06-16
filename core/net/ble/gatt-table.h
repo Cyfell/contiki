@@ -46,11 +46,13 @@
 #include "gatt_config.h"
 #ifdef GATT_TABLE_INSERT
 
-/* TODO : replace att_value by function called in get_action */
+/*
+ * This table contains all the GATT attributes
+ */
 static const attribute_t *list_attr[] =
 {
-  #define ATT_GENERIC_ACCESS_DECLARATION 0x1800
-  #define ATT_INFORMATION_SERVICE_DECLARATION 0x180A
+#define ATT_GENERIC_ACCESS_DECLARATION 0x1800
+#define ATT_INFORMATION_SERVICE_DECLARATION 0x180A
   &(attribute_t){ /* PRIMARY SERVICE DECLARATION : GENERIC ACCESS SERVICE */
     .get_action = get_primary_service,
     .set_action = NULL,
@@ -61,7 +63,7 @@ static const attribute_t *list_attr[] =
     .properties.read = 1,
     .att_handle = __COUNTER__ + 1,
   },
-  &(attribute_t){ // CHAR DECLARATION : DEVICE NAME
+  &(attribute_t){ /* CHAR DECLARATION : DEVICE NAME */
     .get_action = get_char_declaration,
     .set_action = NULL,
     .att_value_len = BT_CHARACTERISTIC,
@@ -70,7 +72,7 @@ static const attribute_t *list_attr[] =
     .properties.read = 1,
     .att_handle = __COUNTER__ + 1,
   },
-  &(attribute_t){ // DEVICE NAME
+  &(attribute_t){ /* DEVICE NAME */
     .get_action = get_device_name,
     .set_action = NULL,
     .att_value_len = BT_SIZE_STR,
@@ -79,7 +81,7 @@ static const attribute_t *list_attr[] =
     .properties.read = 1,
     .att_handle = __COUNTER__ + 1,
   },
-  &(attribute_t){ // PRIMARY SERVICE DECLARATION : INFORMATION SERVICE
+  &(attribute_t){ /* PRIMARY SERVICE DECLARATION : INFORMATION SERVICE */
     .get_action = get_primary_service,
     .set_action = NULL,
     .att_value_len = BT_SIZE16,
@@ -89,11 +91,11 @@ static const attribute_t *list_attr[] =
     .properties.read = 1,
     .att_handle = __COUNTER__ + 1,
   },
-  &(attribute_t){ // CHAR DECLARATION : CONTIKI VERSION
+  &(attribute_t){ /* CHAR DECLARATION : CONTIKI VERSION */
     .get_action = get_char_declaration,
     .set_action = NULL,
     .att_value_len = BT_CHARACTERISTIC,
-    .att_uuid= UUID_CHARACTERISTIC_DECLARATION,
+    .att_uuid = UUID_CHARACTERISTIC_DECLARATION,
     .properties.write = 0,
     .properties.read = 1,
     .att_handle = __COUNTER__ + 1,
@@ -107,155 +109,155 @@ static const attribute_t *list_attr[] =
     .properties.read = 1,
     .att_handle = __COUNTER__ + 1,
   },
-  #ifdef GATT_SENSORS_BATTERY
-  #define UUID_BATTERY_SERVICE              0x180F
-  #define UUID_BATTERY_DATA                 0x2A19
-  #define UUID_BATTERY_DATA_TEMP            0xAA00
-  #define UUID_BATTERY_ED                   0xAA01
-  #define UUID_BATTERY_NOTIFY_PARAM         0xAA02
+#ifdef GATT_SENSORS_BATTERY
+#define UUID_BATTERY_SERVICE              0x180F
+#define UUID_BATTERY_DATA                 0x2A19
+#define UUID_BATTERY_DATA_TEMP            0xAA00
+#define UUID_BATTERY_ED                   0xAA01
+#define UUID_BATTERY_NOTIFY_PARAM         0xAA02
 
-    &(attribute_t){ /* PRIMARY SERVICE DECLARATION : BATTERY */
-      .get_action = get_primary_service,
-      .set_action = NULL,
-      .att_value_len = BT_SIZE16,
-      .specific.current_service = UUID_BATTERY_SERVICE ,
-      .att_uuid = UUID_PRIMARY_DECLARATION,
-      .properties.write = 0,
-      .properties.read = 1,
-      .att_handle = __COUNTER__ + 1,
-    },
-    &(attribute_t){ /* CHAR DECLARATION : BATTERY DATA */
-      .get_action = get_char_declaration,
-      .set_action = NULL,
-      .att_value_len = BT_CHARACTERISTIC,
-      .att_uuid = UUID_CHARACTERISTIC_DECLARATION,
-      .properties.write = 0,
-      .properties.read = 1,
-      .att_handle = __COUNTER__ + 1,
-    },
-    &(attribute_t){ /* BATTERY DATA */
-      .get_action = get_value_battery,
-      .set_action = NULL,
-      .att_uuid = UUID_BATTERY_DATA,
-      .properties.notify = 1,
-      .properties.write = 0,
-      .properties.read = 1,
-      .att_handle = __COUNTER__ + 1,
-    },
-    &(attribute_t){ /* User description */
-      .get_action = get_description,
-      .set_action = NULL,
-      .specific.description =  "Battery level",
-      .att_uuid = UUID_USER_DESC,
-      .properties.write = 0,
-      .properties.read = 1,
-      .att_handle = __COUNTER__ + 1,
-    },
-    &(attribute_t){ /* BATTERY NOTIFY */
-      .get_action = get_status_battery_notify,
-      .set_action = set_status_battery_notify,
-      .att_uuid = UUID_CLIENT_CHARACTERISTIC_CONFIGURATION,
-      .att_value_len = BT_SIZE16,
-      .properties.write = 1,
-      .properties.read = 1,
-      .att_handle = __COUNTER__ + 1,
-    },
-    &(attribute_t){ /* CHAR DECLARATION : BATTERY Temp */
-      .get_action = get_char_declaration,
-      .set_action = NULL,
-      .att_value_len = BT_CHARACTERISTIC,
-      .att_uuid = UUID_CHARACTERISTIC_DECLARATION,
-      .properties.write = 0,
-      .properties.read = 1,
-      .att_handle = __COUNTER__ + 1,
-    },
-    &(attribute_t){ /* BATTERY DATA */
-      .get_action = get_value_battery_temp,
-      .set_action = NULL,
-      .att_uuid = UUID_BATTERY_DATA_TEMP,
-      .properties.notify = 1,
-      .properties.write = 0,
-      .properties.read = 1,
-      .att_handle = __COUNTER__ + 1,
-    },
-    &(attribute_t){ /* User description */
-      .get_action = get_description,
-      .set_action = NULL,
-      .specific.description =  "Battery temp",
-      .att_uuid = UUID_USER_DESC,
-      .properties.write = 0,
-      .properties.read = 1,
-      .att_handle = __COUNTER__ + 1,
-    },
-    &(attribute_t){ /* CHAR DECLARATION : BATTERY ED */
-      .get_action = get_char_declaration,
-      .set_action = NULL,
-      .att_value_len = BT_CHARACTERISTIC,
-      .att_uuid = UUID_CHARACTERISTIC_DECLARATION,
-      .properties.write = 0,
-      .properties.read = 1,
-      .att_handle = __COUNTER__ + 1,
-    },
-    &(attribute_t){ /* BATTERY ED */
-      .get_action = get_status_battery_sensor,
-      .set_action = set_status_battery_sensor,
-      .att_uuid = UUID_BATTERY_ED,
-      .att_value_len = BT_SIZE8,
-      .properties.write = 1,
-      .properties.read = 1,
-      .att_handle = __COUNTER__ + 1,
-    },
-    &(attribute_t){ /* User description */
-      .get_action = get_description,
-      .set_action = NULL,
-      .specific.description =  "E/D Battery sensor",
-      .att_uuid = UUID_USER_DESC,
-      .properties.write = 0,
-      .properties.read = 1,
-      .att_handle = __COUNTER__ + 1,
-    },
-    &(attribute_t){ /* CHAR DECLARATION : BATTERY PERIOD */
-      .get_action = get_char_declaration,
-      .set_action = NULL,
-      .att_value_len = BT_CHARACTERISTIC,
-      .att_uuid = UUID_CHARACTERISTIC_DECLARATION,
-      .properties.write = 0,
-      .properties.read = 1,
-      .att_handle = __COUNTER__ + 1,
-    },
-    &(attribute_t){ /* BATTERY NOTIFY PARAM */
-      .get_action = get_period_battery,
-      .set_action = set_period_battery,
-      .att_value_len = BT_SIZE32,
-      .att_uuid = UUID_BATTERY_NOTIFY_PARAM,
-      .properties.write = 1,
-      .properties.read = 1,
-      .att_handle = __COUNTER__ + 1,
-    },
-    &(attribute_t){ /* User description */
-      .get_action = get_description,
-      .set_action = NULL,
-      .specific.description =  "Period battery notify",
-      .att_uuid = UUID_USER_DESC,
-      .properties.write = 0,
-      .properties.read = 1,
-      .att_handle = __COUNTER__ + 1,
-    },
+  &(attribute_t){   /* PRIMARY SERVICE DECLARATION : BATTERY */
+    .get_action = get_primary_service,
+    .set_action = NULL,
+    .att_value_len = BT_SIZE16,
+    .specific.current_service = UUID_BATTERY_SERVICE,
+    .att_uuid = UUID_PRIMARY_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle = __COUNTER__ + 1,
+  },
+  &(attribute_t){   /* CHAR DECLARATION : BATTERY DATA */
+    .get_action = get_char_declaration,
+    .set_action = NULL,
+    .att_value_len = BT_CHARACTERISTIC,
+    .att_uuid = UUID_CHARACTERISTIC_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle = __COUNTER__ + 1,
+  },
+  &(attribute_t){   /* BATTERY DATA */
+    .get_action = get_value_battery,
+    .set_action = NULL,
+    .att_uuid = UUID_BATTERY_DATA,
+    .properties.notify = 1,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle = __COUNTER__ + 1,
+  },
+  &(attribute_t){   /* User description */
+    .get_action = get_description,
+    .set_action = NULL,
+    .specific.description = "Battery level",
+    .att_uuid = UUID_USER_DESC,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle = __COUNTER__ + 1,
+  },
+  &(attribute_t){   /* BATTERY NOTIFY */
+    .get_action = get_status_battery_notify,
+    .set_action = set_status_battery_notify,
+    .att_uuid = UUID_CLIENT_CHARACTERISTIC_CONFIGURATION,
+    .att_value_len = BT_SIZE16,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle = __COUNTER__ + 1,
+  },
+  &(attribute_t){   /* CHAR DECLARATION : BATTERY Temp */
+    .get_action = get_char_declaration,
+    .set_action = NULL,
+    .att_value_len = BT_CHARACTERISTIC,
+    .att_uuid = UUID_CHARACTERISTIC_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle = __COUNTER__ + 1,
+  },
+  &(attribute_t){   /* BATTERY DATA */
+    .get_action = get_value_battery_temp,
+    .set_action = NULL,
+    .att_uuid = UUID_BATTERY_DATA_TEMP,
+    .properties.notify = 1,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle = __COUNTER__ + 1,
+  },
+  &(attribute_t){   /* User description */
+    .get_action = get_description,
+    .set_action = NULL,
+    .specific.description = "Battery temp",
+    .att_uuid = UUID_USER_DESC,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle = __COUNTER__ + 1,
+  },
+  &(attribute_t){   /* CHAR DECLARATION : BATTERY ED */
+    .get_action = get_char_declaration,
+    .set_action = NULL,
+    .att_value_len = BT_CHARACTERISTIC,
+    .att_uuid = UUID_CHARACTERISTIC_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle = __COUNTER__ + 1,
+  },
+  &(attribute_t){   /* BATTERY ED */
+    .get_action = get_status_battery_sensor,
+    .set_action = set_status_battery_sensor,
+    .att_uuid = UUID_BATTERY_ED,
+    .att_value_len = BT_SIZE8,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle = __COUNTER__ + 1,
+  },
+  &(attribute_t){   /* User description */
+    .get_action = get_description,
+    .set_action = NULL,
+    .specific.description = "E/D Battery sensor",
+    .att_uuid = UUID_USER_DESC,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle = __COUNTER__ + 1,
+  },
+  &(attribute_t){   /* CHAR DECLARATION : BATTERY PERIOD */
+    .get_action = get_char_declaration,
+    .set_action = NULL,
+    .att_value_len = BT_CHARACTERISTIC,
+    .att_uuid = UUID_CHARACTERISTIC_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle = __COUNTER__ + 1,
+  },
+  &(attribute_t){   /* BATTERY NOTIFY PARAM */
+    .get_action = get_period_battery,
+    .set_action = set_period_battery,
+    .att_value_len = BT_SIZE32,
+    .att_uuid = UUID_BATTERY_NOTIFY_PARAM,
+    .properties.write = 1,
+    .properties.read = 1,
+    .att_handle = __COUNTER__ + 1,
+  },
+  &(attribute_t){   /* User description */
+    .get_action = get_description,
+    .set_action = NULL,
+    .specific.description = "Period battery notify",
+    .att_uuid = UUID_USER_DESC,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle = __COUNTER__ + 1,
+  },
 #endif
 
 #if defined GATT_SENSORS_TEMP1 || defined GATT_SENSORS_HUM || defined GATT_SENSORS_BAROMETER
 #define UUID_ENVIRONMENTAL_SENSING_SERVICE 0x181A
 #define UUID_TEMP_DATA                     0x2A6E
-&(attribute_t){ /* PRIMARY SERVICE DECLARATION : ENVIRONMENTAL_SERVICE */
-  .get_action = get_primary_service,
-  .set_action = NULL,
-  .att_value_len = BT_SIZE16,
-  .specific.current_service = UUID_ENVIRONMENTAL_SENSING_SERVICE,
-  .att_uuid = UUID_PRIMARY_DECLARATION,
-  .properties.write = 0,
-  .properties.read = 1,
-  .att_handle = __COUNTER__ + 1,
-},
+  &(attribute_t){ /* PRIMARY SERVICE DECLARATION : ENVIRONMENTAL_SERVICE */
+    .get_action = get_primary_service,
+    .set_action = NULL,
+    .att_value_len = BT_SIZE16,
+    .specific.current_service = UUID_ENVIRONMENTAL_SENSING_SERVICE,
+    .att_uuid = UUID_PRIMARY_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle = __COUNTER__ + 1,
+  },
 
 #ifdef GATT_SENSORS_TEMP1
 #define UUID_TEMP_ED                       0xAA02
@@ -282,7 +284,7 @@ static const attribute_t *list_attr[] =
   &(attribute_t){ /* User description */
     .get_action = get_description,
     .set_action = NULL,
-    .specific.description =  "Temp ambiant",
+    .specific.description = "Temp ambiant",
     .att_uuid = UUID_USER_DESC,
     .properties.write = 0,
     .properties.read = 1,
@@ -318,7 +320,7 @@ static const attribute_t *list_attr[] =
   &(attribute_t){ /* User description */
     .get_action = get_description,
     .set_action = NULL,
-    .specific.description =  "Temp object",
+    .specific.description = "Temp object",
     .att_uuid = UUID_USER_DESC,
     .properties.write = 0,
     .properties.read = 1,
@@ -345,7 +347,7 @@ static const attribute_t *list_attr[] =
   &(attribute_t){ /* User description */
     .get_action = get_description,
     .set_action = NULL,
-    .specific.description =  "En/dis temp sens",
+    .specific.description = "En/dis temp sens",
     .att_uuid = UUID_USER_DESC,
     .properties.write = 0,
     .properties.read = 1,
@@ -372,13 +374,13 @@ static const attribute_t *list_attr[] =
   &(attribute_t){ /* User description */
     .get_action = get_description,
     .set_action = NULL,
-    .specific.description =  "Temp Notify",
+    .specific.description = "Temp Notify",
     .att_uuid = UUID_USER_DESC,
     .properties.write = 0,
     .properties.read = 1,
     .att_handle = __COUNTER__ + 1,
   },
-#endif   /*GATT_SENSORS_TEMP1 */
+#endif /*GATT_SENSORS_TEMP1 */
 
 #ifdef GATT_SENSORS_HUM
 #define UUID_HUMIDITY_DATA               0x2A6F
@@ -421,32 +423,32 @@ static const attribute_t *list_attr[] =
     .att_handle = __COUNTER__ + 1,
   },
   &(attribute_t){ /* CHAR DECLARATION : HUMIDITY Temp */
-      .get_action = get_char_declaration,
-      .set_action = NULL,
-      .att_value_len = BT_CHARACTERISTIC,
-      .att_uuid = UUID_CHARACTERISTIC_DECLARATION,
-      .properties.write = 0,
-      .properties.read = 1,
-      .att_handle = __COUNTER__ + 1,
-    },
-    &(attribute_t){ /* HUMIDITY DATA temp */
-      .get_action = get_value_humidity_temp,
-      .set_action = NULL,
-      .att_uuid = UUID_TEMP_DATA,
-      .properties.notify = 1,
-      .properties.write = 0,
-      .properties.read = 1,
-      .att_handle = __COUNTER__ + 1,
-    },
-    &(attribute_t){ /* User description */
-      .get_action = get_description,
-      .set_action = NULL,
-      .att_uuid = UUID_USER_DESC,
-      .specific.description = "Hum temp",
-      .properties.write = 0,
-      .properties.read = 1,
-      .att_handle = __COUNTER__ + 1,
-    },
+    .get_action = get_char_declaration,
+    .set_action = NULL,
+    .att_value_len = BT_CHARACTERISTIC,
+    .att_uuid = UUID_CHARACTERISTIC_DECLARATION,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle = __COUNTER__ + 1,
+  },
+  &(attribute_t){   /* HUMIDITY DATA temp */
+    .get_action = get_value_humidity_temp,
+    .set_action = NULL,
+    .att_uuid = UUID_TEMP_DATA,
+    .properties.notify = 1,
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle = __COUNTER__ + 1,
+  },
+  &(attribute_t){   /* User description */
+    .get_action = get_description,
+    .set_action = NULL,
+    .att_uuid = UUID_USER_DESC,
+    .specific.description = "Hum temp",
+    .properties.write = 0,
+    .properties.read = 1,
+    .att_handle = __COUNTER__ + 1,
+  },
   &(attribute_t){ /* CHAR DECLARATION : HUMIDITY ED */
     .get_action = get_char_declaration,
     .set_action = NULL,
@@ -1103,11 +1105,8 @@ static const attribute_t *list_attr[] =
     .properties.read = 1,
     .att_handle = __COUNTER__ + 1,
   },
-#endif
+#endif /* GATT_SENSORS_REED_RELAY */
   NULL
 };
-#endif /*GATT_TABLE_INSERT */
-#endif /*GATT_TABLE_H_ */
-/**********************************************************
- * gatt-table.h
- */
+#endif /* GATT_TABLE_INSERT */
+#endif /* GATT_TABLE_H_ */

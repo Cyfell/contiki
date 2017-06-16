@@ -75,7 +75,9 @@ get_value_battery(bt_size_t *database)
   return SUCCESS;
 }
 /*---------------------------------------------------------------------------*/
-uint8_t get_value_battery_temp(bt_size_t *database){
+uint8_t
+get_value_battery_temp(bt_size_t *database)
+{
   int value;
 
   value = GATT_SENSORS_BATTERY.value(BATMON_SENSOR_TYPE_TEMP);
@@ -96,11 +98,11 @@ set_status_battery_sensor(const bt_size_t *new_value)
 {
   switch(new_value->value.u8) {
   case 1:
-    PRINTF("ACTIVATION CAPTEUR\n");
+    PRINTF("SENSOR ACTIVATION\n");
     SENSORS_ACTIVATE(GATT_SENSORS_BATTERY);
     break;
   case 0:
-    PRINTF("DESACTIVATION CAPTEUR");
+    PRINTF("SENSOR DEACTIVATION\n");
     SENSORS_DEACTIVATE(GATT_SENSORS_BATTERY);
     break;
   default:
@@ -143,7 +145,7 @@ enable_notification()
 static inline void
 disable_notification()
 {
-  PRINTF("DESACTIVATION battery NOTIFICATIONS\n");
+  PRINTF("DEACTIVATION battery NOTIFICATIONS\n");
   process_exit(&battery_notify_process);
   process_exit(&battery_disconnect_process);
 }

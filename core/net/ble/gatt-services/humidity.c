@@ -64,7 +64,7 @@ get_value_humidity_hum(bt_size_t *database)
 {
   uint16_t hum;
 
-  if (g_sensor_activated){
+  if(g_sensor_activated) {
     hum = GATT_SENSORS_HUM.value(HDC_1000_SENSOR_TYPE_HUMIDITY);
     if(hum != CC26XX_SENSOR_READING_ERROR) {
       PRINTF("HDC: Humidity=%d.%02d %%RH\n", hum / 100, hum % 100);
@@ -87,7 +87,7 @@ uint8_t
 get_value_humidity_temp(bt_size_t *database)
 {
   uint16_t temp;
-  if (g_sensor_activated){
+  if(g_sensor_activated) {
     temp = GATT_SENSORS_HUM.value(HDC_1000_SENSOR_TYPE_TEMP);
     if(temp != CC26XX_SENSOR_READING_ERROR) {
       PRINTF("HDC: Temp=%d.%02d C\n", ((uint16_t)temp) / 100, ((uint16_t)temp) % 100);
@@ -124,12 +124,12 @@ set_status_humidity_sensor(const bt_size_t *new_value)
 {
   switch(new_value->value.u8) {
   case 1:
-    PRINTF("ACTIVATION CAPTEUR\n");
+    PRINTF("SENSOR ACTIVATION\n");
     enable_sensor();
     g_sensor_activated = 1;
     break;
   case 0:
-    PRINTF("DESACTIVATION CAPTEUR");
+    PRINTF("SENSOR DEACTIVATION\n");
     disable_sensor();
     g_sensor_activated = 0;
     break;
@@ -173,7 +173,7 @@ enable_notification()
 static inline void
 disable_notification()
 {
-  PRINTF("DESACTIVATION HUMIDITY NOTIFICATIONS\n");
+  PRINTF("DEACTIVATION HUMIDITY NOTIFICATIONS\n");
   process_exit(&humidity_notify_process);
   process_exit(&humidity_disconnect_process);
 }
@@ -253,8 +253,6 @@ PROCESS_THREAD(humidity_notify_process, ev, data)
 
       send_notify();
     }
-    disable_sensor();
-    enable_sensor();
   }
   PROCESS_END();
 }
