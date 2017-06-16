@@ -47,19 +47,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define PRIMARY_GROUP_TYPE                0x2800
+#define GATT_TABLE_INSERT
+#include "gatt-table.h"
 
 #define GET_NEXT_START_GROUP(x) get_attribute(x + 1)
 #define GET_NEXT_BY_UUID(x, y, z) get_attribute_by_uuid(x + 1, y, z)
 #define GET_NEXT(x) get_attribute(x + 1)
 #define GET_PREVIOUS(x) get_attribute(x - 1)
-#define UUID_PRIMARY_16 uuid_16_to_128(PRIMARY_GROUP_TYPE)
+#define UUID_PRIMARY_16 uuid_16_to_128(UUID_PRIMARY_DECLARATION)
 
 static attribute_t *get_attribute_by_uuid(const uint16_t starting_handle, const uint128_t *uuid_to_match, const uint16_t ending_handle);
 static attribute_t *get_attribute(const uint16_t handle);
 
-#define GATT_TABLE_INSERT
-#include "gatt-table.h"
+
 
 /*---------------------------------------------------------------------------*/
 static attribute_t *
